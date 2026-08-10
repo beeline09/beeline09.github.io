@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Build darktec/releases.json from GitHub Releases of beeline09/MeshCore."""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "darktec" / "releases.json"
+REPO = os.environ.get("FIRMWARE_REPO", "beeline09/MeshCore")
+API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
+TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
+DARKTEC_UF2 = re.compile(r"^Darktec_.+\.uf2$", re.I)
+
+
+def fetch_json(url: str):
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "beeline09-github-io-releases-sync",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if TOKEN:
+        headers["Authorization"] = f"Bearer {TOKEN}"
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        return json.load(resp)
+
+
+def pick_release(releases: list):
+    for release in releases:
+        if release.get("draft"):
+            continue
+        files = [a for a in release.get("assets") or [] if DARKTEC_UF2.match(a.get("name", ""))]
+        if files:
+            return release, files
+    for release in releases:
+        if not release.get("draft"):
+            return release, []
+    return None, []
+
+
+def build_manifest(release, files):
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    if not release:
+        return {
+            "generatedAt": now,
+            "sourceRepo": REPO,
+            "release": {
+                "tag": None,
+                "name": None,
+                "url": f"https://github.com/{REPO}/releases",
+                "publishedAt": None,
+                "notes": "Релизов не найдено. Создайте GitHub Release с ассетами Darktec_*.uf2.",
+            },
+            "files": [],
+        }
+
+    return {
+        "generatedAt": now,
+        "sourceRepo": REPO,
+        "release": {
+            "tag": release.get("tag_name"),
+            "name": release.get("name") or release.get("tag_name"),
+            "url": release.get("html_url"),
+            "publishedAt": release.get("published_at"),
+            "notes": release.get("body") or "",
+        },
+        "files": [
+            {
+                "name": asset["name"],
+                "url": asset["browser_download_url"],
+                "size": asset.get("size"),
+                "contentType": asset.get("content_type") or "application/octet-stream",
+            }
+            for asset in files
+        ],
+    }
+
+
+def main() -> None:
+    url = f"{API}/repos/{REPO}/releases?per_page=30"
+    print(f"Fetching {url}")
+    releases = fetch_json(url)
+    release, files = pick_release(releases)
+    manifest = build_manifest(release, files)
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(
+        f"Wrote {OUT} · tag={manifest['release']['tag']!r} · files={len(manifest['files'])}"
+    )
+
+
+if __name__ == "__main__":
+    main()

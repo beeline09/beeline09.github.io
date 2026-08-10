@@ -192,7 +192,7 @@ function setDownloadEnabled(enabled) {
   const serialOk = canSerialFlash();
   const zipOk = Boolean(findAsset("zip"));
   els.flashBtn.disabled = !enabled || !serialOk || !zipOk;
-  els.dfuBtn.disabled = !serialOk;
+  els.dfuBtn.disabled = !enabled || !serialOk;
 }
 
 function showBuildingEmptyState() {

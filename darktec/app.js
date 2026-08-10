@@ -518,14 +518,26 @@ function localFirmwareUrl(fileName) {
 
 async function loadOtaZipBlob(zipName) {
   const localUrl = localFirmwareUrl(zipName);
+  let localStatus = 0;
   try {
     const res = await fetch(localUrl, { cache: "no-cache" });
+    localStatus = res.status;
     if (res.ok) return await res.blob();
   } catch (err) {
     console.warn("local OTA zip miss", err);
   }
+
+  // GitHub release assets redirect to release-assets.githubusercontent.com without CORS
+  // ACAO headers, so browser fetch from the release URL fails. Same-origin Pages mirror
+  // (scripts/mirror-firmware.py / Sync Darktec releases) is required for Serial DFU.
+  const zipAsset = findAsset("zip");
+  const releaseHint = zipAsset?.url
+    ? ` Релизный файл есть (${zipAsset.url}), но браузер не может скачать его из‑за CORS — нужен сайт‑зеркало.`
+    : "";
   throw new Error(
-    `Нет OTA-пакета ${zipName} на зеркале. Дождитесь CI (публикует .zip для Serial DFU) и sync сайта.`,
+    `Нет OTA-пакета ${zipName} на зеркале сайта` +
+      (localStatus ? ` (HTTP ${localStatus})` : "") +
+      `.${releaseHint} Запустите workflow «Sync Darktec releases» в beeline09.github.io после публикации Darktec.`,
   );
 }
 

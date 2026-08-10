@@ -7,7 +7,7 @@
 | https://beeline09.github.io | Хаб проектов |
 | https://beeline09.github.io/darktec/ | Выбор роли / химии / защиты → UF2 + Serial DFU |
 
-Это **не** официальный [meshcore.io/flasher](https://meshcore.io/flasher). Бинарники берутся из Releases форка [`beeline09/MeshCore`](https://github.com/beeline09/MeshCore); сайт только статическая витрина.
+Это **не** официальный [meshcore.io/flasher](https://meshcore.io/flasher). Бинарники берутся из Releases форка [`beeline09/MeshCore`](https://github.com/beeline09/MeshCore/tree/south_edition) (ветка `south_edition`); сайт только статическая витрина.
 
 Манифест на странице сначала читается **напрямую из GitHub Releases API**
 (`darktec-latest`), запасной вариант — статический `darktec/releases.json`
@@ -33,7 +33,7 @@ git push -u origin main
 ```
 
 3. Settings → Pages → Source: **Deploy from a branch** → `main` / `/ (root)`.
-4. В [`beeline09/MeshCore`](https://github.com/beeline09/MeshCore) опубликуйте Release с ассетами вида:
+4. В [`beeline09/MeshCore`](https://github.com/beeline09/MeshCore/tree/south_edition) опубликуйте Release с ассетами вида:
    - `Darktec_companion_radio_ble_liion_1s_adc.uf2` (+ `.zip` для онлайн)
    - `Darktec_companion_radio_ble_liion_1s_off.uf2`
    - то же для `lifepo4` / `lto_1s` / `lto_2s` и остальных ролей

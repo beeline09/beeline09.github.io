@@ -1,14 +1,56 @@
 {
-  "generatedAt": "2026-08-10T21:49:28.150Z",
+  "generatedAt": "2026-08-10T21:57:27.378Z",
   "sourceRepo": "beeline09/MeshCore",
   "release": {
     "tag": "darktec-latest",
     "name": "Darktec Firmware (latest)",
     "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-latest",
     "publishedAt": "2026-08-10T21:49:16Z",
-    "notes": "Автосборка Darktec с ветки `southedition-origin`.\n\n- Commit: b37209b57b55b4d21cd765f67da76e35af853588\n- Run: https://github.com/beeline09/MeshCore/actions/runs/31435210613\n- Flasher: https://beeline09.github.io/darktec/\n\nФайлы `Darktec_*_{liion|lifepo4|lto}_{1|2}s.uf2` — для drag-and-drop DFU.\n"
+    "notes": "Автосборка Darktec с ветки `south_edition`.\n\n- Commit: 94f7f2b72044fe475666facd735e6ddcd4cd8ce8\n- Run: https://github.com/beeline09/MeshCore/actions/runs/31435720593\n- Flasher: https://beeline09.github.io/darktec/\n\nФайлы `Darktec_*_{liion|lifepo4|lto}_{1|2}s.uf2` — для drag-and-drop DFU.\n"
   },
   "files": [
+    {
+      "name": "Darktec_companion_radio_ble_lifepo4_1s.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-latest/Darktec_companion_radio_ble_lifepo4_1s.uf2",
+      "size": 951296,
+      "contentType": "application/octet-stream"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-latest/Darktec_companion_radio_ble_liion_1s.uf2",
+      "size": 951296,
+      "contentType": "application/octet-stream"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_lto_1s.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-latest/Darktec_companion_radio_ble_lto_1s.uf2",
+      "size": 951296,
+      "contentType": "application/octet-stream"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_lto_2s.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-latest/Darktec_companion_radio_ble_lto_2s.uf2",
+      "size": 951296,
+      "contentType": "application/octet-stream"
+    },
+    {
+      "name": "Darktec_repeater_lifepo4_1s.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-latest/Darktec_repeater_lifepo4_1s.uf2",
+      "size": 835072,
+      "contentType": "application/octet-stream"
+    },
+    {
+      "name": "Darktec_repeater_liion_1s.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-latest/Darktec_repeater_liion_1s.uf2",
+      "size": 835072,
+      "contentType": "application/octet-stream"
+    },
+    {
+      "name": "Darktec_repeater_lto_1s.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-latest/Darktec_repeater_lto_1s.uf2",
+      "size": 835072,
+      "contentType": "application/octet-stream"
+    },
     {
       "name": "Darktec_repeater_lto_2s.uf2",
       "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-latest/Darktec_repeater_lto_2s.uf2",

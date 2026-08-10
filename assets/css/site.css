@@ -400,6 +400,22 @@ a:hover {
   padding: 2.5rem 0 1.25rem;
 }
 
+.hero-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 0.9rem;
+}
+
+.hero-logo {
+  width: clamp(40px, 8vw, 52px);
+  height: clamp(40px, 8vw, 52px);
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.hero-compact .hero-title h1,
 .hero-compact h1 {
   max-width: 18ch;
   font-size: clamp(2.1rem, 5.5vw, 3.4rem);

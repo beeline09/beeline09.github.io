@@ -5,6 +5,7 @@
 import {
   canSerialFlash,
   enterDfuMode,
+  ensureAdafruitBootloaderOk,
   flashNrfSerial,
   formatSerialFlashError,
   openDfuSerialPort,
@@ -596,10 +597,13 @@ els.flashBtn.addEventListener("click", async () => {
       forceDfu: true,
       onStatus,
     });
+    // Bootloader gate after DFU port is open (before zip fetch).
+    await ensureAdafruitBootloaderOk(dfuPort, { onStatus });
     onStatus("Загрузка OTA zip…");
     const blob = await loadOtaZipBlob(zipAsset.name);
     await flashNrfSerial(blob, {
       port: dfuPort,
+      skipBootloaderCheck: true,
       onStatus,
       onProgress: (pct) => {
         els.flashProgressBar.style.width = `${pct}%`;

@@ -1,12 +1,19 @@
 {
-  "generatedAt": "2026-08-10T21:34:54.095Z",
+  "generatedAt": "2026-08-10T21:49:28.150Z",
   "sourceRepo": "beeline09/MeshCore",
   "release": {
-    "tag": null,
-    "name": null,
-    "url": "https://github.com/beeline09/MeshCore/releases",
-    "publishedAt": null,
-    "notes": "Релизов не найдено. Создайте GitHub Release с ассетами Darktec_*.uf2."
+    "tag": "darktec-latest",
+    "name": "Darktec Firmware (latest)",
+    "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-latest",
+    "publishedAt": "2026-08-10T21:49:16Z",
+    "notes": "Автосборка Darktec с ветки `southedition-origin`.\n\n- Commit: b37209b57b55b4d21cd765f67da76e35af853588\n- Run: https://github.com/beeline09/MeshCore/actions/runs/31435210613\n- Flasher: https://beeline09.github.io/darktec/\n\nФайлы `Darktec_*_{liion|lifepo4|lto}_{1|2}s.uf2` — для drag-and-drop DFU.\n"
   },
-  "files": []
+  "files": [
+    {
+      "name": "Darktec_repeater_lto_2s.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-latest/Darktec_repeater_lto_2s.uf2",
+      "size": 835072,
+      "contentType": "application/octet-stream"
+    }
+  ]
 }

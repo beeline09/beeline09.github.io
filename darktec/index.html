@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Darktec — загрузка прошивки</title>
-  <meta name="description" content="Скачать UF2 прошивку Darktec: companion или repeater, химия батареи, инструкция DFU.">
+  <title>Darktec — прошивки beeline09</title>
+  <meta name="description" content="Community-прошивки Darktec (nRF52840): роли, химия батареи, offline UF2 и онлайн-флешер.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
@@ -16,28 +16,62 @@
       <a class="brand" href="/">beeline<span>09</span></a>
       <nav class="nav" aria-label="Основная">
         <a href="/darktec/" aria-current="page">Darktec</a>
+        <a href="https://t.me/c/DarkElectronics/14" target="_blank" rel="noopener">Telegram</a>
         <a href="https://github.com/beeline09/MeshCore/releases">Releases</a>
       </nav>
     </header>
 
-    <section class="hero" style="padding-bottom: 1.5rem;">
-      <p class="hero-kicker">Darktec · nRF52840</p>
-      <h1>Загрузка UF2</h1>
-      <p>
-        Выберите роль и химию батареи, скачайте файл и перетащите его на диск DFU.
-        Web Serial flasher — в следующих версиях; сейчас самый надёжный путь для Darktec — UF2.
+    <section class="hero hero-compact">
+      <p class="hero-kicker">Darktec · nRF52840 · E22 900M30S</p>
+      <h1>Прошивки Darktec</h1>
+      <p class="hero-lead">
+        Сборки для платы Darktec by Dark Electronics: companion, repeater, room server и другие роли —
+        с вариантами химии батареи.
       </p>
+
+      <aside class="fork-card" aria-label="О происхождении прошивки">
+        <p class="fork-card-label">Важно</p>
+        <p>
+          Это <strong>community-форк</strong> ветки
+          <a href="https://github.com/rogovogor/MeshCore/tree/south_edition" target="_blank" rel="noopener">south_edition</a>
+          (Rogovogor), основанной на оригинальном
+          <a href="https://github.com/meshcore-dev/MeshCore" target="_blank" rel="noopener">MeshCore</a>.
+          Не официальный релиз meshcore.io — свои платы, свои пороги батареи, свой flasher.
+        </p>
+        <p class="fork-card-meta">
+          Репозиторий:
+          <a href="https://github.com/beeline09/MeshCore" target="_blank" rel="noopener">beeline09/MeshCore</a>
+          · чат:
+          <a href="https://t.me/c/DarkElectronics/14" target="_blank" rel="noopener">Dark Electronics</a>
+        </p>
+      </aside>
+
+      <details class="photo-spoiler">
+        <summary>Посмотреть фото</summary>
+        <div class="carousel" id="photoCarousel" data-photos-dir="./photos/"></div>
+      </details>
     </section>
 
     <div class="panel" id="app">
       <div class="panel-head">
         <h1>Darktec flasher</h1>
-        <span class="version-pill" id="releaseLabel">загрузка…</span>
+        <div class="version-controls">
+          <label class="version-label" for="versionSelect">Версия</label>
+          <select id="versionSelect" class="version-select" disabled>
+            <option>загрузка…</option>
+          </select>
+        </div>
       </div>
+
+      <div class="tabs" role="tablist" aria-label="Режим прошивки">
+        <button type="button" class="tab" role="tab" id="tabOffline" aria-selected="true" aria-controls="paneOffline">Offline UF2</button>
+        <button type="button" class="tab" role="tab" id="tabOnline" aria-selected="false" aria-controls="paneOnline">Онлайн-флешер</button>
+      </div>
+
       <div class="panel-body">
         <div class="step">
           <h2>1 · Роль</h2>
-          <div class="choice-grid" id="roleChoices" role="group" aria-label="Роль прошивки"></div>
+          <div class="choice-grid choice-grid-dense" id="roleChoices" role="group" aria-label="Роль прошивки"></div>
         </div>
 
         <div class="step">
@@ -51,35 +85,55 @@
           <div class="choice-grid" id="cellsChoices" role="group" aria-label="Число ячеек"></div>
         </div>
 
-        <div class="step">
-          <h2 id="downloadStepLabel">3 · Скачать</h2>
-          <p class="status" id="status"></p>
-          <div class="download-row">
-            <a class="btn btn-primary" id="downloadBtn" href="#" aria-disabled="true">Скачать UF2</a>
-            <span class="file-name" id="fileName"></span>
+        <div id="paneOffline" role="tabpanel" aria-labelledby="tabOffline">
+          <div class="step">
+            <h2 id="downloadStepLabel">Скачать</h2>
+            <p class="status" id="status"></p>
+            <div class="download-row">
+              <a class="btn btn-primary" id="downloadBtn" href="#" aria-disabled="true">Скачать UF2</a>
+              <span class="file-name" id="fileName"></span>
+            </div>
+          </div>
+          <div class="dfu">
+            <h2 class="dfu-title">Как прошить (DFU)</h2>
+            <ol>
+              <li>Подключите Darktec по USB.</li>
+              <li>Дважды быстро нажмите <code>RESET</code> — появится USB-диск DFU.</li>
+              <li>Перетащите скачанный <code>.uf2</code> на этот диск.</li>
+              <li>Плата перезагрузится; копирование может «оборваться» — это нормально.</li>
+            </ol>
           </div>
         </div>
 
-        <div class="dfu">
-          <h2 style="margin:0 0 0.5rem;font-family:var(--font-display);font-size:1.15rem;letter-spacing:-0.02em;">Как прошить (DFU)</h2>
-          <ol>
-            <li>Подключите Darktec по USB.</li>
-            <li>Дважды быстро нажмите кнопку Reset — появится USB-диск (часто <code>DARKTEC</code> / <code>NRF52BOOT</code>).</li>
-            <li>Перетащите скачанный <code>.uf2</code> на этот диск.</li>
-            <li>Плата перезагрузится; копирование может «оборваться» — это нормально для UF2.</li>
-          </ol>
-          <p class="hint" style="margin-top:0.85rem;">
-            Нужна другая версия или zip-набор — смотрите
-            <a href="https://github.com/beeline09/MeshCore/releases">GitHub Releases</a>.
-          </p>
+        <div id="paneOnline" role="tabpanel" aria-labelledby="tabOnline" hidden>
+          <div class="step">
+            <h2>Прошить из браузера</h2>
+            <p class="hint">
+              Chrome / Edge: переведите плату в DFU (двойной Reset), затем укажите диск BOOT и запишем UF2.
+              ESP32 Web Serial — в следующих версиях.
+            </p>
+            <p class="status" id="flashStatus"></p>
+            <div class="download-row">
+              <button type="button" class="btn btn-primary" id="flashBtn" disabled>Прошить UF2</button>
+              <span class="file-name" id="flashFileName"></span>
+            </div>
+            <div class="progress-track" id="flashProgressTrack" hidden>
+              <div class="progress-bar" id="flashProgressBar"></div>
+            </div>
+          </div>
         </div>
+
+        <details class="changelog-box" id="changelogBox">
+          <summary>Список изменений версии</summary>
+          <div class="changelog-body" id="changelogBody">загрузка…</div>
+        </details>
       </div>
     </div>
 
     <footer class="site-footer">
       <p>
-        Community builds beeline09 · не является официальным сервисом meshcore.io.
-        Манифест: <code>/darktec/releases.json</code>.
+        Community builds <strong>beeline09</strong> · не сервис meshcore.io ·
+        <a href="https://t.me/c/DarkElectronics/14" target="_blank" rel="noopener">Telegram</a>
       </p>
     </footer>
   </div>

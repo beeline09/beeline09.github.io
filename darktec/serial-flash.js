@@ -4,6 +4,36 @@
  */
 import { Dfu } from "./lib/dfu.js";
 
+/** Adafruit / common nRF52 board USB VID (app + bootloader CDC). */
+const USB_VID_ADAFRUIT = 0x239a;
+/** Nordic Semiconductor — SoftDevice/serial DFU CDC (e.g. nRF52840 dongle 0x521f). */
+const USB_VID_NORDIC = 0x1915;
+/** SparkFun — some Pro Micro / nRF52 clones. */
+const USB_VID_SPARKFUN = 0x1b4f;
+/** Seeed — XIAO nRF52840 and similar. */
+const USB_VID_SEEED = 0x2886;
+
+/** Broad filters for the application COM (first picker). */
+const APP_PORT_FILTERS = [
+  { usbVendorId: USB_VID_ADAFRUIT },
+  { usbVendorId: USB_VID_NORDIC },
+  { usbVendorId: USB_VID_SPARKFUN },
+  { usbVendorId: USB_VID_SEEED },
+];
+
+/**
+ * DFU / bootloader-oriented filters (fallback picker + auto-detect preference).
+ * Adafruit 1200-baud serial DFU uses 0x239A; Nordic serial DFU often 0x1915.
+ */
+const DFU_PORT_FILTERS = [
+  { usbVendorId: USB_VID_ADAFRUIT },
+  { usbVendorId: USB_VID_NORDIC },
+];
+
+/** How long to wait for DFU re-enumeration after 1200-baud reboot. */
+const DFU_AUTO_DETECT_MS = 12_000;
+const DFU_POLL_MS = 250;
+
 export function canSerialFlash() {
   return typeof navigator !== "undefined" && "serial" in navigator;
 }
@@ -70,6 +100,155 @@ export function formatSerialFlashError(err) {
 }
 
 /**
+ * @param {SerialPort} port
+ * @returns {{ usbVendorId?: number, usbProductId?: number }}
+ */
+function portUsbInfo(port) {
+  try {
+    return port.getInfo?.() || {};
+  } catch {
+    return {};
+  }
+}
+
+/** @param {SerialPort} port */
+function isPreferredDfuUsb(port) {
+  const { usbVendorId } = portUsbInfo(port);
+  return usbVendorId === USB_VID_ADAFRUIT || usbVendorId === USB_VID_NORDIC;
+}
+
+/**
+ * Watch for a DFU serial port after 1200-baud reboot.
+ * Listens for `connect` and polls `getPorts()` for a newly appeared port
+ * that is not the application port. Prefers Adafruit/Nordic DFU VIDs.
+ *
+ * Call {@link start} before `forceDfuMode` so a fast re-enumerate is not missed;
+ * call {@link wait} after reboot (timeout starts then).
+ *
+ * @param {SerialPort} appPort
+ */
+function createDfuPortWatcher(appPort) {
+  /** @type {Set<SerialPort>} */
+  const beforePorts = new Set();
+  /** @type {SerialPort | null} */
+  let found = null;
+  /** @type {Array<() => void>} */
+  const waiters = [];
+  let listening = false;
+
+  const maybeFound = (port) => {
+    if (!port || port === appPort || found) return;
+    found = port;
+    const pending = waiters.splice(0, waiters.length);
+    for (const resolve of pending) resolve(port);
+  };
+
+  const consider = (port) => {
+    if (!port || port === appPort || found) return;
+    // Prefer known DFU VIDs; still accept a sole new non-app port (any VID).
+    if (isPreferredDfuUsb(port)) {
+      maybeFound(port);
+      return;
+    }
+    // Defer non-preferred until wait() can compare against the full port list.
+  };
+
+  const onConnect = (ev) => {
+    const port = ev && typeof ev === "object" && "port" in ev ? ev.port : null;
+    if (port) consider(port);
+  };
+
+  const scanGrantedPorts = async () => {
+    if (found) return;
+    let ports;
+    try {
+      ports = await navigator.serial.getPorts();
+    } catch {
+      return;
+    }
+
+    // New SerialPort objects (reconnect / DFU re-enumerate) are not in beforePorts.
+    const newcomers = ports.filter((p) => p !== appPort && !beforePorts.has(p));
+    const preferredNew = newcomers.filter(isPreferredDfuUsb);
+    if (preferredNew.length >= 1) {
+      maybeFound(preferredNew[0]);
+      return;
+    }
+    if (newcomers.length === 1) {
+      maybeFound(newcomers[0]);
+      return;
+    }
+
+    // App COM gone + exactly one preferred DFU among remaining granted ports
+    // (covers cases where the DFU port was already authorized earlier).
+    const appStillListed = ports.includes(appPort);
+    if (!appStillListed) {
+      const preferred = ports.filter((p) => p !== appPort && isPreferredDfuUsb(p));
+      if (preferred.length === 1) maybeFound(preferred[0]);
+    }
+  };
+
+  return {
+    async start() {
+      if (listening) return;
+      listening = true;
+      try {
+        const ports = await navigator.serial.getPorts();
+        for (const p of ports) beforePorts.add(p);
+      } catch {
+        /* ignore */
+      }
+      // App port may not yet be in getPorts() until after grant settles.
+      beforePorts.add(appPort);
+
+      navigator.serial.addEventListener("connect", onConnect);
+    },
+
+    stop() {
+      if (!listening) return;
+      listening = false;
+      navigator.serial.removeEventListener("connect", onConnect);
+    },
+
+    /**
+     * @param {number} timeoutMs
+     * @returns {Promise<SerialPort | null>}
+     */
+    wait(timeoutMs) {
+      if (found) return Promise.resolve(found);
+
+      return new Promise((resolve) => {
+        let settled = false;
+        /** @type {ReturnType<typeof setInterval> | null} */
+        let pollTimer = null;
+        /** @type {ReturnType<typeof setTimeout> | null} */
+        let timeoutTimer = null;
+
+        const finish = (port) => {
+          if (settled) return;
+          settled = true;
+          if (pollTimer) clearInterval(pollTimer);
+          if (timeoutTimer) clearTimeout(timeoutTimer);
+          const idx = waiters.indexOf(onFound);
+          if (idx >= 0) waiters.splice(idx, 1);
+          resolve(port);
+        };
+
+        const onFound = () => finish(found);
+
+        waiters.push(onFound);
+        pollTimer = setInterval(() => {
+          void scanGrantedPorts();
+        }, DFU_POLL_MS);
+        void scanGrantedPorts();
+
+        timeoutTimer = setTimeout(() => finish(null), timeoutMs);
+      });
+    },
+  };
+}
+
+/**
  * Force Adafruit/nRF bootloader into serial DFU via 1200 baud touch.
  */
 export async function enterDfuMode(onStatus) {
@@ -79,7 +258,7 @@ export async function enterDfuMode(onStatus) {
   onStatus?.("Выберите COM-порт платы (обычный режим)…");
   let port;
   try {
-    port = await navigator.serial.requestPort({});
+    port = await navigator.serial.requestPort({ filters: APP_PORT_FILTERS });
   } catch (err) {
     throw Object.assign(new Error(formatSerialFlashError(err)), { cause: err });
   }
@@ -89,12 +268,17 @@ export async function enterDfuMode(onStatus) {
   } catch (err) {
     throw Object.assign(new Error(formatSerialFlashError(err)), { cause: err });
   }
-  onStatus?.("DFU активен. Дальше нажмите «Прошить» и выберите DFU-порт.");
+  onStatus?.("DFU активен. Дальше нажмите «Прошить» (порт DFU обычно подхватится сам).");
 }
 
 /**
  * Request Serial ports for DFU while still in the click gesture stack.
  * Must run before any network await from the button handler.
+ *
+ * With `forceDfu: true` (default): one app-port picker → 1200 reboot → auto DFU
+ * port when possible; fallback `requestPort` only if автоопределение не сработало.
+ * With `forceDfu: false`: single DFU-oriented picker (already in bootloader).
+ *
  * @param {{ forceDfu?: boolean, onStatus?: Function }} opts
  * @returns {Promise<SerialPort>}
  */
@@ -105,17 +289,33 @@ export async function openDfuSerialPort(opts = {}) {
   }
 
   try {
-    if (forceDfu) {
-      onStatus?.("Шаг 1/2: выберите COM-порт платы (ещё не DFU)…");
-      const appPort = await navigator.serial.requestPort({});
-      onStatus?.("Перевод в DFU…");
-      await Dfu.forceDfuMode(appPort);
-      // Give the OS a moment to re-enumerate the DFU CDC interface.
-      await new Promise((r) => setTimeout(r, 800));
+    if (!forceDfu) {
+      onStatus?.("Выберите порт DFU (плата уже в DFU)…");
+      return await navigator.serial.requestPort({ filters: DFU_PORT_FILTERS });
     }
 
-    onStatus?.("Шаг 2/2: выберите DFU-порт (часто «nRF52 DFU» / Adafruit)…");
-    return await navigator.serial.requestPort({});
+    onStatus?.("Выберите COM-порт платы (обычный режим)…");
+    const appPort = await navigator.serial.requestPort({ filters: APP_PORT_FILTERS });
+
+    const watcher = createDfuPortWatcher(appPort);
+    await watcher.start();
+
+    try {
+      onStatus?.("Перевод в DFU (1200 baud)…");
+      await Dfu.forceDfuMode(appPort);
+
+      onStatus?.("Ищу DFU-порт после перезагрузки…");
+      const autoPort = await watcher.wait(DFU_AUTO_DETECT_MS);
+      if (autoPort) {
+        onStatus?.("DFU-порт найден автоматически.");
+        return autoPort;
+      }
+
+      onStatus?.("Выберите порт DFU (плата после перезагрузки)…");
+      return await navigator.serial.requestPort({ filters: DFU_PORT_FILTERS });
+    } finally {
+      watcher.stop();
+    }
   } catch (err) {
     throw Object.assign(new Error(formatSerialFlashError(err)), { cause: err });
   }

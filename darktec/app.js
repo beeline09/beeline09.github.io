@@ -1,8 +1,8 @@
 /**
- * Darktec flasher — version picker, roles, offline UF2 + online File System flash.
+ * Darktec flasher — version picker, roles, offline UF2 + online Serial DFU.
  */
 
-import { canOnlineFlash, flashUf2ToDirectory } from "./uf2-flash.js";
+import { canSerialFlash, enterDfuMode, flashNrfSerial } from "./serial-flash.js";
 
 const FIRMWARE_REPO = "beeline09/MeshCore";
 const RELEASES_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases?per_page=40`;
@@ -25,7 +25,7 @@ const CHEMS = [
   { id: "lto", title: "LTO", blurb: "1S или 2S (≤ 5 В)", cells: [1, 2] },
 ];
 
-const DARKTEC_UF2 = /^Darktec_.+\.uf2$/i;
+const DARKTEC_ASSET = /^Darktec_.+\.(uf2|zip)$/i;
 
 const state = {
   role: "companion_radio_ble",
@@ -54,6 +54,7 @@ const els = {
   paneOffline: document.getElementById("paneOffline"),
   paneOnline: document.getElementById("paneOnline"),
   flashBtn: document.getElementById("flashBtn"),
+  dfuBtn: document.getElementById("dfuBtn"),
   flashStatus: document.getElementById("flashStatus"),
   flashFileName: document.getElementById("flashFileName"),
   flashProgressTrack: document.getElementById("flashProgressTrack"),
@@ -65,8 +66,12 @@ function expectedFileName() {
   return `Darktec_${state.role}_${state.chem}_${state.cells}s.uf2`;
 }
 
-function findAsset() {
-  const name = expectedFileName().toLowerCase();
+function expectedZipName() {
+  return `Darktec_${state.role}_${state.chem}_${state.cells}s.zip`;
+}
+
+function findAsset(ext = "uf2") {
+  const name = (ext === "zip" ? expectedZipName() : expectedFileName()).toLowerCase();
   return (state.manifest?.files ?? []).find((f) => f.name.toLowerCase() === name) ?? null;
 }
 
@@ -116,14 +121,20 @@ function setDownloadEnabled(enabled) {
     els.downloadBtn.href = "#";
     els.downloadBtn.removeAttribute("download");
   }
-  els.flashBtn.disabled = !enabled || !canOnlineFlash();
+  const serialOk = canSerialFlash();
+  const zipOk = Boolean(findAsset("zip"));
+  els.flashBtn.disabled = !enabled || !serialOk || !zipOk;
+  els.dfuBtn.disabled = !serialOk;
 }
 
 function updateDownload() {
-  const asset = findAsset();
+  const asset = findAsset("uf2");
+  const zipAsset = findAsset("zip");
   const name = expectedFileName();
   els.fileName.textContent = name;
-  els.flashFileName.textContent = name;
+  els.flashFileName.textContent = zipAsset
+    ? expectedZipName()
+    : `${expectedZipName()} (нет в релизе — дождитесь CI)`;
 
   if (!state.manifest) {
     els.status.textContent = "Не удалось загрузить список прошивок.";
@@ -148,9 +159,14 @@ function updateDownload() {
   els.status.className = "status";
   els.status.textContent = `Готово${size}`;
   els.flashStatus.className = "status";
-  els.flashStatus.textContent = canOnlineFlash()
-    ? `Готово к записи${size}`
-    : "Онлайн-флешер доступен в Chrome / Edge.";
+  if (!canSerialFlash()) {
+    els.flashStatus.textContent = "Онлайн-флешер: нужен Chrome / Edge (Web Serial).";
+  } else if (!zipAsset) {
+    els.flashStatus.textContent =
+      "OTA .zip ещё нет в зеркале/релизе. Offline UF2 доступен; дождитесь сборки с serial DFU пакетами.";
+  } else {
+    els.flashStatus.textContent = `Готово к Serial DFU · ${expectedZipName()}`;
+  }
   els.downloadBtn.href = asset.url;
   els.downloadBtn.setAttribute("download", asset.name);
   setDownloadEnabled(true);
@@ -239,7 +255,7 @@ function renderMarkdownLite(md) {
 
 function manifestFromRelease(release) {
   const files = (release.assets || [])
-    .filter((a) => DARKTEC_UF2.test(a.name))
+    .filter((a) => DARKTEC_ASSET.test(a.name) && !/^Darktec_uf2_/i.test(a.name))
     .map((asset) => ({
       name: asset.name,
       url: asset.browser_download_url,
@@ -402,59 +418,68 @@ function localFirmwareUrl(fileName) {
   return new URL(`./firmware/latest/${fileName}`, import.meta.url).href;
 }
 
-async function loadFirmwareBlob(asset) {
-  // GitHub release download URLs are CORS-blocked from github.io.
-  // Prefer same-origin mirror populated by Sync Darktec releases workflow.
-  const localUrl = localFirmwareUrl(asset.name);
+async function loadOtaZipBlob(zipName) {
+  const localUrl = localFirmwareUrl(zipName);
   try {
     const res = await fetch(localUrl, { cache: "no-cache" });
     if (res.ok) return await res.blob();
   } catch (err) {
-    console.warn("local mirror miss", err);
+    console.warn("local OTA zip miss", err);
   }
-
-  els.flashStatus.textContent =
-    "Зеркало ещё не готово. Выберите уже скачанный UF2…";
-  if ("showOpenFilePicker" in window) {
-    const [handle] = await window.showOpenFilePicker({
-      multiple: false,
-      types: [
-        {
-          description: "UF2 firmware",
-          accept: { "application/octet-stream": [".uf2"] },
-        },
-      ],
-    });
-    return await handle.getFile();
-  }
-
   throw new Error(
-    "Не удалось загрузить UF2 (CORS GitHub). Скачайте файл во вкладке Offline и повторите в Chrome/Edge.",
+    `Нет OTA-пакета ${zipName} на зеркале. Дождитесь CI (публикует .zip для Serial DFU) и sync сайта.`,
   );
 }
 
-els.flashBtn.addEventListener("click", async () => {
-  const asset = findAsset();
-  if (!asset) return;
-  els.flashProgressTrack.hidden = false;
-  els.flashProgressBar.style.width = "0%";
-  els.flashBtn.disabled = true;
+els.dfuBtn.addEventListener("click", async () => {
+  els.dfuBtn.disabled = true;
+  els.flashStatus.className = "status";
   try {
-    els.flashStatus.className = "status";
-    els.flashStatus.textContent = "Загрузка UF2…";
-    const blob = await loadFirmwareBlob(asset);
-    await flashUf2ToDirectory(blob, asset.name, (pct, msg) => {
-      els.flashProgressBar.style.width = `${pct}%`;
-      if (msg) els.flashStatus.textContent = msg;
+    await enterDfuMode((msg) => {
+      els.flashStatus.textContent = msg;
     });
-    els.flashStatus.className = "status";
-    els.flashStatus.textContent = "Прошивка записана. Дождитесь перезагрузки платы.";
   } catch (err) {
     console.error(err);
     els.flashStatus.className = "status error";
     els.flashStatus.textContent = err.message || String(err);
   } finally {
-    els.flashBtn.disabled = false;
+    updateDownload();
+  }
+});
+
+els.flashBtn.addEventListener("click", async () => {
+  const zipAsset = findAsset("zip");
+  if (!zipAsset) {
+    els.flashStatus.className = "status error";
+    els.flashStatus.textContent = "OTA .zip недоступен для этой сборки.";
+    return;
+  }
+  els.flashProgressTrack.hidden = false;
+  els.flashProgressBar.style.width = "0%";
+  els.flashBtn.disabled = true;
+  els.dfuBtn.disabled = true;
+  try {
+    els.flashStatus.className = "status";
+    els.flashStatus.textContent = "Загрузка OTA zip…";
+    const blob = await loadOtaZipBlob(zipAsset.name);
+    await flashNrfSerial(blob, {
+      forceDfu: true,
+      onStatus: (msg) => {
+        els.flashStatus.className = "status";
+        els.flashStatus.textContent = msg;
+      },
+      onProgress: (pct) => {
+        els.flashProgressBar.style.width = `${pct}%`;
+      },
+    });
+    els.flashStatus.className = "status";
+    els.flashStatus.textContent = "Прошивка записана по Serial DFU.";
+    els.flashProgressBar.style.width = "100%";
+  } catch (err) {
+    console.error(err);
+    els.flashStatus.className = "status error";
+    els.flashStatus.textContent = err.message || String(err);
+  } finally {
     updateDownload();
   }
 });

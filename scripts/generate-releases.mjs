@@ -21,7 +21,9 @@ const repo = process.env.FIRMWARE_REPO || "beeline09/MeshCore";
 const apiBase = process.env.GITHUB_API_URL || "https://api.github.com";
 const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
 
-const DARKTEC_UF2 = /^Darktec_.+\.uf2$/i;
+const DARKTEC_ASSET = /^Darktec_.+\.(uf2|zip)$/i;
+const isDarktecAsset = (name) =>
+  DARKTEC_ASSET.test(name) && !/^Darktec_uf2_/i.test(name);
 
 async function fetchJson(url) {
   const headers = {
@@ -42,7 +44,7 @@ async function fetchJson(url) {
 function pickRelease(releases) {
   for (const release of releases) {
     if (release.draft) continue;
-    const files = (release.assets || []).filter((a) => DARKTEC_UF2.test(a.name));
+    const files = (release.assets || []).filter((a) => isDarktecAsset(a.name));
     if (files.length > 0) {
       return { release, files };
     }

@@ -15,7 +15,11 @@ OUT = ROOT / "darktec" / "releases.json"
 REPO = os.environ.get("FIRMWARE_REPO", "beeline09/MeshCore")
 API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
-DARKTEC_UF2 = re.compile(r"^Darktec_.+\.uf2$", re.I)
+DARKTEC_ASSET = re.compile(r"^Darktec_.+\.(uf2|zip)$", re.I)
+
+
+def is_darktec_asset(name: str) -> bool:
+    return bool(DARKTEC_ASSET.match(name or "")) and not name.startswith("Darktec_uf2_")
 
 
 def fetch_json(url: str):
@@ -35,7 +39,7 @@ def pick_release(releases: list):
     for release in releases:
         if release.get("draft"):
             continue
-        files = [a for a in release.get("assets") or [] if DARKTEC_UF2.match(a.get("name", ""))]
+        files = [a for a in release.get("assets") or [] if is_darktec_asset(a.get("name", ""))]
         if files:
             return release, files
     for release in releases:

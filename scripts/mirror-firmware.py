@@ -77,11 +77,18 @@ def mirror(tag: str) -> int:
             a
             for a in rel.get("assets") or []
             if str(a.get("name", "")).startswith("Darktec_")
-            and str(a.get("name", "")).endswith(".uf2")
+            and (
+                str(a.get("name", "")).endswith(".uf2")
+                or (
+                    str(a.get("name", "")).endswith(".zip")
+                    and not str(a.get("name", "")).startswith("Darktec_uf2_")
+                )
+            )
         ]
         OUT.mkdir(parents=True, exist_ok=True)
-        for old in OUT.glob("*.uf2"):
-            old.unlink()
+        for old in list(OUT.glob("*.uf2")) + list(OUT.glob("*.zip")):
+            if old.name.startswith("Darktec_"):
+                old.unlink()
 
         for a in assets:
             name = a["name"]

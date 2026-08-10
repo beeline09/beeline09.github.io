@@ -107,15 +107,16 @@
 
         <div id="paneOnline" role="tabpanel" aria-labelledby="tabOnline" hidden>
           <div class="step">
-            <h2>Прошить из браузера</h2>
+            <h2>Прошить через USB Serial (как meshcore.io)</h2>
             <p class="hint">
-              Chrome / Edge: двойной Reset → DFU-диск → «Прошить UF2».
-              Файл берётся с зеркала на этом сайте (GitHub Releases блокирует CORS).
-              ESP32 Web Serial — позже.
+              Chrome / Edge + Web Serial: плата сама уходит в DFU (1200 baud), затем заливается
+              OTA <code>.zip</code> по serial — без ручного копирования на диск.
+              Дважды выберите порт: сначала обычный COM, затем DFU.
             </p>
             <p class="status" id="flashStatus"></p>
             <div class="download-row">
-              <button type="button" class="btn btn-primary" id="flashBtn" disabled>Прошить UF2</button>
+              <button type="button" class="btn btn-ghost" id="dfuBtn" disabled>Только DFU</button>
+              <button type="button" class="btn btn-primary" id="flashBtn" disabled>Прошить</button>
               <span class="file-name" id="flashFileName"></span>
             </div>
             <div class="progress-track" id="flashProgressTrack" hidden>

@@ -53,7 +53,7 @@
       </aside>
 
       <details class="photo-spoiler">
-        <summary>Посмотреть фото</summary>
+        <summary>Посмотреть фото платы</summary>
         <div class="carousel" id="photoCarousel" data-photos-dir="./photos/"></div>
       </details>
     </section>
@@ -103,7 +103,7 @@
             <p class="status" id="status"></p>
             <div class="download-row">
               <a class="btn btn-primary" id="downloadBtn" href="#" aria-disabled="true">Скачать UF2</a>
-              <span class="file-name" id="fileName"></span>
+              <span class="file-name" id="fileName" hidden></span>
             </div>
           </div>
           <div class="dfu">
@@ -129,7 +129,7 @@
             <div class="download-row">
               <button type="button" class="btn btn-ghost" id="dfuBtn" disabled>Только DFU</button>
               <button type="button" class="btn btn-primary" id="flashBtn" disabled>Прошить</button>
-              <span class="file-name" id="flashFileName"></span>
+              <span class="file-name" id="flashFileName" hidden></span>
             </div>
             <div class="progress-track" id="flashProgressTrack" hidden>
               <div class="progress-bar" id="flashProgressBar"></div>

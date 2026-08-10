@@ -17,9 +17,48 @@ API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
 DARKTEC_ASSET = re.compile(r"^Darktec_.+\.(uf2|zip)$", re.I)
 
+EXPECTED_ROLES = [
+    "companion_radio_ble",
+    "companion_radio_usb",
+    "repeater",
+    "repeater_bridge_rs232",
+    "room_server",
+    "terminal_chat",
+    "sensor",
+    "kiss_modem",
+]
+EXPECTED_CHEM_CELLS = [
+    ("liion", 1),
+    ("lifepo4", 1),
+    ("lto", 1),
+    ("lto", 2),
+]
+EXPECTED_PROTECTS = ("adc", "off")
+
 
 def is_darktec_asset(name: str) -> bool:
     return bool(DARKTEC_ASSET.match(name or "")) and not name.startswith("Darktec_uf2_")
+
+
+def expected_basenames() -> list[str]:
+    names: list[str] = []
+    for role in EXPECTED_ROLES:
+        for chem, cells in EXPECTED_CHEM_CELLS:
+            for protect in EXPECTED_PROTECTS:
+                names.append(f"Darktec_{role}_{chem}_{cells}s_{protect}")
+    return names
+
+
+def is_release_complete(release: dict) -> bool:
+    names = {
+        a.get("name", "")
+        for a in release.get("assets") or []
+        if is_darktec_asset(a.get("name", ""))
+    }
+    for base in expected_basenames():
+        if f"{base}.uf2" not in names or f"{base}.zip" not in names:
+            return False
+    return True
 
 
 def fetch_json(url: str):
@@ -36,6 +75,14 @@ def fetch_json(url: str):
 
 
 def pick_release(releases: list):
+    # Prefer a fully published matrix (128 Darktec_* uf2+zip); skip partial uploads.
+    for release in releases:
+        if release.get("draft") or release.get("prerelease"):
+            continue
+        if not is_release_complete(release):
+            continue
+        files = [a for a in release.get("assets") or [] if is_darktec_asset(a.get("name", ""))]
+        return release, files
     for release in releases:
         if release.get("draft"):
             continue

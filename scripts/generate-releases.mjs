@@ -25,6 +25,46 @@ const DARKTEC_ASSET = /^Darktec_.+\.(uf2|zip)$/i;
 const isDarktecAsset = (name) =>
   DARKTEC_ASSET.test(name) && !/^Darktec_uf2_/i.test(name);
 
+const EXPECTED_ROLES = [
+  "companion_radio_ble",
+  "companion_radio_usb",
+  "repeater",
+  "repeater_bridge_rs232",
+  "room_server",
+  "terminal_chat",
+  "sensor",
+  "kiss_modem",
+];
+const EXPECTED_CHEM_CELLS = [
+  { chem: "liion", cells: 1 },
+  { chem: "lifepo4", cells: 1 },
+  { chem: "lto", cells: 1 },
+  { chem: "lto", cells: 2 },
+];
+const EXPECTED_PROTECTS = ["adc", "off"];
+
+function expectedBasenames() {
+  const names = [];
+  for (const role of EXPECTED_ROLES) {
+    for (const { chem, cells } of EXPECTED_CHEM_CELLS) {
+      for (const protect of EXPECTED_PROTECTS) {
+        names.push(`Darktec_${role}_${chem}_${cells}s_${protect}`);
+      }
+    }
+  }
+  return names;
+}
+
+function isReleaseComplete(release) {
+  const names = new Set(
+    (release.assets || []).map((a) => a.name).filter((n) => isDarktecAsset(n)),
+  );
+  for (const base of expectedBasenames()) {
+    if (!names.has(`${base}.uf2`) || !names.has(`${base}.zip`)) return false;
+  }
+  return true;
+}
+
 async function fetchJson(url) {
   const headers = {
     Accept: "application/vnd.github+json",
@@ -42,6 +82,13 @@ async function fetchJson(url) {
 }
 
 function pickRelease(releases) {
+  // Prefer a fully published matrix (128 Darktec_* uf2+zip); skip partial uploads.
+  for (const release of releases) {
+    if (release.draft || release.prerelease) continue;
+    if (!isReleaseComplete(release)) continue;
+    const files = (release.assets || []).filter((a) => isDarktecAsset(a.name));
+    return { release, files };
+  }
   for (const release of releases) {
     if (release.draft) continue;
     const files = (release.assets || []).filter((a) => isDarktecAsset(a.name));

@@ -20,8 +20,8 @@ const ROLES = [
 ];
 
 const CHEMS = [
-  { id: "liion", title: "Li-ion", blurb: "1S только", cells: [1] },
-  { id: "lifepo4", title: "LiFePO4", blurb: "1S только", cells: [1] },
+  { id: "liion", title: "Li-ion", blurb: "Только 1S", cells: [1] },
+  { id: "lifepo4", title: "LiFePO4", blurb: "Только 1S", cells: [1] },
   { id: "lto", title: "LTO", blurb: "1S или 2S (≤ 5 В)", cells: [1, 2] },
 ];
 
@@ -38,11 +38,46 @@ const PROTECTS = [
     title: "Выключена",
     blurb: "без автоотключения",
     hint:
-      "Плата не выключается сама из‑за низкого заряда. Удобно для отладки. Можно разрядить батарею «в ноль» — для аккумулятора это вредно.",
+      "Без автоотключения по АЦП. Защита только от BMS на плате; если BMS нет или не сработает — батарею можно убить глубокой разрядкой.",
   },
 ];
 
+/** Full matrix after protect modes: 8 roles × 4 chem/cells × 2 protect = 64 basenames. */
+const EXPECTED_CHEM_CELLS = [
+  { chem: "liion", cells: 1 },
+  { chem: "lifepo4", cells: 1 },
+  { chem: "lto", cells: 1 },
+  { chem: "lto", cells: 2 },
+];
+const EXPECTED_PROTECTS = ["adc", "off"];
+
 const DARKTEC_ASSET = /^Darktec_.+\.(uf2|zip)$/i;
+const BUILDING_MSG = "Прошивка ещё собирается. Приходите сюда позже.";
+
+function expectedBasenames() {
+  const names = [];
+  for (const role of ROLES) {
+    for (const { chem, cells } of EXPECTED_CHEM_CELLS) {
+      for (const protect of EXPECTED_PROTECTS) {
+        names.push(`Darktec_${role.id}_${chem}_${cells}s_${protect}`);
+      }
+    }
+  }
+  return names;
+}
+
+/** True when release has every expected basename as both .uf2 and .zip (128 assets). */
+function isReleaseComplete(release) {
+  const names = new Set(
+    (release.assets || [])
+      .map((a) => a.name)
+      .filter((n) => DARKTEC_ASSET.test(n) && !/^Darktec_uf2_/i.test(n)),
+  );
+  for (const base of expectedBasenames()) {
+    if (!names.has(`${base}.uf2`) || !names.has(`${base}.zip`)) return false;
+  }
+  return true;
+}
 
 const state = {
   role: "companion_radio_ble",
@@ -160,14 +195,33 @@ function setDownloadEnabled(enabled) {
   els.dfuBtn.disabled = !serialOk;
 }
 
+function showBuildingEmptyState() {
+  state.manifest = {
+    release: { tag: null, notes: "" },
+    files: [],
+  };
+  state.selectedTag = null;
+  els.status.className = "status pending";
+  els.status.textContent = BUILDING_MSG;
+  els.flashStatus.className = "status pending";
+  els.flashStatus.textContent = BUILDING_MSG;
+  els.changelogBody.innerHTML = `<p class="empty-build">${BUILDING_MSG}</p>`;
+  populateVersionSelect();
+  setDownloadEnabled(false);
+}
+
 function updateDownload() {
   const asset = findAsset("uf2");
   const zipAsset = findAsset("zip");
-  const name = expectedFileName();
-  els.fileName.textContent = name;
-  els.flashFileName.textContent = zipAsset
-    ? expectedZipName()
-    : `${expectedZipName()} (нет в релизе — дождитесь CI)`;
+
+  if (!state.releases.length) {
+    els.status.className = "status pending";
+    els.status.textContent = BUILDING_MSG;
+    els.flashStatus.className = "status pending";
+    els.flashStatus.textContent = BUILDING_MSG;
+    setDownloadEnabled(false);
+    return;
+  }
 
   if (!state.manifest) {
     els.status.textContent = "Не удалось загрузить список прошивок.";
@@ -181,8 +235,8 @@ function updateDownload() {
     const tag = state.manifest.release?.tag;
     els.status.className = "status";
     els.status.textContent = tag
-      ? `В ${tag} нет файла ${name}.`
-      : `Нет релиза Darktec. После пуша в south_edition появится версия.`;
+      ? `В ${tag} нет файла для выбранной сборки.`
+      : BUILDING_MSG;
     els.flashStatus.textContent = els.status.textContent;
     setDownloadEnabled(false);
     return;
@@ -198,7 +252,7 @@ function updateDownload() {
     els.flashStatus.textContent =
       "OTA .zip ещё нет в зеркале/релизе. Offline UF2 доступен; дождитесь сборки с serial DFU пакетами.";
   } else {
-    els.flashStatus.textContent = `Готово к Serial DFU · ${expectedZipName()}`;
+    els.flashStatus.textContent = "Готово к Serial DFU";
   }
   els.downloadBtn.href = asset.url;
   els.downloadBtn.setAttribute("download", asset.name);
@@ -326,6 +380,14 @@ function displayVersion(tag) {
 function populateVersionSelect() {
   const select = els.versionSelect;
   select.replaceChildren();
+  if (!state.releases.length) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "собирается…";
+    select.appendChild(opt);
+    select.disabled = true;
+    return;
+  }
   for (const rel of state.releases) {
     const opt = document.createElement("option");
     opt.value = rel.tag_name;
@@ -336,7 +398,7 @@ function populateVersionSelect() {
     opt.textContent = when ? `${label} · ${when}` : label;
     select.appendChild(opt);
   }
-  select.disabled = state.releases.length === 0;
+  select.disabled = false;
   if (state.selectedTag) select.value = state.selectedTag;
 }
 
@@ -359,22 +421,18 @@ async function loadReleases() {
   const versioned = all.filter(
     (r) => !r.draft && !r.prerelease && /^darktec-v\d+\.\d+\.\d+b\d+$/.test(r.tag_name),
   );
+  // Only fully published matrices (128 Darktec_* uf2+zip). Skip partial / old naming.
+  const complete = versioned.filter(isReleaseComplete);
   const latest = all.find((r) => !r.draft && r.tag_name === "darktec-latest");
 
-  // Newest versioned first; keep latest as alias entry pointing to same assets if alone
-  state.releases = versioned.length
-    ? versioned
-    : latest
+  state.releases = complete.length
+    ? complete
+    : latest && isReleaseComplete(latest)
       ? [latest]
       : [];
 
   if (!state.releases.length) {
-    state.manifest = {
-      release: { tag: null, notes: "" },
-      files: [],
-    };
-    els.changelogBody.textContent = "Релизов пока нет.";
-    populateVersionSelect();
+    showBuildingEmptyState();
     return;
   }
 

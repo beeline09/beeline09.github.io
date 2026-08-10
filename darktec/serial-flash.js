@@ -21,6 +21,16 @@ export function formatSerialFlashError(err) {
     : String(err || "");
   const msg = raw.replace(/^Error:\s*/i, "").trim();
   const lower = msg.toLowerCase();
+  const causeMsg =
+    err && typeof err === "object" && "cause" in err && err.cause && typeof err.cause === "object" &&
+    "message" in err.cause
+      ? String(err.cause.message || "").toLowerCase()
+      : "";
+
+  // requestPort outside a user gesture — before Russian early-return / generic HTTPS SecurityError.
+  if (/user gesture|must be handling a user gesture/i.test(`${lower}\n${causeMsg}`)) {
+    return "Не удалось запросить порт: действие должно идти сразу от нажатия кнопки. Нажмите «Прошить» ещё раз.";
+  }
 
   // Keep intentional Russian UX copy (mirror miss, Chrome required, etc.).
   if (/[а-яё]/i.test(msg)) {
@@ -83,12 +93,13 @@ export async function enterDfuMode(onStatus) {
 }
 
 /**
- * Flash OTA zip over Web Serial DFU.
- * @param {Blob} zipBlob
- * @param {{ forceDfu?: boolean, onStatus?: Function, onProgress?: Function }} opts
+ * Request Serial ports for DFU while still in the click gesture stack.
+ * Must run before any network await from the button handler.
+ * @param {{ forceDfu?: boolean, onStatus?: Function }} opts
+ * @returns {Promise<SerialPort>}
  */
-export async function flashNrfSerial(zipBlob, opts = {}) {
-  const { forceDfu = true, onStatus, onProgress } = opts;
+export async function openDfuSerialPort(opts = {}) {
+  const { forceDfu = true, onStatus } = opts;
   if (!canSerialFlash()) {
     throw new Error("Нужен Chrome или Edge с Web Serial API.");
   }
@@ -104,7 +115,28 @@ export async function flashNrfSerial(zipBlob, opts = {}) {
     }
 
     onStatus?.("Шаг 2/2: выберите DFU-порт (часто «nRF52 DFU» / Adafruit)…");
-    const dfuPort = await navigator.serial.requestPort({});
+    return await navigator.serial.requestPort({});
+  } catch (err) {
+    throw Object.assign(new Error(formatSerialFlashError(err)), { cause: err });
+  }
+}
+
+/**
+ * Flash OTA zip over Web Serial DFU.
+ * Prefer calling {@link openDfuSerialPort} first from the click handler (before zip fetch),
+ * then pass the port as `opts.port` so requestPort stays inside the user gesture.
+ * @param {Blob} zipBlob
+ * @param {{ forceDfu?: boolean, port?: SerialPort | null, onStatus?: Function, onProgress?: Function }} opts
+ */
+export async function flashNrfSerial(zipBlob, opts = {}) {
+  const { forceDfu = true, port: existingPort = null, onStatus, onProgress } = opts;
+  if (!canSerialFlash()) {
+    throw new Error("Нужен Chrome или Edge с Web Serial API.");
+  }
+
+  try {
+    const dfuPort =
+      existingPort || (await openDfuSerialPort({ forceDfu, onStatus }));
     const dfu = new Dfu(dfuPort);
 
     onStatus?.("Прошивка по Serial DFU…");

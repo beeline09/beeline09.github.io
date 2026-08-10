@@ -2,7 +2,13 @@
  * Darktec flasher — version picker, roles, offline UF2 + online Serial DFU.
  */
 
-import { canSerialFlash, enterDfuMode, flashNrfSerial, formatSerialFlashError } from "./serial-flash.js";
+import {
+  canSerialFlash,
+  enterDfuMode,
+  flashNrfSerial,
+  formatSerialFlashError,
+  openDfuSerialPort,
+} from "./serial-flash.js";
 
 const FIRMWARE_REPO = "beeline09/MeshCore";
 const RELEASES_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases?per_page=40`;
@@ -541,6 +547,17 @@ async function loadOtaZipBlob(zipName) {
   );
 }
 
+/** Re-enable download/flash controls without clobbering a flash error status. */
+function finishFlashUi() {
+  const keepError = els.flashStatus.classList.contains("error");
+  const errText = keepError ? els.flashStatus.textContent : null;
+  updateDownload();
+  if (keepError && errText) {
+    els.flashStatus.className = "status error";
+    els.flashStatus.textContent = errText;
+  }
+}
+
 els.dfuBtn.addEventListener("click", async () => {
   els.dfuBtn.disabled = true;
   els.flashStatus.className = "status";
@@ -554,7 +571,7 @@ els.dfuBtn.addEventListener("click", async () => {
     els.flashStatus.className = "status error";
     els.flashStatus.textContent = formatSerialFlashError(err);
   } finally {
-    updateDownload();
+    finishFlashUi();
   }
 });
 
@@ -569,16 +586,21 @@ els.flashBtn.addEventListener("click", async () => {
   els.flashProgressBar.style.width = "0%";
   els.flashBtn.disabled = true;
   els.dfuBtn.disabled = true;
-  try {
+  const onStatus = (msg) => {
     els.flashStatus.className = "status";
-    els.flashStatus.textContent = "Загрузка OTA zip…";
+    els.flashStatus.textContent = msg;
+  };
+  try {
+    // requestPort must run before any network await (user-gesture token).
+    const dfuPort = await openDfuSerialPort({
+      forceDfu: true,
+      onStatus,
+    });
+    onStatus("Загрузка OTA zip…");
     const blob = await loadOtaZipBlob(zipAsset.name);
     await flashNrfSerial(blob, {
-      forceDfu: true,
-      onStatus: (msg) => {
-        els.flashStatus.className = "status";
-        els.flashStatus.textContent = msg;
-      },
+      port: dfuPort,
+      onStatus,
       onProgress: (pct) => {
         els.flashProgressBar.style.width = `${pct}%`;
       },
@@ -591,7 +613,7 @@ els.flashBtn.addEventListener("click", async () => {
     els.flashStatus.className = "status error";
     els.flashStatus.textContent = formatSerialFlashError(err);
   } finally {
-    updateDownload();
+    finishFlashUi();
   }
 });
 

@@ -1,0 +1,8 @@
+---
+description: Human-readable changelogs from git commits on every firmware push/release
+alwaysApply: true
+---
+
+# Changelogs из коммитов
+
+При каждом пуше/релизе прошивок **автоматически** формируй человекочитаемый changelog из git-коммитов (группировка на русском, без сырого git log). Пайплайн Darktec: `MeshCore/scripts/darktec-changelog.sh` + body релиза в CI.

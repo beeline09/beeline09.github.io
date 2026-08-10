@@ -22,7 +22,7 @@
     </header>
 
     <section class="hero hero-compact">
-      <p class="hero-kicker">Darktec · nRF52840 · E22 900M30S</p>
+      <p class="hero-kicker">Darktec · nRF52840</p>
       <h1>Прошивки Darktec</h1>
       <p class="hero-lead">
         Сборки для платы Darktec by Dark Electronics: companion, repeater, room server и другие роли —
@@ -109,8 +109,9 @@
           <div class="step">
             <h2>Прошить из браузера</h2>
             <p class="hint">
-              Chrome / Edge: переведите плату в DFU (двойной Reset), затем укажите диск BOOT и запишем UF2.
-              ESP32 Web Serial — в следующих версиях.
+              Chrome / Edge: двойной Reset → DFU-диск → «Прошить UF2».
+              Файл берётся с зеркала на этом сайте (GitHub Releases блокирует CORS).
+              ESP32 Web Serial — позже.
             </p>
             <p class="status" id="flashStatus"></p>
             <div class="download-row">

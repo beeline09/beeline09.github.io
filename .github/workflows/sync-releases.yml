@@ -3,7 +3,6 @@ name: Sync Darktec releases
 on:
   workflow_dispatch:
   schedule:
-    # Refresh manifest twice a day in case MeshCore releases were published manually.
     - cron: "17 6,18 * * *"
   repository_dispatch:
     types: [meshcore-release]
@@ -29,14 +28,72 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/generate-releases.mjs
 
+      - name: Mirror UF2s to darktec/firmware/latest (CORS-safe for online flasher)
+        env:
+          FIRMWARE_REPO: beeline09/MeshCore
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLIENT_TAG: ${{ github.event.client_payload.tag }}
+        run: |
+          set -euo pipefail
+          TAG="${CLIENT_TAG:-}"
+          if [ -z "$TAG" ]; then
+            TAG="$(python3 -c 'import json; print(json.load(open("darktec/releases.json"))["release"]["tag"] or "")')"
+          fi
+          if [ -z "$TAG" ]; then
+            TAG=darktec-latest
+          fi
+          echo "Mirroring from tag/release: $TAG"
+          mkdir -p darktec/firmware/latest
+          # Prefer explicit tag; also refresh darktec-latest assets into latest/
+          for REF in "$TAG" darktec-latest; do
+            API="https://api.github.com/repos/${FIRMWARE_REPO}/releases/tags/${REF}"
+            CODE=$(curl -sS -o /tmp/rel.json -w "%{http_code}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "$API" || true)
+            if [ "$CODE" != "200" ]; then
+              echo "Skip $REF (HTTP $CODE)"
+              continue
+            fi
+            python3 - <<'PY'
+import json, os, subprocess, sys
+rel = json.load(open("/tmp/rel.json"))
+assets = [a for a in rel.get("assets", []) if a["name"].endswith(".uf2") and a["name"].startswith("Darktec_")]
+token = os.environ["GITHUB_TOKEN"]
+out_dir = "darktec/firmware/latest"
+os.makedirs(out_dir, exist_ok=True)
+# clear old uf2s so removed roles disappear
+for name in os.listdir(out_dir):
+    if name.endswith(".uf2"):
+        os.remove(os.path.join(out_dir, name))
+for a in assets:
+    dest = os.path.join(out_dir, a["name"])
+    url = a["url"]  # API asset URL
+    print(f"Downloading {a['name']} ({a['size']} bytes)")
+    subprocess.check_call([
+        "curl", "-fsSL", "-L",
+        "-H", "Accept: application/octet-stream",
+        "-H", f"Authorization: Bearer {token}",
+        "-H", "X-GitHub-Api-Version: 2022-11-28",
+        "-o", dest,
+        url,
+    ])
+print(f"Mirrored {len(assets)} UF2s → {out_dir}")
+open(os.path.join(out_dir, "SOURCE_TAG.txt"), "w").write(rel.get("tag_name", "") + "\n")
+PY
+            break
+          done
+          ls -la darktec/firmware/latest | head -40
+
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add darktec/releases.json
+          git add darktec/releases.json darktec/firmware/latest
           if git diff --staged --quiet; then
             echo "No changes"
             exit 0
           fi
-          git commit -m "chore(darktec): sync releases.json from MeshCore"
+          git commit -m "chore(darktec): sync releases + mirror UF2 for online flasher"
           git push

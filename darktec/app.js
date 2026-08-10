@@ -398,6 +398,41 @@ els.versionSelect.addEventListener("change", () => {
 els.tabOffline.addEventListener("click", () => setTab("offline"));
 els.tabOnline.addEventListener("click", () => setTab("online"));
 
+function localFirmwareUrl(fileName) {
+  return new URL(`./firmware/latest/${fileName}`, import.meta.url).href;
+}
+
+async function loadFirmwareBlob(asset) {
+  // GitHub release download URLs are CORS-blocked from github.io.
+  // Prefer same-origin mirror populated by Sync Darktec releases workflow.
+  const localUrl = localFirmwareUrl(asset.name);
+  try {
+    const res = await fetch(localUrl, { cache: "no-cache" });
+    if (res.ok) return await res.blob();
+  } catch (err) {
+    console.warn("local mirror miss", err);
+  }
+
+  els.flashStatus.textContent =
+    "Зеркало ещё не готово. Выберите уже скачанный UF2…";
+  if ("showOpenFilePicker" in window) {
+    const [handle] = await window.showOpenFilePicker({
+      multiple: false,
+      types: [
+        {
+          description: "UF2 firmware",
+          accept: { "application/octet-stream": [".uf2"] },
+        },
+      ],
+    });
+    return await handle.getFile();
+  }
+
+  throw new Error(
+    "Не удалось загрузить UF2 (CORS GitHub). Скачайте файл во вкладке Offline и повторите в Chrome/Edge.",
+  );
+}
+
 els.flashBtn.addEventListener("click", async () => {
   const asset = findAsset();
   if (!asset) return;
@@ -405,10 +440,9 @@ els.flashBtn.addEventListener("click", async () => {
   els.flashProgressBar.style.width = "0%";
   els.flashBtn.disabled = true;
   try {
-    els.flashStatus.textContent = "Скачивание UF2…";
-    const res = await fetch(asset.url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const blob = await res.blob();
+    els.flashStatus.className = "status";
+    els.flashStatus.textContent = "Загрузка UF2…";
+    const blob = await loadFirmwareBlob(asset);
     await flashUf2ToDirectory(blob, asset.name, (pct, msg) => {
       els.flashProgressBar.style.width = `${pct}%`;
       if (msg) els.flashStatus.textContent = msg;

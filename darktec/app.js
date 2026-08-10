@@ -2,7 +2,7 @@
  * Darktec flasher — version picker, roles, offline UF2 + online Serial DFU.
  */
 
-import { canSerialFlash, enterDfuMode, flashNrfSerial } from "./serial-flash.js";
+import { canSerialFlash, enterDfuMode, flashNrfSerial, formatSerialFlashError } from "./serial-flash.js";
 
 const FIRMWARE_REPO = "beeline09/MeshCore";
 const RELEASES_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases?per_page=40`;
@@ -546,12 +546,13 @@ els.dfuBtn.addEventListener("click", async () => {
   els.flashStatus.className = "status";
   try {
     await enterDfuMode((msg) => {
+      els.flashStatus.className = "status";
       els.flashStatus.textContent = msg;
     });
   } catch (err) {
     console.error(err);
     els.flashStatus.className = "status error";
-    els.flashStatus.textContent = err.message || String(err);
+    els.flashStatus.textContent = formatSerialFlashError(err);
   } finally {
     updateDownload();
   }
@@ -588,7 +589,7 @@ els.flashBtn.addEventListener("click", async () => {
   } catch (err) {
     console.error(err);
     els.flashStatus.className = "status error";
-    els.flashStatus.textContent = err.message || String(err);
+    els.flashStatus.textContent = formatSerialFlashError(err);
   } finally {
     updateDownload();
   }

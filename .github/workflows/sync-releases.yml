@@ -45,4 +45,6 @@ jobs:
             exit 0
           fi
           git commit -m "chore(darktec): sync releases + mirror UF2 for online flasher"
+          # Pages deploy / concurrent syncs can advance main; rebase then push.
+          git pull --rebase origin main
           git push

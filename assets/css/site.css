@@ -356,6 +356,10 @@ a:hover {
   line-height: 1.45;
 }
 
+.hint + .status {
+  margin-top: 0.5rem;
+}
+
 .status.error {
   color: var(--danger);
 }
@@ -398,6 +402,7 @@ a:hover {
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
+  margin-top: 0.75rem;
 }
 
 .file-name {

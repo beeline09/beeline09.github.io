@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Darktec — прошивки beeline09</title>
-  <meta name="description" content="Community-прошивки Darktec (nRF52840): роли, химия батареи, offline UF2 и онлайн-флешер.">
+  <meta name="description" content="Community-прошивки Darktec (nRF52840): роли, химия батареи, защита питания, offline UF2 и онлайн-флешер.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
@@ -26,7 +26,7 @@
       <h1>Прошивки Darktec</h1>
       <p class="hero-lead">
         Сборки для платы Darktec by Dark Electronics: companion, repeater, room server и другие роли —
-        с вариантами химии батареи.
+        с вариантами химии батареи и режимом защиты от глубокой разрядки.
       </p>
 
       <aside class="fork-card" aria-label="О происхождении прошивки">
@@ -83,6 +83,12 @@
         <div class="step" id="cellsStep" hidden>
           <h2>3 · Ячейки LTO</h2>
           <div class="choice-grid" id="cellsChoices" role="group" aria-label="Число ячеек"></div>
+        </div>
+
+        <div class="step">
+          <h2 id="protectStepLabel">3 · Защита батареи</h2>
+          <div class="choice-grid" id="protectChoices" role="group" aria-label="Защита батареи"></div>
+          <p class="hint" id="protectHint"></p>
         </div>
 
         <div id="paneOffline" role="tabpanel" aria-labelledby="tabOffline">

@@ -5,7 +5,7 @@
 | URL | Содержимое |
 |-----|------------|
 | https://beeline09.github.io | Хаб проектов |
-| https://beeline09.github.io/darktec/ | MVP: выбор роли/химии → скачать UF2 + инструкция DFU |
+| https://beeline09.github.io/darktec/ | Выбор роли / химии / защиты → UF2 + Serial DFU |
 
 Это **не** официальный [meshcore.io/flasher](https://meshcore.io/flasher). Бинарники берутся из Releases форка [`beeline09/MeshCore`](https://github.com/beeline09/MeshCore); сайт только статическая витрина.
 
@@ -18,7 +18,7 @@
 В форке `beeline09/MeshCore` workflow **Build Darktec Firmwares**:
 
 - триггер: push в `south_edition` или `southedition-origin` (+ ручной dispatch)
-- собирает 8 UF2 (companion/repeater × химия)
+- собирает матрицу: роль × химия × ячейки × защита (`adc` / `off`) — UF2 + OTA zip
 - публикует/обновляет Release с тегом **`darktec-latest`**
 - опционально шлёт `repository_dispatch` на этот сайт (секрет `PAGES_DISPATCH_TOKEN` в MeshCore)
 
@@ -34,10 +34,9 @@ git push -u origin main
 
 3. Settings → Pages → Source: **Deploy from a branch** → `main` / `/ (root)`.
 4. В [`beeline09/MeshCore`](https://github.com/beeline09/MeshCore) опубликуйте Release с ассетами вида:
-   - `Darktec_companion_radio_ble_liion_1s.uf2`
-   - `Darktec_companion_radio_ble_lifepo4_1s.uf2`
-   - `Darktec_companion_radio_ble_lto_1s.uf2` / `_lto_2s.uf2`
-   - `Darktec_repeater_liion_1s.uf2` (и остальные химии)
+   - `Darktec_companion_radio_ble_liion_1s_adc.uf2` (+ `.zip` для онлайн)
+   - `Darktec_companion_radio_ble_liion_1s_off.uf2`
+   - то же для `lifepo4` / `lto_1s` / `lto_2s` и остальных ролей
 5. В этом репо: Actions → **Sync Darktec releases** → Run workflow  
    (или локально: `python3 scripts/generate-releases.py` / `node scripts/generate-releases.mjs`).
 
@@ -61,15 +60,18 @@ beeline09.github.io/
   assets/css/site.css
   darktec/
     index.html               # UI выбора
-    app.js                   # матчинг роль × химия → файл
+    app.js                   # матчинг роль × химия × защита → файл
     releases.json            # статический манифест (вместо /releases бэкенда)
   scripts/generate-releases.mjs
   .github/workflows/sync-releases.yml
 ```
 
-Имена UF2 должны совпадать с шаблоном из сборки Darktec:
+Имена UF2 / OTA zip:
 
-`Darktec_{companion_radio_ble|repeater}_{liion|lifepo4|lto}_{1|2}s.uf2`
+`Darktec_{role}_{liion|lifepo4|lto}_{1|2}s_{adc|off}.{uf2,zip}`
+
+- `adc` — sleep/wake по АЦП (защита от глубокой разрядки)
+- `off` — без автоотключения по низкому заряду
 
 ## Связь с MeshCore (опционально)
 

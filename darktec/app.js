@@ -25,12 +25,30 @@ const CHEMS = [
   { id: "lto", title: "LTO", blurb: "1S или 2S (≤ 5 В)", cells: [1, 2] },
 ];
 
+const PROTECTS = [
+  {
+    id: "adc",
+    title: "Включена",
+    blurb: "рекомендуется",
+    hint:
+      "Батарея почти села → плата сама засыпает, чтобы не убить аккумулятор. Проснётся, когда начнёте заряжать штатным зарядником платы (или подключите USB к MCU).",
+  },
+  {
+    id: "off",
+    title: "Выключена",
+    blurb: "без автоотключения",
+    hint:
+      "Плата не выключается сама из‑за низкого заряда. Удобно для отладки. Можно разрядить батарею «в ноль» — для аккумулятора это вредно.",
+  },
+];
+
 const DARKTEC_ASSET = /^Darktec_.+\.(uf2|zip)$/i;
 
 const state = {
   role: "companion_radio_ble",
   chem: "liion",
   cells: 1,
+  protect: "adc",
   tab: "offline",
   releases: [],
   selectedTag: null,
@@ -43,6 +61,9 @@ const els = {
   cellsChoices: document.getElementById("cellsChoices"),
   cellsStep: document.getElementById("cellsStep"),
   chemHint: document.getElementById("chemHint"),
+  protectChoices: document.getElementById("protectChoices"),
+  protectHint: document.getElementById("protectHint"),
+  protectStepLabel: document.getElementById("protectStepLabel"),
   downloadStepLabel: document.getElementById("downloadStepLabel"),
   status: document.getElementById("status"),
   downloadBtn: document.getElementById("downloadBtn"),
@@ -62,12 +83,16 @@ const els = {
   photoCarousel: document.getElementById("photoCarousel"),
 };
 
+function expectedBaseName() {
+  return `Darktec_${state.role}_${state.chem}_${state.cells}s_${state.protect}`;
+}
+
 function expectedFileName() {
-  return `Darktec_${state.role}_${state.chem}_${state.cells}s.uf2`;
+  return `${expectedBaseName()}.uf2`;
 }
 
 function expectedZipName() {
-  return `Darktec_${state.role}_${state.chem}_${state.cells}s.zip`;
+  return `${expectedBaseName()}.zip`;
 }
 
 function findAsset(ext = "uf2") {
@@ -95,6 +120,9 @@ function syncCellsForChem() {
   const multi = chem.cells.length > 1;
   els.cellsStep.hidden = !multi;
   els.chemHint.textContent = chem.blurb;
+  els.protectStepLabel.textContent = multi
+    ? "4 · Защита батареи"
+    : "3 · Защита батареи";
   if (multi) {
     renderChoices(
       els.cellsChoices,
@@ -111,6 +139,11 @@ function syncCellsForChem() {
       },
     );
   }
+}
+
+function syncProtectHint() {
+  const protect = PROTECTS.find((p) => p.id === state.protect);
+  els.protectHint.textContent = protect?.hint ?? "";
 }
 
 function setDownloadEnabled(enabled) {
@@ -184,7 +217,14 @@ function renderAll() {
     updateDownload();
     renderAll();
   });
+  renderChoices(els.protectChoices, PROTECTS, state.protect, (id) => {
+    state.protect = id;
+    syncProtectHint();
+    updateDownload();
+    renderAll();
+  });
   syncCellsForChem();
+  syncProtectHint();
   updateDownload();
 }
 

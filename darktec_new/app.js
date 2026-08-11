@@ -6,9 +6,7 @@
 import { SerialConsole } from "./lib/console.js";
 import {
   canSerialFlash,
-  enterDfuMode,
   flashNrfSerial,
-  forceAppPortToDfu,
   formatSerialFlashError,
   openDfuSerialPort,
   runBootloaderUpdate,
@@ -295,15 +293,46 @@ function setDownloadEnabled(enabled) {
     els.downloadBtn.href = "#";
     els.downloadBtn.removeAttribute("download");
   }
+  syncOnlineActionButtons(enabled);
+}
+
+/**
+ * Online tab:
+ * - firmware ready → Только DFU + bootloader + Прошить (active)
+ * - firmware missing → Собрать + bootloader; Прошить hidden; Только DFU hidden
+ */
+function syncOnlineActionButtons(firmwareReady) {
   const serialOk = canSerialFlash();
+  const uf2 = findAsset("uf2");
   const zipOk = Boolean(findAsset("zip"));
-  // Custom ondemand zips are on GitHub Releases (CORS) — Serial DFU needs
-  // same-origin mirror. Catalog builds use Pages mirror → flash OK.
-  const serialAllowed = enabled && serialOk && zipOk && !needsCustomBuild();
-  els.flashBtn.disabled = !serialAllowed;
-  // DFU без zip бесполезен для прошивки, но bootloader — отдельно.
-  els.dfuBtn.disabled = !serialAllowed;
-  if (els.bootloaderBtn) els.bootloaderBtn.disabled = !serialOk;
+  const ready = Boolean(firmwareReady && uf2);
+  const needBuild = needsCustomBuild() && !uf2;
+
+  if (els.dfuBtn) {
+    els.dfuBtn.hidden = !ready;
+    els.dfuBtn.disabled = !ready;
+  }
+  if (els.flashBtn) {
+    // Каталог: Serial через zip на зеркале. Кастом: zip на GitHub без CORS —
+    // кнопка видна, но активна только для каталога (иначе «Только DFU»).
+    const canSerialFlashBtn =
+      ready && zipOk && serialOk && !needsCustomBuild();
+    els.flashBtn.hidden = !ready;
+    els.flashBtn.disabled = !canSerialFlashBtn;
+    els.flashBtn.title = canSerialFlashBtn
+      ? "Прошивка через Serial (Web Serial)"
+      : needsCustomBuild()
+        ? "Для кастомной сборки используйте «Только DFU» (UF2 на диск)"
+        : "Нужны Chrome/Edge и OTA zip";
+  }
+  if (els.bootloaderBtn) {
+    els.bootloaderBtn.hidden = false;
+    els.bootloaderBtn.disabled = !serialOk;
+  }
+  // Собрать visibility is owned by setBuildControls; ensure online build shows when needed.
+  if (needBuild && !state.building) {
+    if (els.buildBtnOnline) els.buildBtnOnline.hidden = false;
+  }
 }
 
 /** Show/hide «Собрать» on Offline + Online tabs. */
@@ -402,12 +431,12 @@ function updateDownload() {
     if (state.building) {
       els.status.className = "status pending";
       els.status.textContent =
-        "Сборка идёт… около 5 минут. Не закрывайте эту вкладку. Потом — «Скачать UF2» (Offline).";
+        "Сборка идёт… около 5 минут. Не закрывайте эту вкладку.";
       els.flashStatus.className = "status pending";
       els.flashStatus.textContent = els.status.textContent;
       setDownloadEnabled(false);
       setBuildControls({
-        show: false,
+        show: true,
         hint: "Ждём сборку (~5 мин). На GitHub нажали Create/Submit? Можно закрыть вкладку GitHub.",
         building: true,
       });
@@ -419,7 +448,7 @@ function updateDownload() {
         "Готовой прошивки нет — нажмите «Собрать», затем подождите ~5 мин.";
       els.flashStatus.className = "status";
       els.flashStatus.textContent =
-        "Сначала «Собрать» (кнопка выше). Онлайн «Прошить» для кастома пока недоступен — после сборки используйте Offline UF2.";
+        "Прошивка недоступна. Нажмите «Собрать». «Обновить bootloader» доступен всегда.";
       setDownloadEnabled(false);
       if (els.fileName) els.fileName.hidden = true;
       if (els.flashFileName) els.flashFileName.hidden = true;
@@ -432,13 +461,17 @@ function updateDownload() {
     }
     const size = asset.size ? ` · ${(asset.size / 1024).toFixed(0)} KiB` : "";
     els.status.className = "status";
-    els.status.textContent = `Прошивка готова${size} — скачайте UF2 (Offline) и прошейте вручную.`;
+    els.status.textContent = `Прошивка готова${size}`;
     els.flashStatus.className = "status";
     if (!canSerialFlash()) {
-      els.flashStatus.textContent = "Онлайн-флешер: нужен Chrome / Edge (Web Serial).";
+      els.flashStatus.textContent =
+        "Готово к прошивке через режим DFU (кнопка «Только DFU»). Для «Прошить» нужен Chrome / Edge.";
+    } else if (!zipAsset) {
+      els.flashStatus.textContent =
+        "Готово к прошивке через режим DFU. Serial zip ещё нет — «Прошить» недоступна.";
     } else {
       els.flashStatus.textContent =
-        "Кастом готов: Serial DFU с GitHub zip пока недоступен (CORS). Перейдите на Offline → «Скачать UF2».";
+        "Готово к прошивке через Serial или Режим DFU.";
     }
     els.downloadBtn.href = asset.url;
     els.downloadBtn.setAttribute("download", asset.name);
@@ -450,7 +483,6 @@ function updateDownload() {
       els.flashFileName.hidden = false;
       els.flashFileName.textContent = asset.name;
     }
-    // UF2 download OK; Serial flash stays off for custom (setDownloadEnabled).
     setDownloadEnabled(true);
     setBuildControls({ show: false, hint: `Готово: ${asset.name}` });
     return;
@@ -489,12 +521,14 @@ function updateDownload() {
   els.status.textContent = `Готово${size}`;
   els.flashStatus.className = "status";
   if (!canSerialFlash()) {
-    els.flashStatus.textContent = "Онлайн-флешер: нужен Chrome / Edge (Web Serial).";
+    els.flashStatus.textContent =
+      "Готово к прошивке через режим DFU. Для «Прошить» нужен Chrome / Edge.";
   } else if (!zipAsset) {
     els.flashStatus.textContent =
-      "OTA .zip ещё нет в зеркале/релизе. Offline UF2 доступен; дождитесь сборки с serial DFU пакетами.";
+      "OTA .zip ещё нет. Доступен режим DFU («Только DFU»); «Прошить» пока недоступна.";
   } else {
-    els.flashStatus.textContent = "Готово к Serial DFU";
+    els.flashStatus.textContent =
+      "Готово к прошивке через Serial или Режим DFU.";
   }
   els.downloadBtn.href = asset.url;
   els.downloadBtn.setAttribute("download", asset.name);
@@ -1063,25 +1097,32 @@ function finishFlashUi() {
 }
 
 els.dfuBtn.addEventListener("click", async () => {
-  // Sync before awaits: reuse Console port or keep gesture for requestPort.
-  const consolePort = stealConsolePortForFlash();
+  const uf2 = findAsset("uf2");
+  if (!uf2?.url) {
+    els.flashStatus.className = "status error";
+    els.flashStatus.textContent = "UF2 недоступен для этой сборки.";
+    return;
+  }
   els.dfuBtn.disabled = true;
-  if (els.bootloaderBtn) els.bootloaderBtn.disabled = true;
   els.flashStatus.className = "status";
-  const onStatus = (msg) => {
-    els.flashStatus.className = "status";
-    els.flashStatus.textContent = msg;
-  };
+  els.flashStatus.textContent =
+    "Скачивание UF2… Дважды нажмите RESET, затем скопируйте файл на появившийся DFU-диск.";
   try {
-    if (consolePort) {
-      await forceAppPortToDfu(consolePort, onStatus);
-    } else {
-      await enterDfuMode(onStatus);
-    }
+    const a = document.createElement("a");
+    a.href = uf2.url;
+    a.setAttribute("download", uf2.name);
+    a.rel = "noopener";
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    els.flashStatus.className = "status";
+    els.flashStatus.textContent =
+      `Скачан ${uf2.name}. Двойной RESET → скопируйте UF2 на DFU-диск → плата перезагрузится.`;
   } catch (err) {
     console.error(err);
     els.flashStatus.className = "status error";
-    els.flashStatus.textContent = formatSerialFlashError(err);
+    els.flashStatus.textContent = err?.message || String(err);
   } finally {
     finishFlashUi();
   }

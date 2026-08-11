@@ -18,8 +18,8 @@ const USB_VID_SEEED = 0x2886;
  * Below 0.6.1 UF2 upgrades fail — see Adafruit_nRF52_Bootloader 0.6.1 release notes
  * and CircuitPython / FakeTec (ProMicro / nice!nano) guides. MeshCore ProMicro uses the
  * same VID/PID family (0x239A / 0x00B3); official flasher recommends OTAFIX 0.9.2.
- * Normal «Прошить» only soft-warns (VID/PID); version from INFO_UF2.TXT is read only
- * via the separate «Обновить bootloader» action (File System Access).
+ * Version checks and OTAFIX writes are only via «Обновить bootloader» (File System Access);
+ * normal «Прошить» does Serial DFU with no bootloader dialogs.
  *
  * @see https://github.com/adafruit/Adafruit_nRF52_Bootloader/releases/tag/0.6.1
  * @see https://blog.meshcore.io/2026/04/06/otafix-bootloader
@@ -41,18 +41,6 @@ const OTAFIX_UF2_FILENAME = "promicro_nrf52840_bootloader-0.9.2-OTAFIX2.1.uf2";
 /** Same-origin mirror (committed under darktec/firmware/bootloader/) — used by fetch. */
 const BOOTLOADER_UPDATE_UF2_LOCAL =
   `./firmware/bootloader/${OTAFIX_UF2_FILENAME}`;
-
-/**
- * USB PIDs used by nice!nano / ProMicro NRF52840 / MeshCore Darktec-class boards
- * (Adafruit bootloader family). From MeshCore boards/promicro_nrf52840.json hwids.
- */
-const ADAFRUIT_NICE_NANO_FAMILY_PIDS = new Set([
-  0x00b3, // nice!nano / ProMicro UF2+CDC (factory clones)
-  0x0029,
-  0x002a,
-  0x8029,
-  0x802a,
-]);
 
 /** Broad filters for the application COM (first picker). */
 const APP_PORT_FILTERS = [
@@ -188,47 +176,6 @@ export function isBootloaderBelowMinimum(version, minimum = MIN_ADAFRUIT_BOOTLOA
     if (a[i] > b[i]) return false;
   }
   return false;
-}
-
-/**
- * True for Adafruit nice!nano / ProMicro / Darktec-class DFU USB identities.
- * @param {SerialPort} port
- */
-export function isAdafruitNiceNanoFamilyPort(port) {
-  const { usbVendorId, usbProductId } = portUsbInfo(port);
-  if (usbVendorId !== USB_VID_ADAFRUIT) return false;
-  if (usbProductId == null) return true; // VID match only — treat as family
-  return ADAFRUIT_NICE_NANO_FAMILY_PIDS.has(usbProductId);
-}
-
-/**
- * Best-effort bootloader version from Web Serial.
- * Chromium SerialPort.getInfo() currently returns only usbVendorId / usbProductId
- * (no bcdDevice / product string), so this almost always returns null.
- * Future browsers may expose version-like fields — we probe a few names.
- *
- * @param {SerialPort} port
- * @returns {string | null}
- */
-export function probeBootloaderVersion(port) {
-  const info = portUsbInfo(port);
-  const candidates = [
-    info.usbProductVersion,
-    info.usbProductVersionString,
-    info.productVersion,
-    info.serialNumber,
-    info.usbSerialNumber,
-  ];
-  for (const raw of candidates) {
-    if (raw == null || raw === "") continue;
-    if (typeof raw === "number" && Number.isFinite(raw)) {
-      // bcdDevice style 0x0601 → "6.1" is ambiguous; only accept if already semver-like string
-      continue;
-    }
-    const text = String(raw);
-    if (parseBootloaderSemver(text)) return text.trim();
-  }
-  return null;
 }
 
 /**
@@ -510,72 +457,10 @@ export function promptPickUf2DiskForUpdate(opts = {}) {
 }
 
 /**
- * Soft warning only (no directory picker): nice!nano-class VID/PID before Serial DFU flash.
- * Dialog 1 proposes updating via «Обновить bootloader»; if refused, dialog 2 force-flash.
- *
- * @param {SerialPort} port
- * @param {{ onStatus?: Function, confirmFn?: (msg: string) => boolean, openUrl?: (url: string) => void }} [opts]
- * @returns {Promise<"ok" | "forced" | "skipped">}
- */
-export async function ensureAdafruitBootloaderOk(port, opts = {}) {
-  const confirmFn = opts.confirmFn || ((msg) => window.confirm(msg));
-  const openUrl =
-    opts.openUrl ||
-    ((url) => {
-      try {
-        window.open(url, "_blank", "noopener,noreferrer");
-      } catch {
-        /* ignore */
-      }
-    });
-
-  if (!isAdafruitNiceNanoFamilyPort(port)) {
-    return "skipped";
-  }
-
-  const version = probeBootloaderVersion(port);
-  const below =
-    version != null ? isBootloaderBelowMinimum(version, MIN_ADAFRUIT_BOOTLOADER) : null;
-
-  // Known good (≥ hard min) — proceed. OTAFIX check is the separate «Обновить bootloader» action.
-  if (version && below === false) {
-    opts.onStatus?.(`Бутлоадер ${version} (≥ ${MIN_ADAFRUIT_BOOTLOADER}) — OK.`);
-    return "ok";
-  }
-
-  // Web Serial almost never exposes version — soft path for family ports (no folder picker).
-  const knownOld = below === true;
-  const updateMsg = knownOld
-    ? `Обнаружен старый Adafruit/nice!nano бутлоадер ${version} (нужен ≥ ${MIN_ADAFRUIT_BOOTLOADER}).\n\n` +
-      `Крупные прошивки MeshCore/Darktec могут не записаться. Рекомендуется OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}.\n\n` +
-      `Открыть инструкцию / UF2? (или нажмите «Обновить bootloader» на этой странице)`
-    : `Версию бутлоадера Serial не читает. У Darktec/ProMicro/nice!nano часто стоит Adafruit UF2 < ${MIN_ADAFRUIT_BOOTLOADER}.\n\n` +
-      `MeshCore рекомендует OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}. Проверить и обновить — кнопка «Обновить bootloader» (без выбора папки при обычной прошивке).\n\n` +
-      `Открыть инструкцию / UF2 сейчас?`;
-
-  opts.onStatus?.("Проверка бутлоадера…");
-  const wantsUpdate = confirmFn(updateMsg);
-  if (wantsUpdate) {
-    openUrl(BOOTLOADER_UPDATE_UF2_URL);
-    throw new Error(
-      `Прошивка отменена: обновите бутлоадер кнопкой «Обновить bootloader» или вручную (OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}). Инструкция: ${BOOTLOADER_UPDATE_DOCS_URL}`,
-    );
-  }
-
-  const force = confirmFn("Продолжить прошивку на старом бутлоадере?");
-  if (!force) {
-    throw new Error("Прошивка отменена пользователем.");
-  }
-
-  opts.onStatus?.("Продолжаем на текущем бутлоадере…");
-  return "forced";
-}
-
-/**
  * Dedicated bootloader update: double-RESET → pick UF2 MSC disk → read INFO_UF2
  * → if below OTAFIX (or forced), download/write official UF2.
  * No Web Serial / 1200-baud step — that enters serial-only DFU without a disk.
- * («Только DFU» / «Прошить» keep 1200-baud Serial DFU separately.)
+ * («Только DFU» / «Прошить» keep 1200-baud Serial DFU separately, with no bootloader dialogs.)
  *
  * @param {{ onStatus?: Function, confirmFn?: (msg: string) => boolean, openUrl?: (url: string) => void }} [opts]
  * @returns {Promise<"ok" | "updated" | "download">}
@@ -971,8 +856,6 @@ export async function enterDfuMode(onStatus) {
  * With `forceDfu: false`: single DFU-oriented picker (already in bootloader;
  * call only from a click handler, before long awaits).
  *
- * Soft bootloader confirms belong after this returns (see app.js «Прошить»).
- *
  * @param {{ forceDfu?: boolean, onStatus?: Function }} opts
  * @returns {Promise<SerialPort>}
  */
@@ -1019,8 +902,7 @@ export async function openDfuSerialPort(opts = {}) {
  * Flash OTA zip over Web Serial DFU.
  * Prefer calling {@link openDfuSerialPort} first from the click handler (before zip fetch),
  * then pass the port as `opts.port` so requestPort stays inside the user gesture.
- * Call {@link ensureAdafruitBootloaderOk} after the DFU port is open (and ideally before
- * zip fetch) so the user can abort without downloading.
+ * No bootloader version dialogs — use {@link runBootloaderUpdate} separately.
  *
  * @param {Blob} zipBlob
  * @param {{
@@ -1028,7 +910,6 @@ export async function openDfuSerialPort(opts = {}) {
  *   port?: SerialPort | null,
  *   onStatus?: Function,
  *   onProgress?: Function,
- *   skipBootloaderCheck?: boolean,
  * }} opts
  */
 export async function flashNrfSerial(zipBlob, opts = {}) {
@@ -1037,7 +918,6 @@ export async function flashNrfSerial(zipBlob, opts = {}) {
     port: existingPort = null,
     onStatus,
     onProgress,
-    skipBootloaderCheck = false,
   } = opts;
   if (!canSerialFlash()) {
     throw new Error("Нужен Chrome или Edge с Web Serial API.");
@@ -1046,9 +926,6 @@ export async function flashNrfSerial(zipBlob, opts = {}) {
   try {
     const dfuPort =
       existingPort || (await openDfuSerialPort({ forceDfu, onStatus }));
-    if (!skipBootloaderCheck) {
-      await ensureAdafruitBootloaderOk(dfuPort, { onStatus });
-    }
     const dfu = new Dfu(dfuPort);
 
     onStatus?.("Прошивка по Serial DFU…");

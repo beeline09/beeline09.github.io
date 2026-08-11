@@ -5,7 +5,6 @@
 import {
   canSerialFlash,
   enterDfuMode,
-  ensureAdafruitBootloaderOk,
   flashNrfSerial,
   formatSerialFlashError,
   openDfuSerialPort,
@@ -621,19 +620,16 @@ els.flashBtn.addEventListener("click", async () => {
     // Order (Web Serial gesture):
     // 1) openDfuSerialPort → immediate requestPort(app), force DFU, auto DFU;
     //    on miss → site modal → requestPort(DFU) from a fresh button click
-    // 2) soft bootloader confirms (OK after ports; window.confirm is not a Serial gesture)
-    // 3) fetch zip  4) flash with the already-chosen port
-    // No showDirectoryPicker here — UF2 disk pick is only «Обновить bootloader».
+    // 2) fetch zip  3) flash with the already-chosen port
+    // No bootloader dialogs here — UF2 / OTAFIX is only «Обновить bootloader».
     const dfuPort = await openDfuSerialPort({
       forceDfu: true,
       onStatus,
     });
-    await ensureAdafruitBootloaderOk(dfuPort, { onStatus });
     onStatus("Загрузка OTA zip…");
     const blob = await loadOtaZipBlob(zipAsset.name);
     await flashNrfSerial(blob, {
       port: dfuPort,
-      skipBootloaderCheck: true,
       onStatus,
       onProgress: (pct) => {
         els.flashProgressBar.style.width = `${pct}%`;

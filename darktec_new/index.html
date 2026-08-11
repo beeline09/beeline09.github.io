@@ -230,6 +230,42 @@
   </div>
 
   <div
+    id="buildHelpModal"
+    class="modal-backdrop"
+    hidden
+    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="buildHelpTitle"
+  >
+    <div class="modal-panel">
+      <h3 id="buildHelpTitle" class="modal-title">Как собрать прошивку с вашим именем</h3>
+      <div class="modal-body">
+        <p>
+          Готового файла для этих настроек ещё нет. Его нужно один раз собрать
+          через GitHub (это бесплатно, но без вашего подтверждения сайт сам
+          сборку запустить не может — такое ограничение).
+        </p>
+        <ol class="modal-steps">
+          <li>Сейчас откроется новая вкладка GitHub. Если попросит — <strong>войдите</strong> в аккаунт.</li>
+          <li>На странице <strong>ничего не меняйте</strong> в тексте.</li>
+          <li>Внизу нажмите зелёную кнопку <strong>«Create»</strong> или <strong>«Submit new issue»</strong>.</li>
+          <li>После этого вкладку GitHub можно <strong>закрыть</strong> и вернуться сюда.</li>
+          <li>На этой странице <strong>подождите около 5 минут</strong> — когда файл появится, кнопка «Скачать UF2» станет активной. Только тогда можно прошивать.</li>
+        </ol>
+        <p>
+          Если сразу нажать «Скачать» или «Прошить» — ничего не получится:
+          файла ещё нет.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="buildHelpCancelBtn">Отмена</button>
+        <button type="button" class="btn btn-primary" id="buildHelpOkBtn">Понятно, открыть GitHub</button>
+      </div>
+    </div>
+  </div>
+
+  <div
     id="consoleModal"
     class="modal-backdrop console-backdrop"
     hidden

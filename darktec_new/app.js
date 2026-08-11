@@ -163,6 +163,9 @@ const els = {
   nameHint: document.getElementById("nameHint"),
   buildBtn: document.getElementById("buildBtn"),
   buildHint: document.getElementById("buildHint"),
+  buildHelpModal: document.getElementById("buildHelpModal"),
+  buildHelpOkBtn: document.getElementById("buildHelpOkBtn"),
+  buildHelpCancelBtn: document.getElementById("buildHelpCancelBtn"),
 };
 
 /** @type {{ instance: SerialConsole | null, port: SerialPort | null }} */
@@ -314,7 +317,7 @@ async function refreshOndemandFromCache() {
     els.buildHint.hidden = false;
     els.buildHint.textContent = found.uf2
       ? `Готово: ${base}.uf2 — можно скачать и прошить.`
-      : "Для этих параметров готовой прошивки ещё нет. Нажмите «Собрать», на GitHub подтвердите создание issue (нужен логин) и подождите ~2–5 мин — страница сама подхватит файл.";
+      : "Готовой прошивки для этих параметров ещё нет. Нажмите «Собрать» — появится простая инструкция (что нажать на GitHub и сколько ждать).";
   }
 }
 
@@ -326,7 +329,7 @@ function updateDownload() {
     if (state.building) {
       els.status.className = "status pending";
       els.status.textContent =
-        "Сборка запущена… ждём файл (~2–5 мин). После появления можно скачать UF2 и прошить.";
+        "Сборка идёт… около 5 минут. Не закрывайте эту вкладку. Прошивать можно только когда появится «Скачать UF2».";
       els.flashStatus.textContent = els.status.textContent;
       setDownloadEnabled(false);
       if (els.buildBtn) els.buildBtn.hidden = true;
@@ -1095,6 +1098,42 @@ async function boot() {
   renderAll();
 }
 
+function showBuildHelpModal() {
+  return new Promise((resolve) => {
+    const modal = els.buildHelpModal;
+    if (!modal || !els.buildHelpOkBtn || !els.buildHelpCancelBtn) {
+      resolve(true);
+      return;
+    }
+
+    const finish = (ok) => {
+      modal.hidden = true;
+      modal.setAttribute("aria-hidden", "true");
+      els.buildHelpOkBtn.removeEventListener("click", onOk);
+      els.buildHelpCancelBtn.removeEventListener("click", onCancel);
+      modal.removeEventListener("click", onBackdrop);
+      document.removeEventListener("keydown", onKey);
+      resolve(ok);
+    };
+    const onOk = () => finish(true);
+    const onCancel = () => finish(false);
+    const onBackdrop = (ev) => {
+      if (ev.target === modal) finish(false);
+    };
+    const onKey = (ev) => {
+      if (ev.key === "Escape") finish(false);
+    };
+
+    els.buildHelpOkBtn.addEventListener("click", onOk);
+    els.buildHelpCancelBtn.addEventListener("click", onCancel);
+    modal.addEventListener("click", onBackdrop);
+    document.addEventListener("keydown", onKey);
+    modal.hidden = false;
+    modal.setAttribute("aria-hidden", "false");
+    els.buildHelpOkBtn.focus();
+  });
+}
+
 function wireOndemandUi() {
   if (!els.advertNameInput) return;
 
@@ -1109,6 +1148,8 @@ function wireOndemandUi() {
 
   els.buildBtn?.addEventListener("click", async () => {
     if (!isCustomName()) return;
+    const proceed = await showBuildHelpModal();
+    if (!proceed) return;
     try {
       if (!state.southSha) state.southSha = await fetchSouthEditionSha();
       const nameSlug = customNameSlug();
@@ -1135,7 +1176,7 @@ function wireOndemandUi() {
       if (els.buildHint) {
         els.buildHint.hidden = false;
         els.buildHint.textContent =
-          "Открылась форма GitHub: нажмите «Submit new issue» (нужен логин). Пока ждём сборку — прошивать ещё рано.";
+          "Ждём сборку (~5 мин). На GitHub уже нажали Create/Submit? Вкладку можно закрыть — оставайтесь на этой странице.";
       }
       if (state.pollAbort) state.pollAbort.abort();
       state.pollAbort = new AbortController();
@@ -1143,7 +1184,8 @@ function wireOndemandUi() {
         signal: state.pollAbort.signal,
         onTick: () => {
           els.status.className = "status pending";
-          els.status.textContent = `Ожидание ${base}.uf2 …`;
+          els.status.textContent =
+            "Ждём готовую прошивку (~5 мин). Не закрывайте эту вкладку…";
         },
       });
       state.ondemand = { uf2: found.uf2, zip: found.zip };
@@ -1156,7 +1198,7 @@ function wireOndemandUi() {
       els.status.className = "status error";
       els.status.textContent =
         err.message === "timeout"
-          ? "Таймаут ожидания сборки. Проверьте Actions / issue и обновите страницу."
+          ? "За 12 минут файл не появился. Проверьте, что на GitHub нажали Create/Submit, и обновите страницу."
           : `Сборка: ${err.message}`;
       updateDownload();
     }

@@ -299,22 +299,81 @@ export async function readInfoUf2FromDirHandle(dirHandle) {
 }
 
 /**
+ * True when the DFU volume vanished mid/after UF2 apply (board reboot).
+ * Chromium then throws InvalidStateError / NotFoundError / AbortError with
+ * messages like «state had changed since it was read from disk».
+ * @param {unknown} err
+ */
+export function isLikelyDfuDiskGoneError(err) {
+  if (err == null) return false;
+  const name =
+    typeof err === "object" && err && "name" in err ? String(err.name) : "";
+  const message =
+    typeof err === "object" && err && "message" in err
+      ? String(err.message)
+      : String(err);
+  if (
+    name === "InvalidStateError" ||
+    name === "NotFoundError" ||
+    name === "AbortError"
+  ) {
+    return true;
+  }
+  return /state had changed|cached in an interface object|not found|aborted/i.test(
+    message,
+  );
+}
+
+/**
  * Write a UF2 blob onto a picked DFU volume (device usually reboots / unmounts after).
+ * Pattern: create writable → write full buffer → close. Do not re-read INFO_UF2
+ * after write — the disk is gone. If close/write fails because the volume
+ * disappeared after a started write, treat as success (reboot-after-apply).
+ *
  * @param {FileSystemDirectoryHandle} dirHandle
- * @param {Blob} blob
+ * @param {Blob | ArrayBuffer | Uint8Array} blob
  * @param {string} [fileName]
+ * @returns {Promise<{ diskGone: boolean }>}
  */
 export async function writeUf2ToDirHandle(dirHandle, blob, fileName = OTAFIX_UF2_FILENAME) {
-  const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
-  const writable = await fileHandle.createWritable();
+  /** @type {ArrayBuffer} */
+  let buffer;
+  if (blob instanceof ArrayBuffer) {
+    buffer = blob;
+  } else if (ArrayBuffer.isView(blob)) {
+    buffer = blob.buffer.slice(blob.byteOffset, blob.byteOffset + blob.byteLength);
+  } else {
+    buffer = await blob.arrayBuffer();
+  }
+
+  let writable = null;
+  let writeStarted = false;
+  let writeCompleted = false;
+
   try {
-    await writable.write(blob);
-  } finally {
-    try {
-      await writable.close();
-    } catch {
-      /* disk often disappears mid-close after UF2 apply — ignore */
+    const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+    writable = await fileHandle.createWritable();
+    writeStarted = true;
+    await writable.write(buffer);
+    writeCompleted = true;
+    await writable.close();
+    writable = null;
+    return { diskGone: false };
+  } catch (err) {
+    if (writable) {
+      try {
+        await writable.close();
+      } catch {
+        /* disk often disappears mid-close after UF2 apply — ignore */
+      }
+      writable = null;
     }
+    // Reboot-after-write: handles invalidate once the board applies UF2.
+    // Success if write finished, or write had started and the volume vanished.
+    if (writeCompleted || (writeStarted && isLikelyDfuDiskGoneError(err))) {
+      return { diskGone: true };
+    }
+    throw err;
   }
 }
 
@@ -514,7 +573,7 @@ export async function ensureAdafruitBootloaderOk(port, opts = {}) {
 
 /**
  * Dedicated bootloader update: double-RESET → pick UF2 MSC disk → read INFO_UF2
- * → if below OTAFIX, download/write official UF2.
+ * → if below OTAFIX (or forced), download/write official UF2.
  * No Web Serial / 1200-baud step — that enters serial-only DFU without a disk.
  * («Только DFU» / «Прошить» keep 1200-baud Serial DFU separately.)
  *
@@ -549,29 +608,38 @@ export async function runBootloaderUpdate(opts = {}) {
   const belowRec = isBootloaderBelowMinimum(version, RECOMMENDED_ADAFRUIT_BOOTLOADER);
 
   if (belowRec === false) {
-    opts.onStatus?.(
-      `Бутлоадер уже ${version} (≥ ${RECOMMENDED_ADAFRUIT_BOOTLOADER}) — обновление не нужно.`,
+    opts.onStatus?.("Ваш бутлоадер не нуждается в обновлении.");
+    const force = confirmFn(
+      `Ваш бутлоадер не нуждается в обновлении.\n\n` +
+        `Текущая версия: ${version} (≥ ${RECOMMENDED_ADAFRUIT_BOOTLOADER})` +
+        (info.model ? ` — ${info.model}` : "") +
+        `.\n\nХотите обновить принудительно?`,
     );
-    return "ok";
-  }
+    if (!force) {
+      opts.onStatus?.(
+        `Обновление не требуется — бутлоадер уже ${version} (≥ ${RECOMMENDED_ADAFRUIT_BOOTLOADER}).`,
+      );
+      return "ok";
+    }
+  } else {
+    const belowMin = isBootloaderBelowMinimum(version, MIN_ADAFRUIT_BOOTLOADER) === true;
+    const offer =
+      `Текущий бутлоадер: ${version}` +
+      (info.model ? ` (${info.model})` : "") +
+      `.\n\n` +
+      (belowMin
+        ? `Ниже минимума ${MIN_ADAFRUIT_BOOTLOADER}. `
+        : "") +
+      `Рекомендуется OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}.\n\n` +
+      `Записать официальный OTAFIX UF2 на выбранный диск DFU?`;
 
-  const belowMin = isBootloaderBelowMinimum(version, MIN_ADAFRUIT_BOOTLOADER) === true;
-  const offer =
-    `Текущий бутлоадер: ${version}` +
-    (info.model ? ` (${info.model})` : "") +
-    `.\n\n` +
-    (belowMin
-      ? `Ниже минимума ${MIN_ADAFRUIT_BOOTLOADER}. `
-      : "") +
-    `Рекомендуется OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}.\n\n` +
-    `Записать официальный OTAFIX UF2 на выбранный диск DFU?`;
-
-  if (!confirmFn(offer)) {
-    openUrl(BOOTLOADER_UPDATE_UF2_URL);
-    opts.onStatus?.(
-      `Скачайте UF2 вручную и скопируйте на диск DFU. Инструкция: ${BOOTLOADER_UPDATE_DOCS_URL}`,
-    );
-    return "download";
+    if (!confirmFn(offer)) {
+      openUrl(BOOTLOADER_UPDATE_UF2_URL);
+      opts.onStatus?.(
+        `Скачайте UF2 вручную и скопируйте на диск DFU. Инструкция: ${BOOTLOADER_UPDATE_DOCS_URL}`,
+      );
+      return "download";
+    }
   }
 
   opts.onStatus?.("Загрузка OTAFIX UF2…");
@@ -593,8 +661,11 @@ export async function runBootloaderUpdate(opts = {}) {
 
   opts.onStatus?.("Запись OTAFIX UF2 на диск DFU…");
   try {
+    // No INFO_UF2 re-read after write — DFU disk unmounts on successful apply.
     await writeUf2ToDirHandle(dirHandle, blob, OTAFIX_UF2_FILENAME);
   } catch (err) {
+    // writeUf2ToDirHandle already maps reboot-after-write to success; anything
+    // still thrown here means write never started or failed early.
     openUrl(BOOTLOADER_UPDATE_UF2_URL);
     throw new Error(
       `Не удалось записать UF2 на диск (скопируйте вручную). ${err && typeof err === "object" && "message" in err ? err.message : err}`,
@@ -602,7 +673,7 @@ export async function runBootloaderUpdate(opts = {}) {
   }
 
   opts.onStatus?.(
-    "OTAFIX UF2 записан. Плата должна перезагрузиться; диск DFU исчезнет — это нормально.",
+    "Бутлоадер обновлён. Плата перезагрузилась — это нормально.",
   );
   return "updated";
 }

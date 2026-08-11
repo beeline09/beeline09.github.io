@@ -2,8 +2,13 @@ import * as zip from "./zip.min.js";
 
 // Constants adapted from dfu/dfu_transport_serial.py
 const DFU_TOUCH_BAUD = 1200;
-const SERIAL_PORT_OPEN_WAIT_TIME = 0.1;
-const TOUCH_RESET_WAIT_TIME = 1.5;
+/** Brief settle after open@1200 before close — touch is the open/close, not a long hold. */
+const SERIAL_PORT_OPEN_WAIT_TIME = 0.05;
+/**
+ * Wait after close/forget for USB re-enumerate.
+ * Adafruit nrfutil uses 1.5s; Web Serial + MSC needs a bit more headroom (2–3s).
+ */
+const TOUCH_RESET_WAIT_TIME = 2.5;
 
 const DEFAULT_SERIAL_PORT_TIMEOUT = 1.0; // Timeout time on serial port read
 const FLASH_PAGE_SIZE = 4096;
@@ -263,21 +268,54 @@ export class Dfu {
     await this.sendPacket(packet);
   }
 
-  // THANKS Liam!!!
-  static async forceDfuMode(port) {
-    // open port
-    await port.open({
-      baudRate: DFU_TOUCH_BAUD,
-    });
+  /**
+   * Adafruit/nRF 1200-baud touch: open@1200 → quick close → forget → wait.
+   * Must release the port before Serial DFU CDC / UF2 MSC can enumerate cleanly.
+   * Note: Arduino Core maps this to DFU_MAGIC_SERIAL_ONLY_RESET (CDC only, no MSC).
+   * UF2 disk still needs double-RESET (or enterUf2Dfu / 0x57).
+   *
+   * @param {SerialPort} port
+   * @param {{ waitAfterMs?: number }} [opts]
+   */
+  static async forceDfuMode(port, opts = {}) {
+    const waitAfterMs =
+      typeof opts.waitAfterMs === "number" && opts.waitAfterMs >= 0
+        ? opts.waitAfterMs
+        : TOUCH_RESET_WAIT_TIME * 1000;
 
-    // wait SERIAL_PORT_OPEN_WAIT_TIME before closing port
-    await sleep(SERIAL_PORT_OPEN_WAIT_TIME * 1000);
+    // Ensure we start from a closed handle (re-open at 1200 is the touch).
+    try {
+      if (port.readable || port.writable) {
+        await port.close();
+      }
+    } catch {
+      /* ignore */
+    }
 
-    // close port
-    await port.close();
+    try {
+      await port.open({ baudRate: DFU_TOUCH_BAUD });
+      await sleep(SERIAL_PORT_OPEN_WAIT_TIME * 1000);
+    } finally {
+      // Always release — holding the CDC open blocks MSC mount on some OS.
+      try {
+        if (port.readable || port.writable) {
+          await port.close();
+        }
+      } catch {
+        /* ignore */
+      }
+    }
 
-    // wait TOUCH_RESET_WAIT_TIME for device to enter into DFU mode
-    await sleep(TOUCH_RESET_WAIT_TIME * 1000);
+    // Drop permission so the OS/browser is not holding the old CDC interface.
+    try {
+      if (typeof port.forget === "function") {
+        await port.forget();
+      }
+    } catch {
+      /* forget() unsupported or already gone */
+    }
+
+    await sleep(waitAfterMs);
   }
 
   async sendStartDfu(mode, softdeviceSize = 0, bootloaderSize = 0, appSize = 0) {

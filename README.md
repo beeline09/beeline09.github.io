@@ -5,7 +5,8 @@
 | URL | Содержимое |
 |-----|------------|
 | https://beeline09.github.io | Хаб проектов |
-| https://beeline09.github.io/darktec/ | Выбор роли / химии / защиты → UF2 + Serial DFU |
+| https://beeline09.github.io/darktec/ | Стабильный flasher (роль / химия / защита → UF2 + Serial DFU) |
+| https://beeline09.github.io/darktec_new/ | Lab: то же + имя ноды + on-demand CI (`darktec-ondemand`) |
 
 Это **не** официальный [meshcore.io/flasher](https://meshcore.io/flasher). Бинарники берутся из Releases форка [`beeline09/MeshCore`](https://github.com/beeline09/MeshCore/tree/south_edition) (ветка `south_edition`); сайт только статическая витрина.
 
@@ -17,10 +18,20 @@
 
 В форке `beeline09/MeshCore` workflow **Build Darktec Firmwares**:
 
-- триггер: push в `south_edition` или `southedition-origin` (+ ручной dispatch)
+- триггер: push в `south_edition` (+ ручной dispatch)
 - собирает матрицу: роль × химия × ячейки × защита (`adc` / `off`) — UF2 + OTA zip
 - публикует/обновляет Release с тегом **`darktec-latest`**
 - опционально шлёт `repository_dispatch` на этот сайт (секрет `PAGES_DISPATCH_TOKEN` в MeshCore)
+
+## On-demand (lab `/darktec_new/`)
+
+Кастомное имя ноды → Release-кэш **`darktec-ondemand`** в MeshCore.
+
+1. Страница ищет ассет `Darktec_{role}_{chem}_{Ns}_{protect}__{name_slug}__{sha8}.{uf2,zip}`.
+2. При промахе открывается issue с меткой `darktec-ondemand` (или body `<!-- darktec-ondemand ... -->`).
+3. Workflow **Build Darktec On-Demand** собирает один вариант и заливает в тот же Release (`--clobber`).
+
+Стабильный `/darktec/` не меняется и по-прежнему берёт каталог из `darktec-latest`.
 
 ## Быстрый старт
 
@@ -58,10 +69,11 @@ python3 -m http.server 8080
 beeline09.github.io/
   index.html                 # хаб
   assets/css/site.css
-  darktec/
-    index.html               # UI выбора
-    app.js                   # матчинг роль × химия × защита → файл
-    releases.json            # статический манифест (вместо /releases бэкенда)
+  darktec/                   # стабильный flasher
+  darktec_new/               # lab: имя ноды + on-demand CI
+    index.html
+    app.js
+    ondemand.js
   scripts/generate-releases.mjs
   .github/workflows/sync-releases.yml
 ```

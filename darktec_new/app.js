@@ -313,8 +313,8 @@ async function refreshOndemandFromCache() {
   if (els.buildHint) {
     els.buildHint.hidden = false;
     els.buildHint.textContent = found.uf2
-      ? `Кэш: ${base}.uf2 (south_edition @ ${state.southSha})`
-      : `В кэше нет ${base}. Нажмите «Собрать в CI» (откроется issue в GitHub).`;
+      ? `Готово: ${base}.uf2 — можно скачать и прошить.`
+      : "Для этих параметров готовой прошивки ещё нет. Нажмите «Собрать», на GitHub подтвердите создание issue (нужен логин) и подождите ~2–5 мин — страница сама подхватит файл.";
   }
 }
 
@@ -325,7 +325,8 @@ function updateDownload() {
   if (isCustomName()) {
     if (state.building) {
       els.status.className = "status pending";
-      els.status.textContent = "Сборка в CI… страница ждёт появления файла в darktec-ondemand.";
+      els.status.textContent =
+        "Сборка запущена… ждём файл (~2–5 мин). После появления можно скачать UF2 и прошить.";
       els.flashStatus.textContent = els.status.textContent;
       setDownloadEnabled(false);
       if (els.buildBtn) els.buildBtn.hidden = true;
@@ -333,7 +334,8 @@ function updateDownload() {
     }
     if (!asset) {
       els.status.className = "status";
-      els.status.textContent = "Кастомной прошивки в кэше нет — соберите в CI.";
+      els.status.textContent =
+        "Готовой прошивки для этого имени ещё нет — сначала соберите, потом прошьёте.";
       els.flashStatus.textContent = els.status.textContent;
       setDownloadEnabled(false);
       if (els.fileName) {
@@ -343,7 +345,7 @@ function updateDownload() {
     }
     const size = asset.size ? ` · ${(asset.size / 1024).toFixed(0)} KiB` : "";
     els.status.className = "status";
-    els.status.textContent = `Готово (ondemand)${size}`;
+    els.status.textContent = `Прошивка готова${size} — можно скачать UF2 и прошить.`;
     els.flashStatus.className = "status";
     if (!canSerialFlash()) {
       els.flashStatus.textContent = "Онлайн-флешер: нужен Chrome / Edge (Web Serial).";
@@ -351,7 +353,7 @@ function updateDownload() {
       els.flashStatus.textContent = "UF2 есть; OTA zip ещё нет в кэше.";
     } else {
       els.flashStatus.textContent =
-        "UF2 готов (Offline). Serial DFU для кастомных имён — в следующей итерации (зеркало zip).";
+        "UF2 готов (вкладка Offline). Онлайн Serial DFU для кастомных имён — позже.";
     }
     els.downloadBtn.href = asset.url;
     els.downloadBtn.setAttribute("download", asset.name);
@@ -1133,7 +1135,7 @@ function wireOndemandUi() {
       if (els.buildHint) {
         els.buildHint.hidden = false;
         els.buildHint.textContent =
-          "Issue открыт. Подтвердите создание на GitHub (нужен логин). Ждём артефакт…";
+          "Открылась форма GitHub: нажмите «Submit new issue» (нужен логин). Пока ждём сборку — прошивать ещё рано.";
       }
       if (state.pollAbort) state.pollAbort.abort();
       state.pollAbort = new AbortController();

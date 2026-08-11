@@ -39,10 +39,10 @@
       <aside class="fork-card" aria-label="Эксперимент">
         <p class="fork-card-label">Lab</p>
         <p>
-          Кастомное имя → проверка кэша Release <code>darktec-ondemand</code>.
-          Если файла нет — открывается issue в MeshCore с меткой
-          <code>darktec-ondemand</code>, CI собирает один вариант (~2–5&nbsp;мин),
-          страница сама подхватит UF2/zip.
+          Кастомное имя: сначала ищем готовый файл в кэше.
+          Если его нет — нажмите <strong>Собрать</strong>, подтвердите issue на GitHub
+          (нужен логин) и подождите ~2–5&nbsp;мин: сборка появится сама, после этого
+          можно скачать UF2 и прошить.
         </p>
       </aside>
 
@@ -147,9 +147,9 @@
             spellcheck="false"
           >
           <p class="hint" id="nameHint">
-            Пусто — берём готовый файл из выбранной версии. Непустое имя —
-            ищем/собираем кастом в <code>darktec-ondemand</code> (для repeater/room/sensor
-            попадает в ADVERT_NAME; companion UI всё равно может показать NONAME до смены в приложении).
+            Пусто — готовый файл из выбранной версии (можно сразу прошить).
+            Непустое имя — отдельная прошивка: если в кэше ещё нет, сначала
+            «Собрать» и подождать, потом появится «Скачать UF2».
           </p>
         </div>
 
@@ -158,7 +158,7 @@
             <h2 id="downloadStepLabel">Скачать / собрать</h2>
             <p class="status" id="status"></p>
             <div class="download-row">
-              <button type="button" class="btn btn-ghost" id="buildBtn" hidden>Собрать в CI</button>
+              <button type="button" class="btn btn-ghost" id="buildBtn" hidden>Собрать</button>
               <a class="btn btn-primary" id="downloadBtn" href="#" aria-disabled="true">Скачать UF2</a>
               <span class="file-name" id="fileName" hidden></span>
             </div>

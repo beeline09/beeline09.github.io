@@ -71,7 +71,7 @@ export function buildIssueUrl({ role, chem, cells, protect, advertName, nameSlug
     "-->",
     "",
     "Не редактируйте блок `<!-- darktec-ondemand ... -->`.",
-    "CI соберёт один вариант и приложит ссылки в комментарий.",
+    "После создания issue сборка запустится сама (~2–5 мин), ссылки появятся в комментарии.",
   ].join("\n");
 
   const params = new URLSearchParams({

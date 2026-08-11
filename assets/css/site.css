@@ -21,6 +21,11 @@
   box-sizing: border-box;
 }
 
+/* Author display:* rules (e.g. .modal-backdrop) override UA [hidden]; force hide. */
+[hidden] {
+  display: none !important;
+}
+
 html {
   color-scheme: dark;
 }
@@ -739,6 +744,10 @@ a:hover {
   backdrop-filter: blur(4px);
 }
 
+.modal-backdrop[hidden] {
+  pointer-events: none;
+}
+
 .modal-panel {
   width: min(32rem, 100%);
   padding: 1.35rem 1.4rem 1.25rem;
@@ -748,6 +757,8 @@ a:hover {
   box-shadow: var(--shadow);
   display: grid;
   gap: 0.85rem;
+  position: relative;
+  z-index: 1;
 }
 
 .modal-title {
@@ -818,6 +829,15 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  position: relative;
+  z-index: 2;
+}
+
+.console-head #consoleCloseBtn {
+  position: relative;
+  z-index: 3;
+  pointer-events: auto;
+  flex-shrink: 0;
 }
 
 .console-hint {

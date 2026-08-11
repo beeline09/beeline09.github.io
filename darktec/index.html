@@ -221,6 +221,7 @@
     id="consoleModal"
     class="modal-backdrop console-backdrop"
     hidden
+    aria-hidden="true"
     role="dialog"
     aria-modal="true"
     aria-labelledby="consoleModalTitle"
@@ -228,7 +229,7 @@
     <div class="modal-panel console-panel">
       <div class="console-head">
         <h3 id="consoleModalTitle" class="modal-title">Serial Console</h3>
-        <button type="button" class="btn btn-ghost" id="consoleCloseBtn" title="Закрыть">Закрыть</button>
+        <button type="button" class="btn btn-ghost" id="consoleCloseBtn" title="Закрыть" aria-label="Закрыть Console">Закрыть</button>
       </div>
       <p class="hint console-hint">
         Chrome&nbsp;/ Edge · плата в режиме приложения (не DFU) · 115200.

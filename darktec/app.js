@@ -580,13 +580,28 @@ function syncConsoleUi() {
 function openConsoleModal() {
   if (!els.consoleModal) return;
   els.consoleModal.hidden = false;
+  els.consoleModal.removeAttribute("hidden");
+  els.consoleModal.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
 }
 
 function hideConsoleModal() {
   if (!els.consoleModal) return;
   els.consoleModal.hidden = true;
+  els.consoleModal.setAttribute("hidden", "");
+  els.consoleModal.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
+}
+
+/** Always close the Console UI; disconnect serial even after connect/error failures. */
+async function closeConsoleModal() {
+  try {
+    await disconnectConsole({ quiet: true });
+  } catch (err) {
+    console.warn("console close disconnect", err);
+  }
+  hideConsoleModal();
+  setToolsStatus("");
 }
 
 /**
@@ -731,6 +746,9 @@ async function openConsoleFlow() {
 }
 
 function wireUsbTools() {
+  // Closed by default — never auto-open on refresh/boot.
+  hideConsoleModal();
+
   const setupHandlers = [els.setupBtn, els.setupBtnOnline];
   for (const btn of setupHandlers) {
     btn?.addEventListener("click", () => openRepeaterSetup());
@@ -751,20 +769,15 @@ function wireUsbTools() {
     await disconnectConsole();
   });
 
-  els.consoleCloseBtn?.addEventListener("click", async () => {
-    await disconnectConsole({ quiet: true });
-    hideConsoleModal();
-    setToolsStatus("");
+  els.consoleCloseBtn?.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    void closeConsoleModal();
   });
 
   els.consoleModal?.addEventListener("click", (ev) => {
     if (ev.target === els.consoleModal) {
-      // Backdrop click closes UI but keeps session unless user disconnects —
-      // prefer releasing the port to avoid blocking flash.
-      void (async () => {
-        await disconnectConsole({ quiet: true });
-        hideConsoleModal();
-      })();
+      void closeConsoleModal();
     }
   });
 
@@ -785,10 +798,7 @@ function wireUsbTools() {
 
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && els.consoleModal && !els.consoleModal.hidden) {
-      void (async () => {
-        await disconnectConsole({ quiet: true });
-        hideConsoleModal();
-      })();
+      void closeConsoleModal();
     }
   });
 

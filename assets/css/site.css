@@ -640,11 +640,45 @@ a:hover {
   max-width: min(100%, 220px);
 }
 
-.tabs {
+.tabs-bar {
   display: flex;
-  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.5rem 0.75rem;
   padding: 0.75rem 1.25rem 0;
   border-bottom: 1px solid var(--line);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.tabs-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-left: auto;
+  padding-bottom: 0.45rem;
+}
+
+.tabs-tools .btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.92rem;
+}
+
+.tabs-tools-status {
+  margin: 0;
+  padding: 0.35rem 1.25rem 0;
+}
+
+.tabs-tools-status:empty {
+  display: none;
+  padding: 0;
 }
 
 .tab {
@@ -805,10 +839,6 @@ a:hover {
   justify-content: flex-end;
   gap: 0.65rem;
   margin-top: 0.25rem;
-}
-
-.tools-step .download-row {
-  margin-top: 0.35rem;
 }
 
 .console-backdrop {

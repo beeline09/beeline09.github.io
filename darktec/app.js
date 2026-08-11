@@ -133,8 +133,6 @@ const els = {
   photoCarousel: document.getElementById("photoCarousel"),
   setupBtn: document.getElementById("setupBtn"),
   consoleBtn: document.getElementById("consoleBtn"),
-  setupBtnOnline: document.getElementById("setupBtnOnline"),
-  consoleBtnOnline: document.getElementById("consoleBtnOnline"),
   toolsStatus: document.getElementById("toolsStatus"),
   consoleModal: document.getElementById("consoleModal"),
   consoleLog: document.getElementById("consoleLog"),
@@ -749,17 +747,11 @@ function wireUsbTools() {
   // Closed by default — never auto-open on refresh/boot.
   hideConsoleModal();
 
-  const setupHandlers = [els.setupBtn, els.setupBtnOnline];
-  for (const btn of setupHandlers) {
-    btn?.addEventListener("click", () => openRepeaterSetup());
-  }
+  els.setupBtn?.addEventListener("click", () => openRepeaterSetup());
 
-  const consoleHandlers = [els.consoleBtn, els.consoleBtnOnline];
-  for (const btn of consoleHandlers) {
-    btn?.addEventListener("click", () => {
-      void openConsoleFlow();
-    });
-  }
+  els.consoleBtn?.addEventListener("click", () => {
+    void openConsoleFlow();
+  });
 
   els.consoleConnectBtn?.addEventListener("click", () => {
     void connectConsoleFromGesture();
@@ -803,12 +795,9 @@ function wireUsbTools() {
   });
 
   const serialOk = canSerialFlash();
-  for (const btn of [...setupHandlers, ...consoleHandlers]) {
-    if (!btn) continue;
-    if (!serialOk && (btn === els.consoleBtn || btn === els.consoleBtnOnline)) {
-      btn.disabled = true;
-      btn.title = "Нужен Chrome / Edge с Web Serial";
-    }
+  if (!serialOk && els.consoleBtn) {
+    els.consoleBtn.disabled = true;
+    els.consoleBtn.title = "Нужен Chrome / Edge с Web Serial";
   }
   if (!serialOk) {
     setToolsStatus("USB-инструменты: нужен Chrome / Edge (Web Serial).", "pending");

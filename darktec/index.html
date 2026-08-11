@@ -78,10 +78,27 @@
         </div>
       </div>
 
-      <div class="tabs" role="tablist" aria-label="Режим прошивки">
-        <button type="button" class="tab" role="tab" id="tabOffline" aria-selected="true" aria-controls="paneOffline">Offline UF2</button>
-        <button type="button" class="tab" role="tab" id="tabOnline" aria-selected="false" aria-controls="paneOnline">Онлайн-флешер</button>
+      <div class="tabs-bar">
+        <div class="tabs" role="tablist" aria-label="Режим прошивки">
+          <button type="button" class="tab" role="tab" id="tabOffline" aria-selected="true" aria-controls="paneOffline">Offline UF2</button>
+          <button type="button" class="tab" role="tab" id="tabOnline" aria-selected="false" aria-controls="paneOnline">Онлайн-флешер</button>
+        </div>
+        <div class="tabs-tools" role="group" aria-label="USB-инструменты">
+          <button
+            type="button"
+            class="btn btn-ghost"
+            id="setupBtn"
+            title="Официальный MeshCore USB config GUI для repeater / room. Нужен Chrome/Edge, плата в режиме приложения (не DFU), USB serial 115200."
+          >Настройка repeater</button>
+          <button
+            type="button"
+            class="btn btn-ghost"
+            id="consoleBtn"
+            title="Встроенный USB serial CLI @ 115200 (режим приложения). Нужен Chrome/Edge."
+          >Console</button>
+        </div>
       </div>
+      <p class="status tabs-tools-status" id="toolsStatus"></p>
 
       <div class="panel-body">
         <div class="step">
@@ -104,31 +121,6 @@
           <h2 id="protectStepLabel">3 · Защита батареи</h2>
           <div class="choice-grid" id="protectChoices" role="group" aria-label="Защита батареи"></div>
           <p class="hint" id="protectHint"></p>
-        </div>
-
-        <div class="step tools-step" id="usbTools">
-          <h2>USB-инструменты</h2>
-          <p class="hint">
-            Нужен Chrome&nbsp;/ Edge и плата в <strong>режиме приложения</strong> (не DFU),
-            USB serial&nbsp;115200. Работает с repeater&nbsp;/ room server (и CLI, где есть).
-            Не зависит от матрицы прошивок — только Web&nbsp;Serial.
-            После прошивки переподключите плату в app-режиме.
-          </p>
-          <div class="download-row">
-            <button
-              type="button"
-              class="btn btn-ghost"
-              id="setupBtn"
-              title="Официальный MeshCore USB config GUI для repeater / room"
-            >Настройка repeater</button>
-            <button
-              type="button"
-              class="btn btn-ghost"
-              id="consoleBtn"
-              title="Встроенный USB serial CLI @ 115200 (режим приложения)"
-            >Console</button>
-          </div>
-          <p class="status" id="toolsStatus"></p>
         </div>
 
         <div id="paneOffline" role="tabpanel" aria-labelledby="tabOffline">
@@ -175,18 +167,6 @@
               <button type="button" class="btn btn-ghost" id="dfuBtn" disabled title="Serial DFU через COM (1200 baud), без USB-диска">Только DFU</button>
               <button type="button" class="btn btn-ghost" id="bootloaderBtn" disabled title="OTAFIX на USB-диск UF2: двойной RESET, затем выбор тома (не COM)">Обновить bootloader (диск)</button>
               <button type="button" class="btn btn-primary" id="flashBtn" disabled title="Прошивка OTA zip по Serial DFU (COM, 1200 baud)">Прошить</button>
-              <button
-                type="button"
-                class="btn btn-ghost"
-                id="setupBtnOnline"
-                title="Официальный MeshCore USB config GUI для repeater / room"
-              >Настройка repeater</button>
-              <button
-                type="button"
-                class="btn btn-ghost"
-                id="consoleBtnOnline"
-                title="Встроенный USB serial CLI @ 115200 (режим приложения)"
-              >Console</button>
               <span class="file-name" id="flashFileName" hidden></span>
             </div>
             <p class="hint">

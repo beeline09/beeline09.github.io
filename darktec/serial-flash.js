@@ -30,13 +30,17 @@ export const MIN_ADAFRUIT_BOOTLOADER = "0.6.1";
 /** MeshCore-recommended OTAFIX bootloader for ProMicro / nice!nano-class. */
 export const RECOMMENDED_ADAFRUIT_BOOTLOADER = "0.9.2";
 
-/** MeshCore OTAFIX UF2 for ProMicro / nice!nano-class (Darktec family). */
+/** Official MeshCore OTAFIX UF2 (manual download fallback; CORS blocks fetch from this origin). */
 export const BOOTLOADER_UPDATE_UF2_URL =
   "https://flasher.meshcore.io/firmware/promicro_nrf52840_bootloader-0.9.2-OTAFIX2.1.uf2";
 export const BOOTLOADER_UPDATE_DOCS_URL =
   "https://blog.meshcore.io/2026/04/06/otafix-bootloader";
 
 const OTAFIX_UF2_FILENAME = "promicro_nrf52840_bootloader-0.9.2-OTAFIX2.1.uf2";
+
+/** Same-origin mirror (committed under darktec/firmware/bootloader/) — used by fetch. */
+const BOOTLOADER_UPDATE_UF2_LOCAL =
+  `./firmware/bootloader/${OTAFIX_UF2_FILENAME}`;
 
 /**
  * USB PIDs used by nice!nano / ProMicro NRF52840 / MeshCore Darktec-class boards
@@ -573,9 +577,13 @@ export async function runBootloaderUpdate(opts = {}) {
   opts.onStatus?.("Загрузка OTAFIX UF2…");
   let blob;
   try {
-    const res = await fetch(BOOTLOADER_UPDATE_UF2_URL, { cache: "no-cache" });
+    // Same-origin first — flasher.meshcore.io blocks cross-origin fetch (CORS).
+    const res = await fetch(BOOTLOADER_UPDATE_UF2_LOCAL, { cache: "no-cache" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     blob = await res.blob();
+    if (!blob || blob.size < 1024) {
+      throw new Error(`некорректный размер файла (${blob ? blob.size : 0} байт)`);
+    }
   } catch (err) {
     openUrl(BOOTLOADER_UPDATE_UF2_URL);
     throw new Error(

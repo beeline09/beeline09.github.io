@@ -597,8 +597,8 @@ els.flashBtn.addEventListener("click", async () => {
       forceDfu: true,
       onStatus,
     });
-    // Bootloader gate after DFU port is open (before zip fetch).
-    await ensureAdafruitBootloaderOk(dfuPort, { onStatus });
+    // Bootloader gate after DFU: modal → INFO_UF2.TXT (gesture), then dialogs; before zip.
+    await ensureAdafruitBootloaderOk(dfuPort, { onStatus, readInfoUf2: true });
     onStatus("Загрузка OTA zip…");
     const blob = await loadOtaZipBlob(zipAsset.name);
     await flashNrfSerial(blob, {

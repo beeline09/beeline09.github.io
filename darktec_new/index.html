@@ -147,10 +147,48 @@
             spellcheck="false"
           >
           <p class="hint" id="nameHint">
-            Пусто — готовый файл из выбранной версии (можно сразу прошить).
-            Непустое имя — отдельная прошивка: если в кэше ещё нет, сначала
-            «Собрать» и подождать, потом появится «Скачать UF2».
+            Пусто — каталожное имя из прошивки. Непустое имя или свои параметры
+            радио → отдельная сборка (если файла ещё нет — «Собрать» и ~5&nbsp;мин).
           </p>
+        </div>
+
+        <div class="step">
+          <h2 id="radioStepLabel">5 · Параметры радио</h2>
+          <details class="photo-spoiler radio-spoiler" id="radioSpoiler">
+            <summary>Изменить параметры радио</summary>
+            <div class="radio-spoiler-body">
+              <p class="hint" id="radioHint">
+                Поля предварительно заполнены настройками для Краснодарского края и Адыгеи.
+                Ниже вы можете изменить их.
+              </p>
+              <div class="radio-fields">
+                <label class="radio-field">
+                  <span class="version-label">Частота, МГц</span>
+                  <input class="version-select" id="radioFreq" type="number" step="0.001" min="150" max="960" value="869.075" inputmode="decimal">
+                </label>
+                <label class="radio-field">
+                  <span class="version-label">BW, кГц</span>
+                  <input class="version-select" id="radioBw" type="number" step="0.1" min="7" max="500" value="62.5" inputmode="decimal">
+                </label>
+                <label class="radio-field">
+                  <span class="version-label">SF</span>
+                  <input class="version-select" id="radioSf" type="number" step="1" min="5" max="12" value="8" inputmode="numeric">
+                </label>
+                <label class="radio-field">
+                  <span class="version-label">CR</span>
+                  <input class="version-select" id="radioCr" type="number" step="1" min="5" max="8" value="8" inputmode="numeric">
+                </label>
+                <label class="radio-field">
+                  <span class="version-label">TX, дБм</span>
+                  <input class="version-select" id="radioTx" type="number" step="1" min="1" max="22" value="22" inputmode="numeric">
+                </label>
+              </div>
+              <p class="hint">
+                Дефолт: 869.075&nbsp;/&nbsp;62.5&nbsp;/&nbsp;SF8&nbsp;/&nbsp;CR8&nbsp;/&nbsp;22&nbsp;дБм.
+                Свои значения попадут в прошивку только после сборки (не из каталога).
+              </p>
+            </div>
+          </details>
         </div>
 
         <div id="paneOffline" role="tabpanel" aria-labelledby="tabOffline">
@@ -239,12 +277,12 @@
     aria-labelledby="buildHelpTitle"
   >
     <div class="modal-panel">
-      <h3 id="buildHelpTitle" class="modal-title">Как собрать прошивку с вашим именем</h3>
+      <h3 id="buildHelpTitle" class="modal-title">Как собрать прошивку</h3>
       <div class="modal-body">
         <p>
-          Готового файла для этих настроек ещё нет. Его нужно один раз собрать
-          через GitHub (это бесплатно, но без вашего подтверждения сайт сам
-          сборку запустить не может — такое ограничение).
+          Готового файла для ваших настроек (имя и/или радио) ещё нет. Его нужно
+          один раз собрать через GitHub (это бесплатно, но без вашего подтверждения
+          сайт сам сборку запустить не может — такое ограничение).
         </p>
         <ol class="modal-steps">
           <li>Сейчас откроется новая вкладка GitHub. Если попросит — <strong>войдите</strong> в аккаунт.</li>

@@ -17,9 +17,13 @@ import {
   buildIssueUrl,
   findOndemandAssets,
   fetchSouthEditionSha,
+  isDefaultRadio,
+  normalizeRadio,
   ondemandBaseName,
   pollOndemandAssets,
+  RADIO_DEFAULTS,
   slugifyName,
+  validateRadio,
 } from "./ondemand.js";
 
 /** Official MeshCore USB config GUI (repeater / room). */
@@ -107,6 +111,7 @@ const state = {
   cells: 1,
   protect: "adc",
   advertName: "",
+  radio: { ...RADIO_DEFAULTS },
   tab: "offline",
   releases: [],
   selectedTag: null,
@@ -166,6 +171,12 @@ const els = {
   buildHelpModal: document.getElementById("buildHelpModal"),
   buildHelpOkBtn: document.getElementById("buildHelpOkBtn"),
   buildHelpCancelBtn: document.getElementById("buildHelpCancelBtn"),
+  radioStepLabel: document.getElementById("radioStepLabel"),
+  radioFreq: document.getElementById("radioFreq"),
+  radioBw: document.getElementById("radioBw"),
+  radioSf: document.getElementById("radioSf"),
+  radioCr: document.getElementById("radioCr"),
+  radioTx: document.getElementById("radioTx"),
 };
 
 /** @type {{ instance: SerialConsole | null, port: SerialPort | null }} */
@@ -190,12 +201,26 @@ function isCustomName() {
   return Boolean(state.advertName.trim());
 }
 
+function needsCustomBuild() {
+  return isCustomName() || !isDefaultRadio(state.radio);
+}
+
 function customNameSlug() {
   return slugifyName(state.advertName);
 }
 
+function readRadioFromInputs() {
+  return normalizeRadio({
+    freq: els.radioFreq?.value,
+    bw: els.radioBw?.value,
+    sf: els.radioSf?.value,
+    cr: els.radioCr?.value,
+    tx: els.radioTx?.value,
+  });
+}
+
 function findAsset(ext = "uf2") {
-  if (isCustomName()) {
+  if (needsCustomBuild()) {
     const asset = ext === "zip" ? state.ondemand?.zip : state.ondemand?.uf2;
     return asset ?? null;
   }
@@ -259,7 +284,7 @@ function setDownloadEnabled(enabled) {
   const zipOk = Boolean(findAsset("zip"));
   // Custom ondemand zips live on GitHub Releases without CORS — Serial DFU
   // needs a same-origin mirror (later). Until then: UF2 download only.
-  const serialAllowed = enabled && serialOk && zipOk && !isCustomName();
+  const serialAllowed = enabled && serialOk && zipOk && !needsCustomBuild();
   els.flashBtn.disabled = !serialAllowed;
   els.dfuBtn.disabled = !enabled || !serialOk;
   if (els.bootloaderBtn) els.bootloaderBtn.disabled = !serialOk;
@@ -283,18 +308,30 @@ function showBuildingEmptyState() {
 function syncNameStepLabels() {
   const chem = CHEMS.find((c) => c.id === state.chem);
   const multi = chem.cells.length > 1;
-  // role=1, chem=2, cells?=3, protect, name
+  // role=1, chem=2, cells?=3, protect, name, radio
   const protectN = multi ? 4 : 3;
   const nameN = protectN + 1;
+  const radioN = nameN + 1;
   els.protectStepLabel.textContent = `${protectN} · Защита батареи`;
   if (els.nameStepLabel) els.nameStepLabel.textContent = `${nameN} · Имя ноды (опционально)`;
+  if (els.radioStepLabel) els.radioStepLabel.textContent = `${radioN} · Параметры радио`;
 }
 
 async function refreshOndemandFromCache() {
-  if (!isCustomName()) {
+  if (!needsCustomBuild()) {
     state.ondemand = null;
     if (els.buildBtn) els.buildBtn.hidden = true;
     if (els.buildHint) els.buildHint.hidden = true;
+    return;
+  }
+  const radioErr = validateRadio(state.radio);
+  if (radioErr) {
+    state.ondemand = null;
+    if (els.buildBtn) els.buildBtn.hidden = true;
+    if (els.buildHint) {
+      els.buildHint.hidden = false;
+      els.buildHint.textContent = radioErr;
+    }
     return;
   }
   if (!state.southSha) {
@@ -306,6 +343,7 @@ async function refreshOndemandFromCache() {
     cells: state.cells,
     protect: state.protect,
     nameSlug: customNameSlug(),
+    radio: state.radio,
     sha: state.southSha,
   });
   const found = await findOndemandAssets(base);
@@ -325,7 +363,7 @@ function updateDownload() {
   const asset = findAsset("uf2");
   const zipAsset = findAsset("zip");
 
-  if (isCustomName()) {
+  if (needsCustomBuild()) {
     if (state.building) {
       els.status.className = "status pending";
       els.status.textContent =
@@ -338,7 +376,7 @@ function updateDownload() {
     if (!asset) {
       els.status.className = "status";
       els.status.textContent =
-        "Готовой прошивки для этого имени ещё нет — сначала соберите, потом прошьёте.";
+        "Готовой прошивки для этих параметров ещё нет — сначала соберите, потом прошьёте.";
       els.flashStatus.textContent = els.status.textContent;
       setDownloadEnabled(false);
       if (els.fileName) {
@@ -356,7 +394,7 @@ function updateDownload() {
       els.flashStatus.textContent = "UF2 есть; OTA zip ещё нет в кэше.";
     } else {
       els.flashStatus.textContent =
-        "UF2 готов (вкладка Offline). Онлайн Serial DFU для кастомных имён — позже.";
+        "UF2 готов (вкладка Offline). Онлайн Serial DFU для кастомных сборок — позже.";
     }
     els.downloadBtn.href = asset.url;
     els.downloadBtn.setAttribute("download", asset.name);
@@ -1135,19 +1173,44 @@ function showBuildHelpModal() {
 }
 
 function wireOndemandUi() {
-  if (!els.advertNameInput) return;
+  if (!els.advertNameInput && !els.radioFreq) return;
 
   let debounce = null;
-  els.advertNameInput.addEventListener("input", () => {
-    state.advertName = els.advertNameInput.value;
+  const scheduleRefresh = () => {
     clearTimeout(debounce);
     debounce = setTimeout(() => {
       void refreshOndemandFromCache().then(updateDownload);
     }, 300);
+  };
+
+  els.advertNameInput?.addEventListener("input", () => {
+    state.advertName = els.advertNameInput.value;
+    scheduleRefresh();
   });
 
+  const onRadioInput = () => {
+    state.radio = readRadioFromInputs();
+    scheduleRefresh();
+  };
+  for (const el of [
+    els.radioFreq,
+    els.radioBw,
+    els.radioSf,
+    els.radioCr,
+    els.radioTx,
+  ]) {
+    el?.addEventListener("input", onRadioInput);
+    el?.addEventListener("change", onRadioInput);
+  }
+
   els.buildBtn?.addEventListener("click", async () => {
-    if (!isCustomName()) return;
+    if (!needsCustomBuild()) return;
+    const radioErr = validateRadio(state.radio);
+    if (radioErr) {
+      els.status.className = "status error";
+      els.status.textContent = radioErr;
+      return;
+    }
     const proceed = await showBuildHelpModal();
     if (!proceed) return;
     try {
@@ -1159,6 +1222,7 @@ function wireOndemandUi() {
         cells: state.cells,
         protect: state.protect,
         nameSlug,
+        radio: state.radio,
         sha: state.southSha,
       });
       const url = buildIssueUrl({
@@ -1168,6 +1232,7 @@ function wireOndemandUi() {
         protect: state.protect,
         advertName: state.advertName.trim(),
         nameSlug,
+        radio: state.radio,
         sha: state.southSha,
       });
       window.open(url, "_blank", "noopener");

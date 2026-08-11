@@ -9,6 +9,15 @@ const ONDEMAND_LABEL = "darktec-ondemand";
 const RELEASE_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases/tags/${ONDEMAND_TAG}`;
 const COMMITS_API = `https://api.github.com/repos/${FIRMWARE_REPO}/commits/south_edition`;
 
+/** Krasnodar / Adygea preset (matches variants/darktec/radio_defaults.h). */
+export const RADIO_DEFAULTS = Object.freeze({
+  freq: 869.075,
+  bw: 62.5,
+  sf: 8,
+  cr: 8,
+  tx: 22,
+});
+
 export function slugifyName(name) {
   const s = String(name || "")
     .trim()
@@ -17,6 +26,56 @@ export function slugifyName(name) {
     .replace(/^-+|-+$/g, "")
     .slice(0, 24);
   return s || "default";
+}
+
+export function normalizeRadio(radio = {}) {
+  const n = (v, digits) => {
+    const x = Number(String(v ?? "").replace(",", "."));
+    if (!Number.isFinite(x)) return NaN;
+    return digits == null ? Math.trunc(x) : Number(x.toFixed(digits));
+  };
+  return {
+    freq: n(radio.freq, 3),
+    bw: n(radio.bw, 3),
+    sf: n(radio.sf),
+    cr: n(radio.cr),
+    tx: n(radio.tx),
+  };
+}
+
+export function isDefaultRadio(radio) {
+  const n = normalizeRadio(radio);
+  const d = RADIO_DEFAULTS;
+  return (
+    n.freq === d.freq &&
+    n.bw === d.bw &&
+    n.sf === d.sf &&
+    n.cr === d.cr &&
+    n.tx === d.tx
+  );
+}
+
+export function radioSlug(radio) {
+  const n = normalizeRadio(radio);
+  const tok = (v) => String(v).replace(/\./g, "p");
+  return `f${tok(n.freq)}-bw${tok(n.bw)}-sf${n.sf}-cr${n.cr}-tx${n.tx}`;
+}
+
+export function validateRadio(radio) {
+  const n = normalizeRadio(radio);
+  const checks = [
+    ["freq", n.freq, 150, 960],
+    ["bw", n.bw, 7, 500],
+    ["sf", n.sf, 5, 12],
+    ["cr", n.cr, 5, 8],
+    ["tx", n.tx, 1, 22],
+  ];
+  for (const [key, val, lo, hi] of checks) {
+    if (!Number.isFinite(val) || val < lo || val > hi) {
+      return `Некорректное ${key}: нужно от ${lo} до ${hi}`;
+    }
+  }
+  return null;
 }
 
 export async function fetchSouthEditionSha() {
@@ -28,8 +87,8 @@ export async function fetchSouthEditionSha() {
   return String(data.sha || "").slice(0, 8);
 }
 
-export function ondemandBaseName({ role, chem, cells, protect, nameSlug, sha }) {
-  return `Darktec_${role}_${chem}_${cells}s_${protect}__${nameSlug}__${sha}`;
+export function ondemandBaseName({ role, chem, cells, protect, nameSlug, radio, sha }) {
+  return `Darktec_${role}_${chem}_${cells}s_${protect}__${nameSlug}__${radioSlug(radio)}__${sha}`;
 }
 
 export async function findOndemandAssets(baseName) {
@@ -55,7 +114,17 @@ export async function findOndemandAssets(baseName) {
   };
 }
 
-export function buildIssueUrl({ role, chem, cells, protect, advertName, nameSlug, sha }) {
+export function buildIssueUrl({
+  role,
+  chem,
+  cells,
+  protect,
+  advertName,
+  nameSlug,
+  radio,
+  sha,
+}) {
+  const r = normalizeRadio(radio);
   const title = `darktec-ondemand: ${role} ${chem} ${cells}s ${protect} ${nameSlug}`;
   const body = [
     "Запрос кастомной сборки Darktec из `/darktec_new/`.",
@@ -67,6 +136,11 @@ export function buildIssueUrl({ role, chem, cells, protect, advertName, nameSlug
     `protect_slug=${protect}`,
     `advert_name=${advertName}`,
     `name_slug=${nameSlug}`,
+    `lora_freq=${r.freq}`,
+    `lora_bw=${r.bw}`,
+    `lora_sf=${r.sf}`,
+    `lora_cr=${r.cr}`,
+    `lora_tx=${r.tx}`,
     `sha=${sha}`,
     "-->",
     "",

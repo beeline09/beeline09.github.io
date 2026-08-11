@@ -287,14 +287,18 @@
             </p>
             <p class="status" id="flashStatus"></p>
             <div class="download-row">
+              <button type="button" class="btn btn-ghost" id="buildBtnOnline" hidden>Собрать</button>
               <button type="button" class="btn btn-ghost" id="dfuBtn" disabled title="Serial DFU через COM (1200 baud), без USB-диска">Только DFU</button>
               <button type="button" class="btn btn-ghost" id="bootloaderBtn" disabled title="OTAFIX на USB-диск UF2: двойной RESET, затем выбор тома (не COM)">Обновить bootloader (диск)</button>
               <button type="button" class="btn btn-primary" id="flashBtn" disabled title="Прошивка OTA zip по Serial DFU (COM, 1200 baud)">Прошить</button>
               <span class="file-name" id="flashFileName" hidden></span>
             </div>
+            <p class="hint" id="buildHintOnline" hidden></p>
             <p class="hint">
               После «Прошить» плата перезагрузится: для Console / «Настройка repeater»
               снова выберите COM в режиме приложения (не DFU).
+              Для кастомных имя/радио: сначала «Собрать», затем Offline UF2
+              (онлайн Serial DFU для кастома пока без зеркала zip на сайте).
             </p>
             <div class="progress-track" id="flashProgressTrack" hidden>
               <div class="progress-bar" id="flashProgressBar"></div>

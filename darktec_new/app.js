@@ -169,7 +169,9 @@ const els = {
   nameStepLabel: document.getElementById("nameStepLabel"),
   nameHint: document.getElementById("nameHint"),
   buildBtn: document.getElementById("buildBtn"),
+  buildBtnOnline: document.getElementById("buildBtnOnline"),
   buildHint: document.getElementById("buildHint"),
+  buildHintOnline: document.getElementById("buildHintOnline"),
   buildHelpModal: document.getElementById("buildHelpModal"),
   buildHelpOkBtn: document.getElementById("buildHelpOkBtn"),
   buildHelpCancelBtn: document.getElementById("buildHelpCancelBtn"),
@@ -295,12 +297,32 @@ function setDownloadEnabled(enabled) {
   }
   const serialOk = canSerialFlash();
   const zipOk = Boolean(findAsset("zip"));
-  // Custom ondemand zips live on GitHub Releases without CORS — Serial DFU
-  // needs a same-origin mirror (later). Until then: UF2 download only.
+  // Custom ondemand zips are on GitHub Releases (CORS) — Serial DFU needs
+  // same-origin mirror. Catalog builds use Pages mirror → flash OK.
   const serialAllowed = enabled && serialOk && zipOk && !needsCustomBuild();
   els.flashBtn.disabled = !serialAllowed;
-  els.dfuBtn.disabled = !enabled || !serialOk;
+  // DFU без zip бесполезен для прошивки, но bootloader — отдельно.
+  els.dfuBtn.disabled = !serialAllowed;
   if (els.bootloaderBtn) els.bootloaderBtn.disabled = !serialOk;
+}
+
+/** Show/hide «Собрать» on Offline + Online tabs. */
+function setBuildControls({ show = false, hint = "", building = false } = {}) {
+  const visible = Boolean(show) && !building;
+  for (const btn of [els.buildBtn, els.buildBtnOnline]) {
+    if (btn) btn.hidden = !visible;
+  }
+  const text = hint || "";
+  for (const el of [els.buildHint, els.buildHintOnline]) {
+    if (!el) continue;
+    if (text) {
+      el.hidden = false;
+      el.textContent = text;
+    } else {
+      el.hidden = true;
+      el.textContent = "";
+    }
+  }
 }
 
 function showBuildingEmptyState() {
@@ -333,18 +355,13 @@ function syncNameStepLabels() {
 async function refreshOndemandFromCache() {
   if (!needsCustomBuild()) {
     state.ondemand = null;
-    if (els.buildBtn) els.buildBtn.hidden = true;
-    if (els.buildHint) els.buildHint.hidden = true;
+    setBuildControls({ show: false });
     return;
   }
   const radioErr = validateRadio(state.radio);
   if (radioErr) {
     state.ondemand = null;
-    if (els.buildBtn) els.buildBtn.hidden = true;
-    if (els.buildHint) {
-      els.buildHint.hidden = false;
-      els.buildHint.textContent = radioErr;
-    }
+    setBuildControls({ show: false, hint: radioErr });
     return;
   }
   if (!state.southSha) {
@@ -361,14 +378,19 @@ async function refreshOndemandFromCache() {
   });
   const found = await findOndemandAssets(base);
   state.ondemand = { uf2: found.uf2, zip: found.zip };
-  if (els.buildBtn) {
-    els.buildBtn.hidden = Boolean(found.uf2) || state.building;
-  }
-  if (els.buildHint) {
-    els.buildHint.hidden = false;
-    els.buildHint.textContent = found.uf2
-      ? `Готово: ${base}.uf2 — можно скачать и прошить.`
-      : "Готовой прошивки для этих параметров ещё нет. Нажмите «Собрать» — появится простая инструкция (что нажать на GitHub и сколько ждать).";
+  if (found.uf2) {
+    setBuildControls({
+      show: false,
+      hint: `Готово: ${base}.uf2 — скачайте UF2 (Offline) и прошейте.`,
+      building: state.building,
+    });
+  } else {
+    setBuildControls({
+      show: true,
+      hint:
+        "Готовой прошивки для этих параметров ещё нет. Нажмите «Собрать» — инструкция, что нажать на GitHub, затем ~5 мин ожидания.",
+      building: state.building,
+    });
   }
 }
 
@@ -380,34 +402,43 @@ function updateDownload() {
     if (state.building) {
       els.status.className = "status pending";
       els.status.textContent =
-        "Сборка идёт… около 5 минут. Не закрывайте эту вкладку. Прошивать можно только когда появится «Скачать UF2».";
+        "Сборка идёт… около 5 минут. Не закрывайте эту вкладку. Потом — «Скачать UF2» (Offline).";
+      els.flashStatus.className = "status pending";
       els.flashStatus.textContent = els.status.textContent;
       setDownloadEnabled(false);
-      if (els.buildBtn) els.buildBtn.hidden = true;
+      setBuildControls({
+        show: false,
+        hint: "Ждём сборку (~5 мин). На GitHub нажали Create/Submit? Можно закрыть вкладку GitHub.",
+        building: true,
+      });
       return;
     }
     if (!asset) {
       els.status.className = "status";
       els.status.textContent =
-        "Готовой прошивки для этих параметров ещё нет — сначала соберите, потом прошьёте.";
-      els.flashStatus.textContent = els.status.textContent;
+        "Готовой прошивки нет — нажмите «Собрать», затем подождите ~5 мин.";
+      els.flashStatus.className = "status";
+      els.flashStatus.textContent =
+        "Сначала «Собрать» (кнопка выше). Онлайн «Прошить» для кастома пока недоступен — после сборки используйте Offline UF2.";
       setDownloadEnabled(false);
-      if (els.fileName) {
-        els.fileName.hidden = true;
-      }
+      if (els.fileName) els.fileName.hidden = true;
+      if (els.flashFileName) els.flashFileName.hidden = true;
+      setBuildControls({
+        show: true,
+        hint:
+          "Готовой прошивки для этих параметров ещё нет. Нажмите «Собрать» — инструкция на GitHub, затем ~5 мин.",
+      });
       return;
     }
     const size = asset.size ? ` · ${(asset.size / 1024).toFixed(0)} KiB` : "";
     els.status.className = "status";
-    els.status.textContent = `Прошивка готова${size} — можно скачать UF2 и прошить.`;
+    els.status.textContent = `Прошивка готова${size} — скачайте UF2 (Offline) и прошейте вручную.`;
     els.flashStatus.className = "status";
     if (!canSerialFlash()) {
       els.flashStatus.textContent = "Онлайн-флешер: нужен Chrome / Edge (Web Serial).";
-    } else if (!zipAsset) {
-      els.flashStatus.textContent = "UF2 есть; OTA zip ещё нет в кэше.";
     } else {
       els.flashStatus.textContent =
-        "UF2 готов (вкладка Offline). Онлайн Serial DFU для кастомных сборок — позже.";
+        "Кастом готов: Serial DFU с GitHub zip пока недоступен (CORS). Перейдите на Offline → «Скачать UF2».";
     }
     els.downloadBtn.href = asset.url;
     els.downloadBtn.setAttribute("download", asset.name);
@@ -415,7 +446,13 @@ function updateDownload() {
       els.fileName.hidden = false;
       els.fileName.textContent = asset.name;
     }
+    if (els.flashFileName) {
+      els.flashFileName.hidden = false;
+      els.flashFileName.textContent = asset.name;
+    }
+    // UF2 download OK; Serial flash stays off for custom (setDownloadEnabled).
     setDownloadEnabled(true);
+    setBuildControls({ show: false, hint: `Готово: ${asset.name}` });
     return;
   }
 
@@ -465,6 +502,7 @@ function updateDownload() {
     els.fileName.hidden = false;
     els.fileName.textContent = asset.name;
   }
+  setBuildControls({ show: false });
   setDownloadEnabled(true);
 }
 
@@ -1221,12 +1259,14 @@ function wireOndemandUi() {
     el?.addEventListener("change", onRadioInput);
   }
 
-  els.buildBtn?.addEventListener("click", async () => {
+  const onBuildClick = async () => {
     if (!needsCustomBuild()) return;
     const radioErr = validateRadio(state.radio);
     if (radioErr) {
       els.status.className = "status error";
       els.status.textContent = radioErr;
+      els.flashStatus.className = "status error";
+      els.flashStatus.textContent = radioErr;
       return;
     }
     const proceed = await showBuildHelpModal();
@@ -1256,36 +1296,38 @@ function wireOndemandUi() {
       window.open(url, "_blank", "noopener");
       state.building = true;
       updateDownload();
-      if (els.buildHint) {
-        els.buildHint.hidden = false;
-        els.buildHint.textContent =
-          "Ждём сборку (~5 мин). На GitHub уже нажали Create/Submit? Вкладку можно закрыть — оставайтесь на этой странице.";
-      }
       if (state.pollAbort) state.pollAbort.abort();
       state.pollAbort = new AbortController();
       const found = await pollOndemandAssets(base, {
         signal: state.pollAbort.signal,
         onTick: () => {
+          const msg = "Ждём готовую прошивку (~5 мин). Не закрывайте эту вкладку…";
           els.status.className = "status pending";
-          els.status.textContent =
-            "Ждём готовую прошивку (~5 мин). Не закрывайте эту вкладку…";
+          els.status.textContent = msg;
+          els.flashStatus.className = "status pending";
+          els.flashStatus.textContent = msg;
         },
       });
       state.ondemand = { uf2: found.uf2, zip: found.zip };
       state.building = false;
-      if (els.buildBtn) els.buildBtn.hidden = true;
       updateDownload();
     } catch (err) {
       console.error(err);
       state.building = false;
-      els.status.className = "status error";
-      els.status.textContent =
+      const msg =
         err.message === "timeout"
           ? "За 12 минут файл не появился. Проверьте, что на GitHub нажали Create/Submit, и обновите страницу."
           : `Сборка: ${err.message}`;
+      els.status.className = "status error";
+      els.status.textContent = msg;
+      els.flashStatus.className = "status error";
+      els.flashStatus.textContent = msg;
       updateDownload();
     }
-  });
+  };
+
+  els.buildBtn?.addEventListener("click", () => void onBuildClick());
+  els.buildBtnOnline?.addEventListener("click", () => void onBuildClick());
 }
 
 boot();

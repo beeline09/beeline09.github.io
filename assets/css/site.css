@@ -473,6 +473,36 @@ a:hover {
   font-size: 0.9rem !important;
 }
 
+.disclaimer-note {
+  margin-top: 0.85rem;
+  padding: 0.95rem 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(18, 24, 22, 0.55);
+}
+
+.disclaimer-note-label {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.disclaimer-note p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.footer-disclaimer {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  opacity: 0.85;
+}
+
 .photo-spoiler {
   margin-top: 1.15rem;
   border: 1px solid var(--line);

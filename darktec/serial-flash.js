@@ -18,8 +18,8 @@ const USB_VID_SEEED = 0x2886;
  * Below 0.6.1 UF2 upgrades fail — see Adafruit_nRF52_Bootloader 0.6.1 release notes
  * and CircuitPython / FakeTec (ProMicro / nice!nano) guides. MeshCore ProMicro uses the
  * same VID/PID family (0x239A / 0x00B3); official flasher recommends OTAFIX 0.9.2.
- * Web Serial getInfo() exposes only VID/PID — version comes from INFO_UF2.TXT on the
- * UF2 mass-storage disk (File System Access API + user directory pick after force-DFU).
+ * Normal «Прошить» only soft-warns (VID/PID); version from INFO_UF2.TXT is read only
+ * via the separate «Обновить bootloader» action (File System Access).
  *
  * @see https://github.com/adafruit/Adafruit_nRF52_Bootloader/releases/tag/0.6.1
  * @see https://blog.meshcore.io/2026/04/06/otafix-bootloader
@@ -31,10 +31,12 @@ export const MIN_ADAFRUIT_BOOTLOADER = "0.6.1";
 export const RECOMMENDED_ADAFRUIT_BOOTLOADER = "0.9.2";
 
 /** MeshCore OTAFIX UF2 for ProMicro / nice!nano-class (Darktec family). */
-const BOOTLOADER_UPDATE_UF2_URL =
+export const BOOTLOADER_UPDATE_UF2_URL =
   "https://flasher.meshcore.io/firmware/promicro_nrf52840_bootloader-0.9.2-OTAFIX2.1.uf2";
-const BOOTLOADER_UPDATE_DOCS_URL =
+export const BOOTLOADER_UPDATE_DOCS_URL =
   "https://blog.meshcore.io/2026/04/06/otafix-bootloader";
+
+const OTAFIX_UF2_FILENAME = "promicro_nrf52840_bootloader-0.9.2-OTAFIX2.1.uf2";
 
 /**
  * USB PIDs used by nice!nano / ProMicro NRF52840 / MeshCore Darktec-class boards
@@ -293,20 +295,44 @@ export async function readInfoUf2FromDirHandle(dirHandle) {
 }
 
 /**
- * In-page modal: user clicks «Выбрать диск DFU» (fresh gesture) → showDirectoryPicker
- * → read INFO_UF2.TXT. Skip/cancel resolves null (soft-warning path).
+ * Write a UF2 blob onto a picked DFU volume (device usually reboots / unmounts after).
+ * @param {FileSystemDirectoryHandle} dirHandle
+ * @param {Blob} blob
+ * @param {string} [fileName]
+ */
+export async function writeUf2ToDirHandle(dirHandle, blob, fileName = OTAFIX_UF2_FILENAME) {
+  const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+  const writable = await fileHandle.createWritable();
+  try {
+    await writable.write(blob);
+  } finally {
+    try {
+      await writable.close();
+    } catch {
+      /* disk often disappears mid-close after UF2 apply — ignore */
+    }
+  }
+}
+
+/**
+ * Modal for «Обновить bootloader»: fresh gesture → showDirectoryPicker (readwrite)
+ * → read INFO_UF2.TXT. Cancel resolves null.
  *
  * @param {{ onStatus?: Function }} [opts]
- * @returns {Promise<ReturnType<typeof parseInfoUf2Text> | null>}
+ * @returns {Promise<{ dirHandle: FileSystemDirectoryHandle, info: ReturnType<typeof parseInfoUf2Text> } | null>}
  */
-export function promptPickUf2Disk(opts = {}) {
-  if (!canPickUf2Directory()) return Promise.resolve(null);
+export function promptPickUf2DiskForUpdate(opts = {}) {
+  if (!canPickUf2Directory()) {
+    return Promise.reject(
+      new Error("Нужен Chrome или Edge с File System Access API, чтобы выбрать диск DFU."),
+    );
+  }
 
   opts.onStatus?.(
-    "Выберите USB-диск DFU (появился после перезагрузки), чтобы проверить версию бутлоадера",
+    "Ждите появления USB-диска DFU, затем выберите его для проверки бутлоадера",
   );
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const backdrop = document.createElement("div");
     backdrop.className = "modal-backdrop";
     backdrop.setAttribute("role", "dialog");
@@ -319,12 +345,12 @@ export function promptPickUf2Disk(opts = {}) {
     const title = document.createElement("h3");
     title.id = "uf2DiskModalTitle";
     title.className = "modal-title";
-    title.textContent = "Проверка бутлоадера";
+    title.textContent = "Обновление бутлоадера";
 
     const body = document.createElement("p");
     body.className = "modal-body";
     body.textContent =
-      "Дождитесь появления USB-диска DFU после перезагрузки, затем выберите его — прочитаем INFO_UF2.TXT с версией бутлоадера.";
+      "Дождитесь USB-диска DFU после перезагрузки и выберите его — прочитаем INFO_UF2.TXT. При необходимости запишем OTAFIX UF2 на этот диск.";
 
     const errEl = document.createElement("p");
     errEl.className = "modal-error";
@@ -338,10 +364,10 @@ export function promptPickUf2Disk(opts = {}) {
     pickBtn.className = "btn btn-primary";
     pickBtn.textContent = "Выбрать диск DFU";
 
-    const skipBtn = document.createElement("button");
-    skipBtn.type = "button";
-    skipBtn.className = "btn btn-ghost";
-    skipBtn.textContent = "Пропустить";
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.className = "btn btn-ghost";
+    cancelBtn.textContent = "Отмена";
 
     let settled = false;
     const finish = (value) => {
@@ -350,10 +376,16 @@ export function promptPickUf2Disk(opts = {}) {
       backdrop.remove();
       resolve(value);
     };
+    const fail = (err) => {
+      if (settled) return;
+      settled = true;
+      backdrop.remove();
+      reject(err);
+    };
 
     const setBusy = (busy) => {
       pickBtn.disabled = busy;
-      skipBtn.disabled = busy;
+      cancelBtn.disabled = busy;
     };
 
     pickBtn.addEventListener("click", async () => {
@@ -361,24 +393,23 @@ export function promptPickUf2Disk(opts = {}) {
       setBusy(true);
       try {
         opts.onStatus?.(
-          "Выберите USB-диск DFU (появился после перезагрузки), чтобы проверить версию бутлоадера",
+          "Выберите USB-диск DFU (появился после перезагрузки)",
         );
         const dirHandle = await window.showDirectoryPicker({
           id: "darktec-uf2-dfu",
-          mode: "read",
+          mode: "readwrite",
         });
-        const parsed = await readInfoUf2FromDirHandle(dirHandle);
+        const info = await readInfoUf2FromDirHandle(dirHandle);
         opts.onStatus?.(
-          `Бутлоадер ${parsed.version}` +
-            (parsed.model ? ` · ${parsed.model}` : "") +
-            " (из INFO_UF2.TXT).",
+          `Бутлоадер ${info.version}` +
+            (info.model ? ` · ${info.model}` : "") +
+            " (INFO_UF2.TXT).",
         );
-        finish(parsed);
+        finish({ dirHandle, info });
       } catch (err) {
         const name = err && typeof err === "object" && "name" in err ? String(err.name) : "";
         if (name === "AbortError") {
-          // User cancelled the OS directory picker — keep modal for retry/skip.
-          errEl.textContent = "Выбор диска отменён. Можно выбрать снова или пропустить.";
+          errEl.textContent = "Выбор диска отменён. Можно выбрать снова или отменить.";
           errEl.hidden = false;
           setBusy(false);
           return;
@@ -393,9 +424,11 @@ export function promptPickUf2Disk(opts = {}) {
       }
     });
 
-    skipBtn.addEventListener("click", () => finish(null));
+    cancelBtn.addEventListener("click", () =>
+      fail(new Error("Обновление бутлоадера отменено.")),
+    );
 
-    actions.append(skipBtn, pickBtn);
+    actions.append(cancelBtn, pickBtn);
     panel.append(title, body, errEl, actions);
     backdrop.append(panel);
     document.body.append(backdrop);
@@ -404,21 +437,11 @@ export function promptPickUf2Disk(opts = {}) {
 }
 
 /**
- * After DFU port is available: warn on old / unknown Adafruit-family bootloaders.
- * Prefer reading INFO_UF2.TXT from the UF2 mass-storage disk (modal + directory picker
- * for a fresh user gesture after force-DFU awaits). Falls back to soft warning when
- * the picker is cancelled, unsupported, or version is unknown.
- *
- * Dialog 1 proposes updating first; if refused, dialog 2 asks to force-flash.
+ * Soft warning only (no directory picker): nice!nano-class VID/PID before Serial DFU flash.
+ * Dialog 1 proposes updating via «Обновить bootloader»; if refused, dialog 2 force-flash.
  *
  * @param {SerialPort} port
- * @param {{
- *   onStatus?: Function,
- *   confirmFn?: (msg: string) => boolean,
- *   openUrl?: (url: string) => void,
- *   readInfoUf2?: boolean,
- *   pickUf2Disk?: () => Promise<ReturnType<typeof parseInfoUf2Text> | null>,
- * }} [opts]
+ * @param {{ onStatus?: Function, confirmFn?: (msg: string) => boolean, openUrl?: (url: string) => void }} [opts]
  * @returns {Promise<"ok" | "forced" | "skipped">}
  */
 export async function ensureAdafruitBootloaderOk(port, opts = {}) {
@@ -432,85 +455,144 @@ export async function ensureAdafruitBootloaderOk(port, opts = {}) {
         /* ignore */
       }
     });
-  const readInfoUf2 = opts.readInfoUf2 !== false;
 
   if (!isAdafruitNiceNanoFamilyPort(port)) {
     return "skipped";
   }
 
-  /** @type {string | null} */
-  let version = probeBootloaderVersion(port);
-  /** @type {string | null} */
-  let versionSource = version ? "serial" : null;
-
-  if (!version && readInfoUf2 && canPickUf2Directory()) {
-    opts.onStatus?.("Ждите появления USB-диска DFU…");
-    const pick = opts.pickUf2Disk || (() => promptPickUf2Disk({ onStatus: opts.onStatus }));
-    const info = await pick();
-    if (info?.version) {
-      version = info.version;
-      versionSource = "info_uf2";
-    }
-  }
-
-  const belowMin =
+  const version = probeBootloaderVersion(port);
+  const below =
     version != null ? isBootloaderBelowMinimum(version, MIN_ADAFRUIT_BOOTLOADER) : null;
-  const belowRecommended =
-    version != null
-      ? isBootloaderBelowMinimum(version, RECOMMENDED_ADAFRUIT_BOOTLOADER)
-      : null;
 
-  // At/above MeshCore OTAFIX recommendation — proceed.
-  if (version && belowRecommended === false) {
-    opts.onStatus?.(
-      `Бутлоадер ${version} (≥ ${RECOMMENDED_ADAFRUIT_BOOTLOADER}) — OK` +
-        (versionSource === "info_uf2" ? " (INFO_UF2.TXT)." : "."),
-    );
+  // Known good (≥ hard min) — proceed. OTAFIX check is the separate «Обновить bootloader» action.
+  if (version && below === false) {
+    opts.onStatus?.(`Бутлоадер ${version} (≥ ${MIN_ADAFRUIT_BOOTLOADER}) — OK.`);
     return "ok";
   }
 
-  const knownBelowMin = belowMin === true;
-  const knownBelowRecommended = belowRecommended === true;
-  let updateMsg;
-  if (knownBelowMin) {
-    updateMsg =
-      `Обнаружен старый Adafruit/nice!nano бутлоадер ${version} (нужен ≥ ${MIN_ADAFRUIT_BOOTLOADER}).\n\n` +
-      `Крупные прошивки MeshCore/Darktec могут не записаться. Рекомендуется OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER} для ProMicro.\n\n` +
-      `Обновить бутлоадер сначала? (откроется UF2 / инструкция MeshCore)`;
-  } else if (knownBelowRecommended) {
-    updateMsg =
-      `Бутлоадер ${version} ≥ ${MIN_ADAFRUIT_BOOTLOADER}, но ниже рекомендуемого OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}.\n\n` +
-      `MeshCore рекомендует обновить бутлоадер перед прошивкой крупных сборок Darktec/ProMicro.\n\n` +
-      `Обновить бутлоадер сначала? (откроется UF2 / инструкция MeshCore)`;
-  } else {
-    updateMsg =
-      `Не удалось прочитать версию бутлоадера` +
-      (canPickUf2Directory()
-        ? " (диск DFU не выбран или INFO_UF2.TXT недоступен)"
-        : " (Web Serial не отдаёт версию; File System Access недоступен)") +
-      `.\n\n` +
-      `У Darktec/ProMicro/nice!nano часто стоит Adafruit UF2 < ${MIN_ADAFRUIT_BOOTLOADER} — тогда прошивка может сломаться. MeshCore рекомендует OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}.\n\n` +
-      `Обновить бутлоадер сначала? (откроется UF2 / инструкция MeshCore)`;
-  }
+  // Web Serial almost never exposes version — soft path for family ports (no folder picker).
+  const knownOld = below === true;
+  const updateMsg = knownOld
+    ? `Обнаружен старый Adafruit/nice!nano бутлоадер ${version} (нужен ≥ ${MIN_ADAFRUIT_BOOTLOADER}).\n\n` +
+      `Крупные прошивки MeshCore/Darktec могут не записаться. Рекомендуется OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}.\n\n` +
+      `Открыть инструкцию / UF2? (или нажмите «Обновить bootloader» на этой странице)`
+    : `Версию бутлоадера Serial не читает. У Darktec/ProMicro/nice!nano часто стоит Adafruit UF2 < ${MIN_ADAFRUIT_BOOTLOADER}.\n\n` +
+      `MeshCore рекомендует OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}. Проверить и обновить — кнопка «Обновить bootloader» (без выбора папки при обычной прошивке).\n\n` +
+      `Открыть инструкцию / UF2 сейчас?`;
 
   opts.onStatus?.("Проверка бутлоадера…");
   const wantsUpdate = confirmFn(updateMsg);
   if (wantsUpdate) {
-    // One window from the confirm gesture (second open is often popup-blocked).
     openUrl(BOOTLOADER_UPDATE_UF2_URL);
     throw new Error(
-      `Прошивка отменена: обновите бутлоадер (≥ ${MIN_ADAFRUIT_BOOTLOADER} / OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}), затем повторите. Инструкция: ${BOOTLOADER_UPDATE_DOCS_URL}`,
+      `Прошивка отменена: обновите бутлоадер кнопкой «Обновить bootloader» или вручную (OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}). Инструкция: ${BOOTLOADER_UPDATE_DOCS_URL}`,
     );
   }
 
-  const forceMsg = "Продолжить прошивку на старом бутлоадере?";
-  const force = confirmFn(forceMsg);
+  const force = confirmFn("Продолжить прошивку на старом бутлоадере?");
   if (!force) {
     throw new Error("Прошивка отменена пользователем.");
   }
 
   opts.onStatus?.("Продолжаем на текущем бутлоадере…");
   return "forced";
+}
+
+/**
+ * Dedicated bootloader update: force DFU → pick UF2 disk → read INFO_UF2 →
+ * if below OTAFIX, download official UF2 and write to the disk (or open download).
+ *
+ * @param {{ onStatus?: Function, confirmFn?: (msg: string) => boolean, openUrl?: (url: string) => void }} [opts]
+ * @returns {Promise<"ok" | "updated" | "download">}
+ */
+export async function runBootloaderUpdate(opts = {}) {
+  const confirmFn = opts.confirmFn || ((msg) => window.confirm(msg));
+  const openUrl =
+    opts.openUrl ||
+    ((url) => {
+      try {
+        window.open(url, "_blank", "noopener,noreferrer");
+      } catch {
+        /* ignore */
+      }
+    });
+
+  if (!canSerialFlash()) {
+    throw new Error("Нужен Chrome или Edge с Web Serial API.");
+  }
+  if (!canPickUf2Directory()) {
+    openUrl(BOOTLOADER_UPDATE_UF2_URL);
+    throw new Error(
+      `File System Access недоступен. Скачайте OTAFIX UF2 вручную и скопируйте на диск DFU. Инструкция: ${BOOTLOADER_UPDATE_DOCS_URL}`,
+    );
+  }
+
+  opts.onStatus?.("Перевод в DFU для обновления бутлоадера…");
+  await enterDfuMode(opts.onStatus);
+
+  opts.onStatus?.("Ждите появления USB-диска DFU…");
+  const picked = await promptPickUf2DiskForUpdate({ onStatus: opts.onStatus });
+  if (!picked) {
+    throw new Error("Обновление бутлоадера отменено.");
+  }
+
+  const { dirHandle, info } = picked;
+  const version = info.version;
+  const belowRec = isBootloaderBelowMinimum(version, RECOMMENDED_ADAFRUIT_BOOTLOADER);
+
+  if (belowRec === false) {
+    opts.onStatus?.(
+      `Бутлоадер уже ${version} (≥ ${RECOMMENDED_ADAFRUIT_BOOTLOADER}) — обновление не нужно.`,
+    );
+    return "ok";
+  }
+
+  const belowMin = isBootloaderBelowMinimum(version, MIN_ADAFRUIT_BOOTLOADER) === true;
+  const offer =
+    `Текущий бутлоадер: ${version}` +
+    (info.model ? ` (${info.model})` : "") +
+    `.\n\n` +
+    (belowMin
+      ? `Ниже минимума ${MIN_ADAFRUIT_BOOTLOADER}. `
+      : "") +
+    `Рекомендуется OTAFIX ${RECOMMENDED_ADAFRUIT_BOOTLOADER}.\n\n` +
+    `Записать официальный OTAFIX UF2 на выбранный диск DFU?`;
+
+  if (!confirmFn(offer)) {
+    openUrl(BOOTLOADER_UPDATE_UF2_URL);
+    opts.onStatus?.(
+      `Скачайте UF2 вручную и скопируйте на диск DFU. Инструкция: ${BOOTLOADER_UPDATE_DOCS_URL}`,
+    );
+    return "download";
+  }
+
+  opts.onStatus?.("Загрузка OTAFIX UF2…");
+  let blob;
+  try {
+    const res = await fetch(BOOTLOADER_UPDATE_UF2_URL, { cache: "no-cache" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    blob = await res.blob();
+  } catch (err) {
+    openUrl(BOOTLOADER_UPDATE_UF2_URL);
+    throw new Error(
+      `Не удалось скачать OTAFIX UF2 (${err && typeof err === "object" && "message" in err ? err.message : err}). Открыта ссылка для ручной загрузки.`,
+    );
+  }
+
+  opts.onStatus?.("Запись OTAFIX UF2 на диск DFU…");
+  try {
+    await writeUf2ToDirHandle(dirHandle, blob, OTAFIX_UF2_FILENAME);
+  } catch (err) {
+    openUrl(BOOTLOADER_UPDATE_UF2_URL);
+    throw new Error(
+      `Не удалось записать UF2 на диск (скопируйте вручную). ${err && typeof err === "object" && "message" in err ? err.message : err}`,
+    );
+  }
+
+  opts.onStatus?.(
+    "OTAFIX UF2 записан. Плата должна перезагрузиться; диск DFU исчезнет — это нормально.",
+  );
+  return "updated";
 }
 
 /**

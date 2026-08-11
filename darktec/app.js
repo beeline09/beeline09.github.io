@@ -9,6 +9,7 @@ import {
   flashNrfSerial,
   formatSerialFlashError,
   openDfuSerialPort,
+  runBootloaderUpdate,
 } from "./serial-flash.js";
 
 const FIRMWARE_REPO = "beeline09/MeshCore";
@@ -118,6 +119,7 @@ const els = {
   paneOnline: document.getElementById("paneOnline"),
   flashBtn: document.getElementById("flashBtn"),
   dfuBtn: document.getElementById("dfuBtn"),
+  bootloaderBtn: document.getElementById("bootloaderBtn"),
   flashStatus: document.getElementById("flashStatus"),
   flashFileName: document.getElementById("flashFileName"),
   flashProgressTrack: document.getElementById("flashProgressTrack"),
@@ -200,6 +202,7 @@ function setDownloadEnabled(enabled) {
   const zipOk = Boolean(findAsset("zip"));
   els.flashBtn.disabled = !enabled || !serialOk || !zipOk;
   els.dfuBtn.disabled = !enabled || !serialOk;
+  if (els.bootloaderBtn) els.bootloaderBtn.disabled = !serialOk;
 }
 
 function showBuildingEmptyState() {
@@ -561,12 +564,34 @@ function finishFlashUi() {
 
 els.dfuBtn.addEventListener("click", async () => {
   els.dfuBtn.disabled = true;
+  if (els.bootloaderBtn) els.bootloaderBtn.disabled = true;
   els.flashStatus.className = "status";
   try {
     await enterDfuMode((msg) => {
       els.flashStatus.className = "status";
       els.flashStatus.textContent = msg;
     });
+  } catch (err) {
+    console.error(err);
+    els.flashStatus.className = "status error";
+    els.flashStatus.textContent = formatSerialFlashError(err);
+  } finally {
+    finishFlashUi();
+  }
+});
+
+els.bootloaderBtn?.addEventListener("click", async () => {
+  els.bootloaderBtn.disabled = true;
+  els.dfuBtn.disabled = true;
+  els.flashBtn.disabled = true;
+  els.flashStatus.className = "status";
+  const onStatus = (msg) => {
+    els.flashStatus.className = "status";
+    els.flashStatus.textContent = msg;
+  };
+  try {
+    await runBootloaderUpdate({ onStatus });
+    els.flashStatus.className = "status";
   } catch (err) {
     console.error(err);
     els.flashStatus.className = "status error";
@@ -587,18 +612,19 @@ els.flashBtn.addEventListener("click", async () => {
   els.flashProgressBar.style.width = "0%";
   els.flashBtn.disabled = true;
   els.dfuBtn.disabled = true;
+  if (els.bootloaderBtn) els.bootloaderBtn.disabled = true;
   const onStatus = (msg) => {
     els.flashStatus.className = "status";
     els.flashStatus.textContent = msg;
   };
   try {
     // requestPort must run before any network await (user-gesture token).
+    // No showDirectoryPicker here — bootloader disk pick is only «Обновить bootloader».
     const dfuPort = await openDfuSerialPort({
       forceDfu: true,
       onStatus,
     });
-    // Bootloader gate after DFU: modal → INFO_UF2.TXT (gesture), then dialogs; before zip.
-    await ensureAdafruitBootloaderOk(dfuPort, { onStatus, readInfoUf2: true });
+    await ensureAdafruitBootloaderOk(dfuPort, { onStatus });
     onStatus("Загрузка OTA zip…");
     const blob = await loadOtaZipBlob(zipAsset.name);
     await flashNrfSerial(blob, {

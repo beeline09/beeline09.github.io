@@ -810,6 +810,129 @@ function createDfuPortWatcher(appPort) {
 }
 
 /**
+ * Modal: pick DFU serial port with a fresh user gesture.
+ * After 1200-baud reboot the original click gesture is gone — Chromium rejects
+ * a silent `requestPort()` with SecurityError. This dialog’s button supplies
+ * a new activation (same pattern as {@link promptPickUf2DiskForUpdate}).
+ *
+ * @param {{ onStatus?: Function }} [opts]
+ * @returns {Promise<SerialPort>}
+ */
+export function promptPickDfuSerialPort(opts = {}) {
+  if (!canSerialFlash()) {
+    return Promise.reject(new Error("Нужен Chrome или Edge с Web Serial API."));
+  }
+
+  opts.onStatus?.(
+    "DFU-порт не найден автоматически. Нажмите «Выбрать порт DFU» в диалоге.",
+  );
+
+  return new Promise((resolve, reject) => {
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.setAttribute("role", "dialog");
+    backdrop.setAttribute("aria-modal", "true");
+    backdrop.setAttribute("aria-labelledby", "dfuPortModalTitle");
+
+    const panel = document.createElement("div");
+    panel.className = "modal-panel";
+
+    const title = document.createElement("h3");
+    title.id = "dfuPortModalTitle";
+    title.className = "modal-title";
+    title.textContent = "Выбор порта DFU";
+
+    const body = document.createElement("div");
+    body.className = "modal-body";
+    body.innerHTML =
+      "<p>DFU-порт не найден автоматически после перевода платы в Serial&nbsp;DFU.</p>" +
+      "<ol class=\"modal-steps\">" +
+      "<li>Убедитесь, что плата подключена по USB и уже в режиме DFU</li>" +
+      "<li>Нажмите «Выбрать порт DFU» и укажите COM платы в DFU " +
+      "(не обычный application COM)</li>" +
+      "</ol>";
+
+    const errEl = document.createElement("p");
+    errEl.className = "modal-error";
+    errEl.hidden = true;
+
+    const actions = document.createElement("div");
+    actions.className = "modal-actions";
+
+    const pickBtn = document.createElement("button");
+    pickBtn.type = "button";
+    pickBtn.className = "btn btn-primary";
+    pickBtn.textContent = "Выбрать порт DFU";
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.className = "btn btn-ghost";
+    cancelBtn.textContent = "Отмена";
+
+    let settled = false;
+    const finish = (value) => {
+      if (settled) return;
+      settled = true;
+      backdrop.remove();
+      resolve(value);
+    };
+    const fail = (err) => {
+      if (settled) return;
+      settled = true;
+      backdrop.remove();
+      reject(err);
+    };
+
+    const setBusy = (busy) => {
+      pickBtn.disabled = busy;
+      cancelBtn.disabled = busy;
+    };
+
+    pickBtn.addEventListener("click", async () => {
+      errEl.hidden = true;
+      setBusy(true);
+      try {
+        opts.onStatus?.("Выберите порт DFU (плата после перезагрузки)…");
+        const port = await navigator.serial.requestPort({
+          filters: DFU_PORT_FILTERS,
+        });
+        opts.onStatus?.("DFU-порт выбран.");
+        finish(port);
+      } catch (err) {
+        const name =
+          err && typeof err === "object" && "name" in err ? String(err.name) : "";
+        if (
+          name === "AbortError" ||
+          name === "NotFoundError" ||
+          /no port selected by the user|user cancelled|user canceled/i.test(
+            String(err && typeof err === "object" && "message" in err ? err.message : err),
+          )
+        ) {
+          errEl.textContent =
+            "Выбор порта отменён. Выберите порт DFU снова — или нажмите «Отмена».";
+          errEl.hidden = false;
+          setBusy(false);
+          return;
+        }
+        errEl.textContent = formatSerialFlashError(err);
+        errEl.hidden = false;
+        setBusy(false);
+      }
+    });
+
+    cancelBtn.addEventListener("click", () =>
+      fail(new Error("Прошивка отменена: DFU-порт не выбран.")),
+    );
+
+    actions.append(cancelBtn, pickBtn);
+    panel.append(title, body, errEl, actions);
+    backdrop.append(panel);
+    document.body.append(backdrop);
+    pickBtn.focus();
+  });
+}
+
+/**
  * Force Adafruit/nRF into serial DFU via 1200 baud touch (CDC-only mode).
  * Closes and forgets the app port so the DFU CDC can re-enumerate.
  * Does not open the DFU serial port (caller / «Прошить» does that).
@@ -837,12 +960,18 @@ export async function enterDfuMode(onStatus) {
 }
 
 /**
- * Request Serial ports for DFU while still in the click gesture stack.
- * Must run before any network await from the button handler.
+ * Open a Serial port for DFU flashing.
  *
- * With `forceDfu: true` (default): one app-port picker → 1200 reboot → auto DFU
- * port when possible; fallback `requestPort` only if автоопределение не сработало.
- * With `forceDfu: false`: single DFU-oriented picker (already in bootloader).
+ * With `forceDfu: true` (default):
+ * 1. Immediate `requestPort` for the app COM (must stay first in the click stack)
+ * 2. 1200-baud reboot + auto-detect DFU port
+ * 3. If miss → modal button → fresh-gesture `requestPort` with DFU filters
+ *    (never call `requestPort` in the async continuation after awaits)
+ *
+ * With `forceDfu: false`: single DFU-oriented picker (already in bootloader;
+ * call only from a click handler, before long awaits).
+ *
+ * Soft bootloader confirms belong after this returns (see app.js «Прошить»).
  *
  * @param {{ forceDfu?: boolean, onStatus?: Function }} opts
  * @returns {Promise<SerialPort>}
@@ -876,8 +1005,8 @@ export async function openDfuSerialPort(opts = {}) {
         return autoPort;
       }
 
-      onStatus?.("Выберите порт DFU (плата после перезагрузки)…");
-      return await navigator.serial.requestPort({ filters: DFU_PORT_FILTERS });
+      // Gesture from «Прошить» is gone after forceDfu + wait — use a modal click.
+      return await promptPickDfuSerialPort({ onStatus });
     } finally {
       watcher.stop();
     }

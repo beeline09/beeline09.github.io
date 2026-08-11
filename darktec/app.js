@@ -618,8 +618,12 @@ els.flashBtn.addEventListener("click", async () => {
     els.flashStatus.textContent = msg;
   };
   try {
-    // requestPort must run before any network await (user-gesture token).
-    // No showDirectoryPicker here — bootloader disk pick is only «Обновить bootloader».
+    // Order (Web Serial gesture):
+    // 1) openDfuSerialPort → immediate requestPort(app), force DFU, auto DFU;
+    //    on miss → site modal → requestPort(DFU) from a fresh button click
+    // 2) soft bootloader confirms (OK after ports; window.confirm is not a Serial gesture)
+    // 3) fetch zip  4) flash with the already-chosen port
+    // No showDirectoryPicker here — UF2 disk pick is only «Обновить bootloader».
     const dfuPort = await openDfuSerialPort({
       forceDfu: true,
       onStatus,

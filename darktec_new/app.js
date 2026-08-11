@@ -35,14 +35,14 @@ const RELEASES_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases?per
 const TAG_PREFIX = "darktec-v";
 
 const ROLES = [
-  { id: "companion_radio_ble", title: "Companion BLE", blurb: "BLE + OLED UI" },
-  { id: "companion_radio_usb", title: "Companion USB", blurb: "USB serial companion" },
-  { id: "repeater", title: "Repeater", blurb: "Сетевой ретранслятор" },
-  { id: "repeater_bridge_rs232", title: "RS232 Bridge", blurb: "Repeater + Serial1" },
-  { id: "room_server", title: "Room server", blurb: "Комнатный сервер" },
-  { id: "terminal_chat", title: "Terminal chat", blurb: "Secure chat CLI" },
-  { id: "sensor", title: "Sensor", blurb: "Телеметрия / датчики" },
-  { id: "kiss_modem", title: "KISS modem", blurb: "KISS over LoRa" },
+  { id: "companion_radio_ble", title: "Companion BLE", blurb: "BLE + OLED UI", advertName: "Darktec Companion BLE" },
+  { id: "companion_radio_usb", title: "Companion USB", blurb: "USB serial companion", advertName: "Darktec Companion USB" },
+  { id: "repeater", title: "Repeater", blurb: "Сетевой ретранслятор", advertName: "Darktec Repeater" },
+  { id: "repeater_bridge_rs232", title: "RS232 Bridge", blurb: "Repeater + Serial1", advertName: "RS232 Bridge" },
+  { id: "room_server", title: "Room server", blurb: "Комнатный сервер", advertName: "Darktec Room" },
+  { id: "terminal_chat", title: "Terminal chat", blurb: "Secure chat CLI", advertName: "Darktec Chat" },
+  { id: "sensor", title: "Sensor", blurb: "Телеметрия / датчики", advertName: "Darktec Sensor" },
+  { id: "kiss_modem", title: "KISS modem", blurb: "KISS over LoRa", advertName: "Darktec KISS" },
 ];
 
 const CHEMS = [
@@ -110,7 +110,9 @@ const state = {
   chem: "liion",
   cells: 1,
   protect: "adc",
-  advertName: "",
+  advertName: "Darktec Companion BLE",
+  /** User edited name manually; role change won't overwrite until false. */
+  advertNameTouched: false,
   radio: { ...RADIO_DEFAULTS },
   tab: "offline",
   releases: [],
@@ -197,8 +199,19 @@ function expectedZipName() {
   return `${expectedBaseName()}.zip`;
 }
 
+function defaultAdvertNameForRole(roleId = state.role) {
+  return ROLES.find((r) => r.id === roleId)?.advertName || "Darktec";
+}
+
+function syncAdvertNameFromRole({ force = false } = {}) {
+  if (!force && state.advertNameTouched) return;
+  const name = defaultAdvertNameForRole(state.role);
+  state.advertName = name;
+  if (els.advertNameInput) els.advertNameInput.value = name;
+}
+
 function isCustomName() {
-  return Boolean(state.advertName.trim());
+  return state.advertName.trim() !== defaultAdvertNameForRole(state.role);
 }
 
 function needsCustomBuild() {
@@ -313,7 +326,7 @@ function syncNameStepLabels() {
   const nameN = protectN + 1;
   const radioN = nameN + 1;
   els.protectStepLabel.textContent = `${protectN} · Защита батареи`;
-  if (els.nameStepLabel) els.nameStepLabel.textContent = `${nameN} · Имя ноды (опционально)`;
+  if (els.nameStepLabel) els.nameStepLabel.textContent = `${nameN} · Имя ноды`;
   if (els.radioStepLabel) els.radioStepLabel.textContent = `${radioN} · Параметры радио`;
 }
 
@@ -458,6 +471,9 @@ function updateDownload() {
 function renderAll() {
   renderChoices(els.roleChoices, ROLES, state.role, (id) => {
     state.role = id;
+    // Switching role resets to that firmware's default advert name.
+    state.advertNameTouched = false;
+    syncAdvertNameFromRole({ force: true });
     void refreshOndemandFromCache().then(updateDownload);
     renderAll();
   });
@@ -1118,6 +1134,7 @@ async function boot() {
   initCarousel();
   setTab("offline");
   wireUsbTools();
+  syncAdvertNameFromRole({ force: true });
   wireOndemandUi();
   try {
     state.southSha = await fetchSouthEditionSha();
@@ -1185,6 +1202,7 @@ function wireOndemandUi() {
 
   els.advertNameInput?.addEventListener("input", () => {
     state.advertName = els.advertNameInput.value;
+    state.advertNameTouched = true;
     scheduleRefresh();
   });
 

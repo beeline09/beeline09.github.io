@@ -80,8 +80,8 @@ export function validateRadio(radio) {
   if (!Number.isFinite(n.cr) || n.cr < 5 || n.cr > 8) {
     return "Некорректный CR: нужно от 5 до 8";
   }
-  if (!Number.isFinite(n.tx) || n.tx < 1 || n.tx > 22) {
-    return "Некорректная мощность: нужно от 1 до 22 dBm";
+  if (!Number.isFinite(n.tx) || n.tx < 1 || n.tx > 22 || n.tx !== Math.trunc(n.tx)) {
+    return "Мощность передатчика: целое число от 1 до 22 dBm";
   }
   return null;
 }

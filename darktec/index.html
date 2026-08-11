@@ -106,6 +106,31 @@
           <p class="hint" id="protectHint"></p>
         </div>
 
+        <div class="step tools-step" id="usbTools">
+          <h2>USB-инструменты</h2>
+          <p class="hint">
+            Нужен Chrome&nbsp;/ Edge и плата в <strong>режиме приложения</strong> (не DFU),
+            USB serial&nbsp;115200. Работает с repeater&nbsp;/ room server (и CLI, где есть).
+            Не зависит от матрицы прошивок — только Web&nbsp;Serial.
+            После прошивки переподключите плату в app-режиме.
+          </p>
+          <div class="download-row">
+            <button
+              type="button"
+              class="btn btn-ghost"
+              id="setupBtn"
+              title="Официальный MeshCore USB config GUI для repeater / room"
+            >Настройка repeater</button>
+            <button
+              type="button"
+              class="btn btn-ghost"
+              id="consoleBtn"
+              title="Встроенный USB serial CLI @ 115200 (режим приложения)"
+            >Console</button>
+          </div>
+          <p class="status" id="toolsStatus"></p>
+        </div>
+
         <div id="paneOffline" role="tabpanel" aria-labelledby="tabOffline">
           <div class="step">
             <h2 id="downloadStepLabel">Скачать</h2>
@@ -150,8 +175,24 @@
               <button type="button" class="btn btn-ghost" id="dfuBtn" disabled title="Serial DFU через COM (1200 baud), без USB-диска">Только DFU</button>
               <button type="button" class="btn btn-ghost" id="bootloaderBtn" disabled title="OTAFIX на USB-диск UF2: двойной RESET, затем выбор тома (не COM)">Обновить bootloader (диск)</button>
               <button type="button" class="btn btn-primary" id="flashBtn" disabled title="Прошивка OTA zip по Serial DFU (COM, 1200 baud)">Прошить</button>
+              <button
+                type="button"
+                class="btn btn-ghost"
+                id="setupBtnOnline"
+                title="Официальный MeshCore USB config GUI для repeater / room"
+              >Настройка repeater</button>
+              <button
+                type="button"
+                class="btn btn-ghost"
+                id="consoleBtnOnline"
+                title="Встроенный USB serial CLI @ 115200 (режим приложения)"
+              >Console</button>
               <span class="file-name" id="flashFileName" hidden></span>
             </div>
+            <p class="hint">
+              После «Прошить» плата перезагрузится: для Console / «Настройка repeater»
+              снова выберите COM в режиме приложения (не DFU).
+            </p>
             <div class="progress-track" id="flashProgressTrack" hidden>
               <div class="progress-bar" id="flashProgressBar"></div>
             </div>
@@ -175,6 +216,46 @@
       </p>
     </footer>
   </div>
+
+  <div
+    id="consoleModal"
+    class="modal-backdrop console-backdrop"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="consoleModalTitle"
+  >
+    <div class="modal-panel console-panel">
+      <div class="console-head">
+        <h3 id="consoleModalTitle" class="modal-title">Serial Console</h3>
+        <button type="button" class="btn btn-ghost" id="consoleCloseBtn" title="Закрыть">Закрыть</button>
+      </div>
+      <p class="hint console-hint">
+        Chrome&nbsp;/ Edge · плата в режиме приложения (не DFU) · 115200.
+        CLI для repeater&nbsp;/ room server (и других ролей с serial CLI).
+        Перед «Прошить» Console отключается, чтобы не занять DFU-порт.
+      </p>
+      <pre class="console-log" id="consoleLog" tabindex="0" aria-live="polite"></pre>
+      <form class="console-input-row" id="consoleForm">
+        <input
+          class="console-input"
+          id="consoleInput"
+          type="text"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="команда (Enter)"
+          disabled
+        >
+        <button type="submit" class="btn btn-primary" id="consoleSendBtn" disabled>Отправить</button>
+      </form>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="consoleDisconnectBtn" disabled>Отключить</button>
+        <button type="button" class="btn btn-primary" id="consoleConnectBtn">Подключить</button>
+      </div>
+      <p class="status" id="consoleStatus"></p>
+    </div>
+  </div>
+
   <script type="module" src="./app.js"></script>
 </body>
 </html>

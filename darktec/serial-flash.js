@@ -821,7 +821,25 @@ export function promptPickDfuSerialPort(opts = {}) {
  * Force Adafruit/nRF into serial DFU via 1200 baud touch (CDC-only mode).
  * Closes and forgets the app port so the DFU CDC can re-enumerate.
  * Does not open the DFU serial port (caller / «Прошить» does that).
+ *
+ * 1200-baud DFU touch on an already-granted app port (e.g. stolen from Console).
+ * @param {SerialPort} port
+ * @param {Function} [onStatus]
  */
+export async function forceAppPortToDfu(port, onStatus) {
+  onStatus?.("Перевожу в Serial DFU (1200 baud)…");
+  // Brief settle so an aborted SerialConsole pipe releases locks.
+  await new Promise((r) => setTimeout(r, 60));
+  try {
+    await Dfu.forceDfuMode(port);
+  } catch (err) {
+    throw Object.assign(new Error(formatSerialFlashError(err)), { cause: err });
+  }
+  onStatus?.(
+    "Serial DFU активен (USB-диск при 1200 baud обычно не появляется). Дальше «Прошить» — порт DFU подхватится сам.",
+  );
+}
+
 export async function enterDfuMode(onStatus) {
   if (!canSerialFlash()) {
     throw new Error("Нужен Chrome или Edge с Web Serial API.");
@@ -833,15 +851,7 @@ export async function enterDfuMode(onStatus) {
   } catch (err) {
     throw Object.assign(new Error(formatSerialFlashError(err)), { cause: err });
   }
-  onStatus?.("Перевожу в Serial DFU (1200 baud)…");
-  try {
-    await Dfu.forceDfuMode(port);
-  } catch (err) {
-    throw Object.assign(new Error(formatSerialFlashError(err)), { cause: err });
-  }
-  onStatus?.(
-    "Serial DFU активен (USB-диск при 1200 baud обычно не появляется). Дальше «Прошить» — порт DFU подхватится сам.",
-  );
+  await forceAppPortToDfu(port, onStatus);
 }
 
 /**
@@ -856,11 +866,14 @@ export async function enterDfuMode(onStatus) {
  * With `forceDfu: false`: single DFU-oriented picker (already in bootloader;
  * call only from a click handler, before long awaits).
  *
- * @param {{ forceDfu?: boolean, onStatus?: Function }} opts
+ * Pass `appPort` to reuse an already-granted application COM (e.g. after
+ * detaching Serial Console) and skip `requestPort` for the app stage.
+ *
+ * @param {{ forceDfu?: boolean, onStatus?: Function, appPort?: SerialPort | null }} opts
  * @returns {Promise<SerialPort>}
  */
 export async function openDfuSerialPort(opts = {}) {
-  const { forceDfu = true, onStatus } = opts;
+  const { forceDfu = true, onStatus, appPort: existingAppPort = null } = opts;
   if (!canSerialFlash()) {
     throw new Error("Нужен Chrome или Edge с Web Serial API.");
   }
@@ -871,8 +884,17 @@ export async function openDfuSerialPort(opts = {}) {
       return await navigator.serial.requestPort({ filters: DFU_PORT_FILTERS });
     }
 
-    onStatus?.("Выберите COM-порт платы (обычный режим)…");
-    const appPort = await navigator.serial.requestPort({ filters: APP_PORT_FILTERS });
+    // Reuse an already-open app COM (e.g. Console) to avoid a second picker and
+    // to keep requestPort off the critical path after Console teardown awaits.
+    let appPort = existingAppPort;
+    if (appPort) {
+      onStatus?.("Использую порт Console для перевода в DFU…");
+      // Let SerialConsole's aborted pipe release readable/writable locks.
+      await new Promise((r) => setTimeout(r, 60));
+    } else {
+      onStatus?.("Выберите COM-порт платы (обычный режим)…");
+      appPort = await navigator.serial.requestPort({ filters: APP_PORT_FILTERS });
+    }
 
     const watcher = createDfuPortWatcher(appPort);
     await watcher.start();

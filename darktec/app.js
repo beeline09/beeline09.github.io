@@ -1,16 +1,23 @@
 /**
- * Darktec flasher — version picker, roles, offline UF2 + online Serial DFU.
+ * Darktec flasher — version picker, roles, offline UF2 + online Serial DFU,
+ * plus MeshCore-style USB Console and official Repeater Setup GUI.
  */
 
+import { SerialConsole } from "./lib/console.js";
 import {
   canSerialFlash,
   enterDfuMode,
   flashNrfSerial,
+  forceAppPortToDfu,
   formatSerialFlashError,
   openDfuSerialPort,
   runBootloaderUpdate,
 } from "./serial-flash.js";
 
+/** Official MeshCore USB config GUI (repeater / room). */
+const REPEATER_SETUP_URL = "https://config.meshcore.io";
+const REPEATER_SETUP_FEATURES =
+  "directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800";
 const FIRMWARE_REPO = "beeline09/MeshCore";
 const RELEASES_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases?per_page=40`;
 const TAG_PREFIX = "darktec-v";
@@ -124,6 +131,26 @@ const els = {
   flashProgressTrack: document.getElementById("flashProgressTrack"),
   flashProgressBar: document.getElementById("flashProgressBar"),
   photoCarousel: document.getElementById("photoCarousel"),
+  setupBtn: document.getElementById("setupBtn"),
+  consoleBtn: document.getElementById("consoleBtn"),
+  setupBtnOnline: document.getElementById("setupBtnOnline"),
+  consoleBtnOnline: document.getElementById("consoleBtnOnline"),
+  toolsStatus: document.getElementById("toolsStatus"),
+  consoleModal: document.getElementById("consoleModal"),
+  consoleLog: document.getElementById("consoleLog"),
+  consoleForm: document.getElementById("consoleForm"),
+  consoleInput: document.getElementById("consoleInput"),
+  consoleSendBtn: document.getElementById("consoleSendBtn"),
+  consoleConnectBtn: document.getElementById("consoleConnectBtn"),
+  consoleDisconnectBtn: document.getElementById("consoleDisconnectBtn"),
+  consoleCloseBtn: document.getElementById("consoleCloseBtn"),
+  consoleStatus: document.getElementById("consoleStatus"),
+};
+
+/** @type {{ instance: SerialConsole | null, port: SerialPort | null }} */
+const serialCon = {
+  instance: null,
+  port: null,
 };
 
 function expectedBaseName() {
@@ -521,6 +548,264 @@ els.versionSelect.addEventListener("change", () => {
 els.tabOffline.addEventListener("click", () => setTab("offline"));
 els.tabOnline.addEventListener("click", () => setTab("online"));
 
+function setToolsStatus(text, kind = "") {
+  if (!els.toolsStatus) return;
+  els.toolsStatus.className = kind ? `status ${kind}` : "status";
+  els.toolsStatus.textContent = text || "";
+}
+
+function setConsoleStatus(text, kind = "") {
+  if (!els.consoleStatus) return;
+  els.consoleStatus.className = kind ? `status ${kind}` : "status";
+  els.consoleStatus.textContent = text || "";
+}
+
+function appendConsoleLog(text) {
+  if (!els.consoleLog) return;
+  els.consoleLog.textContent += text;
+  els.consoleLog.scrollTop = els.consoleLog.scrollHeight;
+}
+
+function syncConsoleUi() {
+  const connected = Boolean(serialCon.instance?.connected);
+  if (els.consoleInput) els.consoleInput.disabled = !connected;
+  if (els.consoleSendBtn) els.consoleSendBtn.disabled = !connected;
+  if (els.consoleDisconnectBtn) els.consoleDisconnectBtn.disabled = !connected;
+  if (els.consoleConnectBtn) {
+    els.consoleConnectBtn.disabled = !canSerialFlash() || connected;
+    els.consoleConnectBtn.textContent = connected ? "Подключено" : "Подключить";
+  }
+}
+
+function openConsoleModal() {
+  if (!els.consoleModal) return;
+  els.consoleModal.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function hideConsoleModal() {
+  if (!els.consoleModal) return;
+  els.consoleModal.hidden = true;
+  document.body.style.overflow = "";
+}
+
+/**
+ * Release the app-mode serial port so DFU flash can use Web Serial.
+ * Clears status lines that mention an active console session.
+ */
+async function disconnectConsole(opts = {}) {
+  const { quiet = false } = opts;
+  const inst = serialCon.instance;
+  serialCon.instance = null;
+  serialCon.port = null;
+  if (inst) {
+    try {
+      await inst.disconnect();
+    } catch (err) {
+      console.warn("console disconnect", err);
+    }
+  }
+  syncConsoleUi();
+  if (!quiet) {
+    setConsoleStatus("Отключено.");
+    setToolsStatus("");
+  }
+}
+
+/**
+ * Synchronously detach Console and return its SerialPort for DFU reuse.
+ * Must run before any await in a flash click handler so requestPort (if needed)
+ * still sees the user gesture when Console was not holding a port.
+ * @returns {SerialPort | null}
+ */
+function stealConsolePortForFlash() {
+  const inst = serialCon.instance;
+  const port = serialCon.port;
+  if (!inst && !port) return null;
+  serialCon.instance = null;
+  serialCon.port = null;
+  if (inst) {
+    try {
+      inst.controller.abort();
+    } catch {
+      /* ignore */
+    }
+  }
+  syncConsoleUi();
+  setConsoleStatus("Console отключён: порт для DFU.");
+  setToolsStatus("Console отключён перед прошивкой.");
+  hideConsoleModal();
+  return port;
+}
+
+function openRepeaterSetup() {
+  const win = window.open(
+    REPEATER_SETUP_URL,
+    "meshcore_config",
+    REPEATER_SETUP_FEATURES,
+  );
+  if (!win) {
+    setToolsStatus(
+      "Не удалось открыть окно. Разрешите всплывающие окна для этого сайта.",
+      "error",
+    );
+    return;
+  }
+  setToolsStatus(
+    "Открыт официальный MeshCore USB config (repeater / room). Плата — в режиме приложения, не DFU.",
+  );
+}
+
+async function connectConsoleFromGesture() {
+  if (!canSerialFlash()) {
+    setConsoleStatus("Нужен Chrome или Edge с Web Serial API (HTTPS).", "error");
+    setToolsStatus("Нужен Chrome / Edge (Web Serial).", "error");
+    return;
+  }
+
+  openConsoleModal();
+  setConsoleStatus("Выберите COM платы в режиме приложения…");
+
+  let port;
+  try {
+    // Bare requestPort (как upstream) — пользователь сам выбирает app COM.
+    port = await navigator.serial.requestPort();
+  } catch (err) {
+    const name = err && typeof err === "object" && "name" in err ? String(err.name) : "";
+    if (
+      name === "AbortError" ||
+      name === "NotFoundError" ||
+      /no port selected by the user|user cancelled|user canceled/i.test(
+        String(err && typeof err === "object" && "message" in err ? err.message : err),
+      )
+    ) {
+      setConsoleStatus("Выбор порта отменён.", "error");
+      return;
+    }
+    setConsoleStatus(formatSerialFlashError(err), "error");
+    return;
+  }
+
+  await disconnectConsole({ quiet: true });
+
+  const welcome =
+    "-------------------------------------------------------------------------\n" +
+    "Darktec / MeshCore serial console\n" +
+    "Плата в режиме приложения · 115200\n" +
+    "Введите команду и нажмите Enter (пустой Enter — список команд на многих ролях)\n" +
+    "-------------------------------------------------------------------------\n\n";
+  if (els.consoleLog) els.consoleLog.textContent = welcome;
+
+  const instance = new SerialConsole(port);
+  serialCon.instance = instance;
+  serialCon.port = port;
+  instance.onOutput = (text) => {
+    appendConsoleLog(text);
+    // SerialConsole sets connected=false when the pipe ends.
+    if (!instance.connected) syncConsoleUi();
+  };
+
+  syncConsoleUi();
+  setConsoleStatus("Подключено @ 115200.");
+  setToolsStatus("Console подключён (режим приложения).");
+  els.consoleInput?.focus();
+
+  // connect() blocks until disconnect/abort — run without awaiting.
+  instance.connect().finally(() => {
+    if (serialCon.instance === instance) {
+      serialCon.instance = null;
+      serialCon.port = null;
+    }
+    syncConsoleUi();
+  });
+}
+
+async function openConsoleFlow() {
+  openConsoleModal();
+  if (serialCon.instance?.connected) {
+    syncConsoleUi();
+    els.consoleInput?.focus();
+    return;
+  }
+  await connectConsoleFromGesture();
+}
+
+function wireUsbTools() {
+  const setupHandlers = [els.setupBtn, els.setupBtnOnline];
+  for (const btn of setupHandlers) {
+    btn?.addEventListener("click", () => openRepeaterSetup());
+  }
+
+  const consoleHandlers = [els.consoleBtn, els.consoleBtnOnline];
+  for (const btn of consoleHandlers) {
+    btn?.addEventListener("click", () => {
+      void openConsoleFlow();
+    });
+  }
+
+  els.consoleConnectBtn?.addEventListener("click", () => {
+    void connectConsoleFromGesture();
+  });
+
+  els.consoleDisconnectBtn?.addEventListener("click", async () => {
+    await disconnectConsole();
+  });
+
+  els.consoleCloseBtn?.addEventListener("click", async () => {
+    await disconnectConsole({ quiet: true });
+    hideConsoleModal();
+    setToolsStatus("");
+  });
+
+  els.consoleModal?.addEventListener("click", (ev) => {
+    if (ev.target === els.consoleModal) {
+      // Backdrop click closes UI but keeps session unless user disconnects —
+      // prefer releasing the port to avoid blocking flash.
+      void (async () => {
+        await disconnectConsole({ quiet: true });
+        hideConsoleModal();
+      })();
+    }
+  });
+
+  els.consoleForm?.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const text = els.consoleInput?.value ?? "";
+    if (!serialCon.instance?.connected) return;
+    if (els.consoleInput) els.consoleInput.value = "";
+    try {
+      await serialCon.instance.sendCommand(text);
+      setTimeout(() => {
+        if (els.consoleLog) els.consoleLog.scrollTop = els.consoleLog.scrollHeight;
+      }, 80);
+    } catch (err) {
+      setConsoleStatus(formatSerialFlashError(err), "error");
+    }
+  });
+
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && els.consoleModal && !els.consoleModal.hidden) {
+      void (async () => {
+        await disconnectConsole({ quiet: true });
+        hideConsoleModal();
+      })();
+    }
+  });
+
+  const serialOk = canSerialFlash();
+  for (const btn of [...setupHandlers, ...consoleHandlers]) {
+    if (!btn) continue;
+    if (!serialOk && (btn === els.consoleBtn || btn === els.consoleBtnOnline)) {
+      btn.disabled = true;
+      btn.title = "Нужен Chrome / Edge с Web Serial";
+    }
+  }
+  if (!serialOk) {
+    setToolsStatus("USB-инструменты: нужен Chrome / Edge (Web Serial).", "pending");
+  }
+  syncConsoleUi();
+}
+
 function localFirmwareUrl(fileName) {
   return new URL(`./firmware/latest/${fileName}`, import.meta.url).href;
 }
@@ -562,14 +847,21 @@ function finishFlashUi() {
 }
 
 els.dfuBtn.addEventListener("click", async () => {
+  // Sync before awaits: reuse Console port or keep gesture for requestPort.
+  const consolePort = stealConsolePortForFlash();
   els.dfuBtn.disabled = true;
   if (els.bootloaderBtn) els.bootloaderBtn.disabled = true;
   els.flashStatus.className = "status";
+  const onStatus = (msg) => {
+    els.flashStatus.className = "status";
+    els.flashStatus.textContent = msg;
+  };
   try {
-    await enterDfuMode((msg) => {
-      els.flashStatus.className = "status";
-      els.flashStatus.textContent = msg;
-    });
+    if (consolePort) {
+      await forceAppPortToDfu(consolePort, onStatus);
+    } else {
+      await enterDfuMode(onStatus);
+    }
   } catch (err) {
     console.error(err);
     els.flashStatus.className = "status error";
@@ -580,6 +872,15 @@ els.dfuBtn.addEventListener("click", async () => {
 });
 
 els.bootloaderBtn?.addEventListener("click", async () => {
+  // UF2 disk path — still drop Console so the serial port is not held open.
+  const consolePort = stealConsolePortForFlash();
+  if (consolePort) {
+    try {
+      if (consolePort.readable || consolePort.writable) await consolePort.close();
+    } catch {
+      /* ignore */
+    }
+  }
   els.bootloaderBtn.disabled = true;
   els.dfuBtn.disabled = true;
   els.flashBtn.disabled = true;
@@ -607,6 +908,8 @@ els.flashBtn.addEventListener("click", async () => {
     els.flashStatus.textContent = "OTA .zip недоступен для этой сборки.";
     return;
   }
+  // Sync before awaits: reuse Console port or keep gesture for requestPort.
+  const consolePort = stealConsolePortForFlash();
   els.flashProgressTrack.hidden = false;
   els.flashProgressBar.style.width = "0%";
   els.flashBtn.disabled = true;
@@ -618,13 +921,14 @@ els.flashBtn.addEventListener("click", async () => {
   };
   try {
     // Order (Web Serial gesture):
-    // 1) openDfuSerialPort → immediate requestPort(app), force DFU, auto DFU;
+    // 1) openDfuSerialPort → requestPort(app) OR reuse Console port, force DFU, auto DFU;
     //    on miss → site modal → requestPort(DFU) from a fresh button click
     // 2) fetch zip  3) flash with the already-chosen port
     // No bootloader dialogs here — UF2 / OTAFIX is only «Обновить bootloader».
     const dfuPort = await openDfuSerialPort({
       forceDfu: true,
       onStatus,
+      appPort: consolePort || undefined,
     });
     onStatus("Загрузка OTA zip…");
     const blob = await loadOtaZipBlob(zipAsset.name);
@@ -636,7 +940,8 @@ els.flashBtn.addEventListener("click", async () => {
       },
     });
     els.flashStatus.className = "status";
-    els.flashStatus.textContent = "Прошивка записана по Serial DFU.";
+    els.flashStatus.textContent =
+      "Прошивка записана по Serial DFU. Для Console / «Настройка repeater» переподключите плату в режиме приложения.";
     els.flashProgressBar.style.width = "100%";
   } catch (err) {
     console.error(err);
@@ -650,6 +955,7 @@ els.flashBtn.addEventListener("click", async () => {
 async function boot() {
   initCarousel();
   setTab("offline");
+  wireUsbTools();
   try {
     await loadReleases();
   } catch (err) {

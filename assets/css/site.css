@@ -796,6 +796,77 @@ a:hover {
   margin-top: 0.25rem;
 }
 
+.tools-step .download-row {
+  margin-top: 0.35rem;
+}
+
+.console-backdrop {
+  align-items: stretch;
+  place-items: center;
+}
+
+.console-panel {
+  width: min(52rem, 100%);
+  max-height: min(92vh, 44rem);
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto auto;
+  gap: 0.75rem;
+}
+
+.console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.console-hint {
+  margin: 0;
+}
+
+.console-log {
+  margin: 0;
+  min-height: 14rem;
+  max-height: min(50vh, 26rem);
+  overflow: auto;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) - 4px);
+  background: #0a0d0c;
+  color: var(--teal);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.console-input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.65rem;
+}
+
+.console-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  background: rgba(8, 10, 9, 0.85);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.console-input:focus {
+  outline: 2px solid rgba(230, 160, 18, 0.45);
+  outline-offset: 1px;
+}
+
+.console-input:disabled {
+  opacity: 0.5;
+}
+
 @media (max-width: 640px) {
   .wrap {
     width: min(100% - 1.25rem, 1080px);
@@ -816,5 +887,9 @@ a:hover {
 
   .version-select {
     max-width: 100%;
+  }
+
+  .console-input-row {
+    grid-template-columns: 1fr;
   }
 }

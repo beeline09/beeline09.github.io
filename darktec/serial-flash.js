@@ -315,13 +315,11 @@ export async function writeUf2ToDirHandle(dirHandle, blob, fileName = OTAFIX_UF2
 }
 
 /**
- * Modal for «Обновить bootloader»: fresh gesture → showDirectoryPicker (readwrite)
- * → read INFO_UF2.TXT. Cancel rejects (same as before).
+ * Modal for «Обновить bootloader»: instruct double-RESET → showDirectoryPicker
+ * (readwrite) → read INFO_UF2.TXT. No Web Serial / 1200-baud step (that is
+ * serial-only DFU without MSC). Cancel rejects.
  *
- * 1200-baud touch usually enters Adafruit *serial-only* DFU (no MSC). UF2 disk
- * on nice!nano / ProMicro reliably appears after a double-press RESET.
- *
- * @param {{ onStatus?: Function, afterForceAttempt?: boolean }} [opts]
+ * @param {{ onStatus?: Function }} [opts]
  * @returns {Promise<{ dirHandle: FileSystemDirectoryHandle, info: ReturnType<typeof parseInfoUf2Text> }>}
  */
 export function promptPickUf2DiskForUpdate(opts = {}) {
@@ -331,11 +329,8 @@ export function promptPickUf2DiskForUpdate(opts = {}) {
     );
   }
 
-  const afterForce = opts.afterForceAttempt !== false;
   opts.onStatus?.(
-    afterForce
-      ? "Если USB-диск не появился — дважды нажмите RESET, затем «Выбрать диск»"
-      : "Дважды нажмите RESET — должен появиться USB-диск DFU, затем «Выбрать диск»",
+    "Подключите плату по USB → дважды быстро RESET → появится USB-диск DFU → «Выбрать диск»",
   );
 
   return new Promise((resolve, reject) => {
@@ -351,16 +346,20 @@ export function promptPickUf2DiskForUpdate(opts = {}) {
     const title = document.createElement("h3");
     title.id = "uf2DiskModalTitle";
     title.className = "modal-title";
-    title.textContent = "Обновление бутлоадера";
+    title.textContent = "Обновление бутлоадера (диск UF2)";
 
-    const body = document.createElement("p");
+    const body = document.createElement("div");
     body.className = "modal-body";
-    body.innerHTML = afterForce
-      ? "Автоперезагрузка (1200 baud) часто включает только <strong>Serial DFU без USB-диска</strong>. " +
-        "Если диск не появился — <strong>дважды быстро нажмите RESET</strong>: должен появиться USB-диск DFU " +
-        "(на нём есть <code>INFO_UF2.TXT</code>). Затем нажмите «Выбрать диск»."
-      : "Дважды быстро нажмите <strong>RESET</strong> — должен появиться USB-диск DFU " +
-        "(файл <code>INFO_UF2.TXT</code>). Затем нажмите «Выбрать диск» — прочитаем версию и при необходимости запишем OTAFIX.";
+    body.innerHTML =
+      "<p>OTAFIX пишется на <strong>USB-диск DFU</strong>, не через COM-порт. " +
+      "Выбор serial-порта диск <strong>не создаёт</strong>.</p>" +
+      "<ol class=\"modal-steps\">" +
+      "<li>Подключите плату по USB</li>" +
+      "<li><strong>Дважды быстро нажмите RESET</strong> — должен появиться USB-диск DFU " +
+      "(часто имя вроде <code>NICE_NANO</code> / <code>MADMIXIN</code> / <code>FTHRS…</code> / Darktec)</li>" +
+      "<li>Когда диск виден в системе — нажмите «Выбрать диск UF2» и укажите этот том " +
+      "(на нём есть <code>INFO_UF2.TXT</code>)</li>" +
+      "</ol>";
 
     const errEl = document.createElement("p");
     errEl.className = "modal-error";
@@ -372,7 +371,7 @@ export function promptPickUf2DiskForUpdate(opts = {}) {
     const pickBtn = document.createElement("button");
     pickBtn.type = "button";
     pickBtn.className = "btn btn-primary";
-    pickBtn.textContent = "Выбрать диск";
+    pickBtn.textContent = "Выбрать диск UF2";
 
     const cancelBtn = document.createElement("button");
     cancelBtn.type = "button";
@@ -403,7 +402,7 @@ export function promptPickUf2DiskForUpdate(opts = {}) {
       setBusy(true);
       try {
         opts.onStatus?.(
-          "Выберите USB-диск DFU (после двойного RESET, если диск ещё не был виден)",
+          "Выберите том USB-диска DFU (после двойного RESET) — не COM-порт",
         );
         const dirHandle = await window.showDirectoryPicker({
           id: "darktec-uf2-dfu",
@@ -420,7 +419,7 @@ export function promptPickUf2DiskForUpdate(opts = {}) {
         const name = err && typeof err === "object" && "name" in err ? String(err.name) : "";
         if (name === "AbortError") {
           errEl.textContent =
-            "Выбор диска отменён. Дважды нажмите RESET, дождитесь USB-диска и выберите снова — или отмените.";
+            "Выбор диска отменён. Дважды нажмите RESET, дождитесь USB-диска DFU и выберите снова — или отмените.";
           errEl.hidden = false;
           setBusy(false);
           return;
@@ -510,72 +509,10 @@ export async function ensureAdafruitBootloaderOk(port, opts = {}) {
 }
 
 /**
- * Optional 1200-baud reboot helper for bootloader UF2 update.
- * Does not open Serial DFU afterward (holding CDC can block MSC).
- * Cancel / failure is non-fatal — caller continues with double-RESET instructions.
- *
- * @param {(msg: string) => void} [onStatus]
- * @returns {Promise<"touched" | "skipped">}
- */
-async function tryForceDfuForUf2Disk(onStatus) {
-  if (!canSerialFlash()) return "skipped";
-
-  onStatus?.(
-    "Опционально: выберите COM платы (обычный режим) для перезагрузки 1200 baud…",
-  );
-  let port;
-  try {
-    port = await navigator.serial.requestPort({ filters: APP_PORT_FILTERS });
-  } catch (err) {
-    const name = err && typeof err === "object" && "name" in err ? String(err.name) : "";
-    if (
-      name === "AbortError" ||
-      /no port selected|user cancelled|user canceled|did not select/i.test(
-        String(err && typeof err === "object" && "message" in err ? err.message : err),
-      )
-    ) {
-      onStatus?.(
-        "Автоперезагрузка пропущена. Дважды нажмите RESET — должен появиться USB-диск.",
-      );
-      return "skipped";
-    }
-    onStatus?.(
-      "Не удалось выбрать COM. Дважды нажмите RESET — должен появиться USB-диск.",
-    );
-    return "skipped";
-  }
-
-  onStatus?.("Перезагрузка (1200 baud)… порт сразу закроем");
-  try {
-    await Dfu.forceDfuMode(port);
-  } catch (err) {
-    // Still try to release if forceDfuMode failed mid-open.
-    try {
-      if (port.readable || port.writable) await port.close();
-    } catch {
-      /* ignore */
-    }
-    try {
-      if (typeof port.forget === "function") await port.forget();
-    } catch {
-      /* ignore */
-    }
-    onStatus?.(
-      "Автоперезагрузка не удалась. Дважды нажмите RESET — должен появиться USB-диск.",
-    );
-    return "skipped";
-  }
-
-  onStatus?.(
-    "Порт закрыт. Если USB-диск не появился — дважды нажмите RESET.",
-  );
-  return "touched";
-}
-
-/**
- * Dedicated bootloader update: optional 1200 reboot → pick UF2 disk (double-RESET
- * if needed) → read INFO_UF2 → if below OTAFIX, download/write official UF2.
- * Target is the UF2 MSC volume; Serial DFU alone is not enough and is not required.
+ * Dedicated bootloader update: double-RESET → pick UF2 MSC disk → read INFO_UF2
+ * → if below OTAFIX, download/write official UF2.
+ * No Web Serial / 1200-baud step — that enters serial-only DFU without a disk.
+ * («Только DFU» / «Прошить» keep 1200-baud Serial DFU separately.)
  *
  * @param {{ onStatus?: Function, confirmFn?: (msg: string) => boolean, openUrl?: (url: string) => void }} [opts]
  * @returns {Promise<"ok" | "updated" | "download">}
@@ -599,14 +536,8 @@ export async function runBootloaderUpdate(opts = {}) {
     );
   }
 
-  opts.onStatus?.(
-    "Для OTAFIX нужен USB-диск UF2 (не Serial DFU). Сейчас попробуем 1200 baud…",
-  );
-  const forceResult = await tryForceDfuForUf2Disk(opts.onStatus);
-
   const picked = await promptPickUf2DiskForUpdate({
     onStatus: opts.onStatus,
-    afterForceAttempt: forceResult === "touched",
   });
 
   const { dirHandle, info } = picked;

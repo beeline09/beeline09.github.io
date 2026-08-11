@@ -136,17 +136,19 @@
               второй раз выбрать порт нужно только если автоопределение не сработало.
               Для Darktec/ProMicro/nice!nano нужен Adafruit UF2 бутлоадер ≥&nbsp;0.6.1
               (лучше OTAFIX&nbsp;0.9.2) — иначе крупные прошивки могут не записаться.
-              Обычная прошивка («Прошить») папку DFU не спрашивает — ей нужен Serial&nbsp;DFU, не диск.
+              Обычная прошивка («Прошить» / «Только&nbsp;DFU») уводит плату в Serial&nbsp;DFU
+              через 1200&nbsp;baud — USB-диск при этом <strong>не ожидается</strong>.
               «Обновить bootloader» пишет OTAFIX на <strong>USB-диск UF2</strong>:
-              1200&nbsp;baud часто даёт только Serial DFU без диска; если диск не появился —
-              дважды нажмите <code>RESET</code>, затем «Выбрать диск»
-              (<code>INFO_UF2.TXT</code> → запись OTAFIX).
+              подключите USB → <strong>дважды быстро RESET</strong> → появится том
+              (часто <code>NICE_NANO</code> / <code>MADMIXIN</code> / <code>FTHRS…</code>) →
+              «Выбрать диск UF2» (<code>INFO_UF2.TXT</code> → запись OTAFIX).
+              COM-порт для обновления бутлоадера не нужен.
             </p>
             <p class="status" id="flashStatus"></p>
             <div class="download-row">
-              <button type="button" class="btn btn-ghost" id="dfuBtn" disabled>Только DFU</button>
-              <button type="button" class="btn btn-ghost" id="bootloaderBtn" disabled>Обновить bootloader</button>
-              <button type="button" class="btn btn-primary" id="flashBtn" disabled>Прошить</button>
+              <button type="button" class="btn btn-ghost" id="dfuBtn" disabled title="Serial DFU через COM (1200 baud), без USB-диска">Только DFU</button>
+              <button type="button" class="btn btn-ghost" id="bootloaderBtn" disabled title="OTAFIX на USB-диск UF2: двойной RESET, затем выбор тома (не COM)">Обновить bootloader (диск)</button>
+              <button type="button" class="btn btn-primary" id="flashBtn" disabled title="Прошивка OTA zip по Serial DFU (COM, 1200 baud)">Прошить</button>
               <span class="file-name" id="flashFileName" hidden></span>
             </div>
             <div class="progress-track" id="flashProgressTrack" hidden>

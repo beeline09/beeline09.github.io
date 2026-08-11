@@ -1,1 +1,1 @@
-darktec-v1.16.0b5
+darktec-v1.16.0b6

@@ -28,6 +28,30 @@ export function slugifyName(name) {
   return s || "default";
 }
 
+/** Latin letters, digits, space, hyphen, underscore, apostrophe, period. */
+const ADVERT_NAME_ALLOWED = /^[A-Za-z0-9 _.'-]*$/;
+
+/** Strip non-Latin / disallowed characters from node name. */
+export function sanitizeAdvertName(name) {
+  return String(name || "")
+    .replace(/[^\x20-\x7E]/g, "") // drop non-ASCII (Cyrillic etc.)
+    .replace(/[^A-Za-z0-9 _.'-]/g, "")
+    .slice(0, 31);
+}
+
+/** @returns {string|null} error message or null if ok */
+export function validateAdvertName(name) {
+  const s = String(name || "").trim();
+  if (!s) return "Укажите имя ноды (латиницей)";
+  if (!ADVERT_NAME_ALLOWED.test(s)) {
+    return "В имени ноды разрешена только латиница (A–Z), цифры, пробел и - _ . '";
+  }
+  if (!/[A-Za-z]/.test(s)) {
+    return "В имени должна быть хотя бы одна латинская буква";
+  }
+  return null;
+}
+
 export function normalizeRadio(radio = {}) {
   const n = (v, digits) => {
     const x = Number(String(v ?? "").replace(",", "."));

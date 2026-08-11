@@ -134,12 +134,17 @@
             id="advertNameInput"
             type="text"
             maxlength="31"
-            placeholder="имя ноды"
+            placeholder="Latin only, e.g. Darktec Repeater"
             autocomplete="off"
             spellcheck="false"
+            lang="en"
+            pattern="[A-Za-z0-9 _.'\-]+"
+            title="Только латиница: A–Z, цифры, пробел, - _ . '"
           >
           <p class="hint" id="nameHint">
-            Предзаполнено именем из прошивки для выбранной роли. Можно изменить.
+            Предзаполнено именем из прошивки для выбранной роли. Можно изменить
+            <strong>только латиницей</strong> (A–Z, цифры, пробел, -&nbsp;_&nbsp;.&nbsp;').
+            Кириллица и прочие символы не допускаются.
             Если имя и радио — как в дефолте, берётся готовый файл из каталога;
             иначе нужна сборка («Собрать», ~5&nbsp;мин).
           </p>

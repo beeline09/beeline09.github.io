@@ -20,7 +20,9 @@ import {
   ondemandBaseName,
   pollOndemandAssets,
   RADIO_DEFAULTS,
+  sanitizeAdvertName,
   slugifyName,
+  validateAdvertName,
   validateRadio,
 } from "./ondemand.js";
 
@@ -1280,6 +1282,17 @@ function wireOndemandUi() {
   };
 
   els.advertNameInput?.addEventListener("input", () => {
+    const cleaned = sanitizeAdvertName(els.advertNameInput.value);
+    if (cleaned !== els.advertNameInput.value) {
+      const pos = els.advertNameInput.selectionStart;
+      els.advertNameInput.value = cleaned;
+      // Keep caret roughly in place after stripping chars.
+      try {
+        els.advertNameInput.setSelectionRange(pos - 1, pos - 1);
+      } catch {
+        /* ignore */
+      }
+    }
     state.advertName = els.advertNameInput.value;
     state.advertNameTouched = true;
     scheduleRefresh();
@@ -1302,6 +1315,14 @@ function wireOndemandUi() {
 
   const onBuildClick = async () => {
     if (!needsCustomBuild()) return;
+    const nameErr = validateAdvertName(state.advertName);
+    if (nameErr) {
+      els.status.className = "status error";
+      els.status.textContent = nameErr;
+      els.flashStatus.className = "status error";
+      els.flashStatus.textContent = nameErr;
+      return;
+    }
     const radioErr = validateRadio(state.radio);
     if (radioErr) {
       els.status.className = "status error";

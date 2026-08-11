@@ -61,19 +61,27 @@ export function radioSlug(radio) {
   return `f${tok(n.freq)}-bw${tok(n.bw)}-sf${n.sf}-cr${n.cr}-tx${n.tx}`;
 }
 
+/** Allowed LORA_BW values for the lab picker (kHz). */
+export const RADIO_BW_OPTIONS = Object.freeze([
+  7.8, 10.4, 15.5, 20.8, 31.25, 41.7, 62.5, 125, 250, 500, 203.125, 406.25, 812.5, 1625,
+]);
+
 export function validateRadio(radio) {
   const n = normalizeRadio(radio);
-  const checks = [
-    ["freq", n.freq, 150, 960],
-    ["bw", n.bw, 7, 500],
-    ["sf", n.sf, 5, 12],
-    ["cr", n.cr, 5, 8],
-    ["tx", n.tx, 1, 22],
-  ];
-  for (const [key, val, lo, hi] of checks) {
-    if (!Number.isFinite(val) || val < lo || val > hi) {
-      return `Некорректное ${key}: нужно от ${lo} до ${hi}`;
-    }
+  if (!Number.isFinite(n.freq) || n.freq < 150 || n.freq > 960) {
+    return "Некорректная частота: нужно от 150 до 960 МГц";
+  }
+  if (!RADIO_BW_OPTIONS.some((bw) => bw === n.bw)) {
+    return "Выберите полосу пропускания из списка";
+  }
+  if (!Number.isFinite(n.sf) || n.sf < 5 || n.sf > 12) {
+    return "Некорректный SF: нужно от 5 до 12";
+  }
+  if (!Number.isFinite(n.cr) || n.cr < 5 || n.cr > 8) {
+    return "Некорректный CR: нужно от 5 до 8";
+  }
+  if (!Number.isFinite(n.tx) || n.tx < 1 || n.tx > 22) {
+    return "Некорректная мощность: нужно от 1 до 22 dBm";
   }
   return null;
 }

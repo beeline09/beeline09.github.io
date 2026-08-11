@@ -167,24 +167,53 @@
                   <input class="version-select" id="radioFreq" type="number" step="0.001" min="150" max="960" value="869.075" inputmode="decimal">
                 </label>
                 <label class="radio-field">
-                  <span class="version-label">BW, кГц</span>
-                  <input class="version-select" id="radioBw" type="number" step="0.1" min="7" max="500" value="62.5" inputmode="decimal">
+                  <span class="version-label">Полоса пропускания</span>
+                  <select class="version-select" id="radioBw">
+                    <option value="7.8">7.8 kHz</option>
+                    <option value="10.4">10.4 kHz</option>
+                    <option value="15.5">15.5 kHz</option>
+                    <option value="20.8">20.8 kHz</option>
+                    <option value="31.25">31.25 kHz</option>
+                    <option value="41.7">41.7 kHz</option>
+                    <option value="62.5" selected>62.5 kHz</option>
+                    <option value="125">125.0 kHz</option>
+                    <option value="250">250.0 kHz</option>
+                    <option value="500">500.0 kHz</option>
+                    <option value="203.125">203.125 kHz</option>
+                    <option value="406.25">406.25 kHz</option>
+                    <option value="812.5">812.5 kHz</option>
+                    <option value="1625">1625.0 kHz</option>
+                  </select>
                 </label>
                 <label class="radio-field">
-                  <span class="version-label">SF</span>
-                  <input class="version-select" id="radioSf" type="number" step="1" min="5" max="12" value="8" inputmode="numeric">
+                  <span class="version-label">Коэффициент расширения (SF)</span>
+                  <select class="version-select" id="radioSf">
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8" selected>8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                  </select>
                 </label>
                 <label class="radio-field">
-                  <span class="version-label">CR</span>
-                  <input class="version-select" id="radioCr" type="number" step="1" min="5" max="8" value="8" inputmode="numeric">
+                  <span class="version-label">Скорость кодирования (CR)</span>
+                  <select class="version-select" id="radioCr">
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8" selected>8</option>
+                  </select>
                 </label>
                 <label class="radio-field">
-                  <span class="version-label">TX, дБм</span>
+                  <span class="version-label">Мощность передатчика, dBm</span>
                   <input class="version-select" id="radioTx" type="number" step="1" min="1" max="22" value="22" inputmode="numeric">
                 </label>
               </div>
               <p class="hint">
-                Дефолт: 869.075&nbsp;/&nbsp;62.5&nbsp;/&nbsp;SF8&nbsp;/&nbsp;CR8&nbsp;/&nbsp;22&nbsp;дБм.
+                Дефолт: 869.075&nbsp;МГц&nbsp;/&nbsp;62.5&nbsp;kHz&nbsp;/&nbsp;SF8&nbsp;/&nbsp;CR8&nbsp;/&nbsp;22&nbsp;dBm.
                 Свои значения попадут в прошивку только после сборки (не из каталога).
               </p>
             </div>

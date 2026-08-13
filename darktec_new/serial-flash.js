@@ -38,9 +38,12 @@ export const BOOTLOADER_UPDATE_DOCS_URL =
 
 const OTAFIX_UF2_FILENAME = "promicro_nrf52840_bootloader-0.9.2-OTAFIX2.1.uf2";
 
-/** Same-origin mirror (committed under darktec/firmware/bootloader/) — used by fetch. */
+/**
+ * Same-origin mirror — shared with stable `/darktec/` (не дублируем UF2 в darktec_new).
+ * Relative to this page: /darktec_new/ → /darktec/firmware/bootloader/
+ */
 const BOOTLOADER_UPDATE_UF2_LOCAL =
-  `./firmware/bootloader/${OTAFIX_UF2_FILENAME}`;
+  `../darktec/firmware/bootloader/${OTAFIX_UF2_FILENAME}`;
 
 /** Broad filters for the application COM (first picker). */
 const APP_PORT_FILTERS = [

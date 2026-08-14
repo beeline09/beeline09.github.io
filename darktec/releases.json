@@ -1,779 +1,779 @@
 {
-  "generatedAt": "2026-08-14T19:17:20.513Z",
+  "generatedAt": "2026-08-14T20:17:23.313Z",
   "sourceRepo": "beeline09/MeshCore",
   "release": {
-    "tag": "darktec-v1.16.0b7",
-    "name": "Darktec v1.16.0b7",
-    "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b7",
-    "publishedAt": "2026-08-14T17:34:42Z",
-    "notes": "## Darktec v1.16.0b7\n\nИзменения с `darktec-v1.16.0b6`:\n\n### Новое\n- On-demand кастомизация LORA_* (freq/BW/SF/CR/TX)\n- On-demand сборка с кастомным ADVERT_NAME\n- Build adc/off protect matrix and cache PlatformIO\n- Versioned releases, all roles, human changelogs\n- Выбрать режим защиты батареи через DARKTEC_BATT_PROTECT\n- Добавить поддержку платы Darktec\n- EInk antighost OFF by default + WiFi→BLE fallback retry\n- Adds flood.max.unscoped setting\n- Integrate BME680 Bosch BSEC support for RAK4631\n- Add physical DOWN button (D17/KEY_DOWN) to joystick d-pad\n- New variant ProMicro NRF52840 + WeAct eInk + HT-RA62/E22/E22P\n- Enable buzzer on pin 46\n- Add kiss modem env\n- WiFi non-blocking auto-reconnect (upstream, merged with WITH_WIFI_SWITCHING)\n- Add CMD_SEND_RAW_PACKET (upstream)\n- FIRMWARE_VER_CODE=12, send_unscoped, CMD_SET_FLOOD_SCOPE_KEY variant (upstream)\n- Add message history and read-later UX for companion radio\n- Add adc.multiplier support to T114 (companion_radio)\n- Add USB companion radio target for non-shell variant\n- Dynamic WiFi/BLE/USB switching (WITH_WIFI_SWITCHING)\n- Add local build scripts (build-local.ps1 / build-local.sh)\n- DISPLAY_TZ UTC0 default for all display-capable variants\n- CLOCK e-ink — add date line below clock\n- CLOCK PM inline on OLED, PM CLOK and CLOK DIM settings\n- CLOCK page on OLED — size-3 clock with date, removed eInk-only restriction\n- Settings UI page — CLI Chat, CLI PIN reveal, Timesync, one-button navigation\n- Companion CLI — Remote CLI (PM+PIN) и TerminalCLI (канал)\n- CLI logging for both PM and TerminalCLI approaches\n- Companion CLI (Approach 1 — PM PIN + Approach 2 — TerminalCLI channel)\n- LPCOMP runtime low-voltage shutdown для promicro\n- Support selective builds via variant spec in release tags\n- Add screen_180 companion variants for E290 and E213\n- Room server time sync from advert timestamps\n- Repeater time sync — GPS re-sync, isTimeReliable, diagnostics\n- Timesync CLI command and sync stats\n- Repeater time sync from advert timestamps\n- Enable GPS on RAK 1W kit\n- Add Non-Shell (screenless) companion BLE variant\n- Add CYRILLIC_SUPPORT=1 to companion_radio envs for all display-capable variants\n- Add USB Companion Radio env for Heltec Wireless Paper\n\n### Исправления\n- Не переводить кириллицу дважды в GFX print/getTextWidth\n- Ondemand/matrix — не использовать -U для батареи/LORA\n- On-demand флаги при имени с пробелами\n- ADC recovery по VBAT без USB, SoftDevice off и радио-профиль EU868\n- Publish nRF OTA zips for Serial DFU web flasher\n- Keep all Darktec UF2s — stop wiping out/ per variant\n- Stop undefining CFG_DEBUG on Darktec nRF52 builds\n- ADC sleep/wake вместо SYSTEMOFF+LPCOMP\n- Убрать hard cutoff SYSTEMOFF/LPCOMP, мешавший recovery\n- Переименовать аптаймы, сбрасывать on-batt при отключении зарядки\n- Не выпускать в эфир, дропать входящие из эфира\n- Update wio-e5-mini pio config to address SubGhz dependency issue\n- Rename `CMD_DEVICE_QEURY` to `CMD_DEVICE_QUERY`\n- Remap joystick in settings — ENTER=next item, LEFT/RIGHT=value\n- Fix UP scroll wrap-around in settings menu\n- Joystick remapping, instant button response, eink post-full-refresh reinit\n- Reduce deghosting artifacts and unify message font size\n- Node name in header, time source right-aligned next to battery\n- Simplify eink clock layout, no regression on other displays\n- Fix eink clock layout for 250x122 display\n- Correct layout for WeAct 2.13\" 250x122 display\n- Widen TRACE offset to uint16 to avoid narrowing (upstream)\n- Uni builds — BLE auto PIN is now random per boot, not persisted\n- BLE PIN reset — clearer auto mode in CLI and app handler\n- Wifi add/del — support quoted SSIDs with spaces\n- Add eInk anti-ghosting strategy for GxEPD2 display driver\n- Add eInk anti-ghosting strategy for E290 and E213 displays\n- Trigger UI redraw when time is synced via app or advert\n- BLE PIN persistence on ESP32 + NRF52 BLE flash/stack fixes\n- Defer Cyr2Lat prefs saves to avoid NRF52 BLE flash hang\n- Fix stack overflow in remote CLI and flash hang on NRF52 BLE\n- Defer savePrefs() flash writes to avoid BLE hang on NRF52\n- Unify ST7789 coordinate system in drawV3ClockString\n- Scale T114 clock and persist UI settings\n- TerminalCLI channel overwrite + NRF52 clock display\n- Rename E290 companion_uni -> companion_radio_uni; drop _companion_uni from build\n- E-ink UI — auto-scale clock, scale Settings line height, fix CLOCK label typo\n- E-ink companion envs — add WITH_COMPANION_CLI, fix DISPLAY_TZ quoting, add WP 180° variants\n- CLI trailing whitespace causing Unknown command; update docs\n- CLOK DIM USB — raise VBUS threshold to 4200mV (TP4056 CV phase)\n\n### Сборка / CI\n- Валидация advert_name — только латиница\n- Поднять лимит LORA_BW on-demand до 1625 кГц\n- Parallelize firmware builds by role matrix\n- Auto-build UF2 matrix and publish darktec-latest\n- Pin peaceiris/actions-gh-pages to v4.1.0 for Node.js 24 support\n- Update GitHub Actions and Python version, fix ruby-version typo\n- Use gh release upload for append — preserves existing assets\n- Add release_tag input to append artifacts to existing release\n- Add workflow_dispatch inputs for targeted companion builds\n- Clean up companion build scripts, unify to _companion_radio_uni only\n- Switch companion CI to *_companion_radio_uni / *_companion_uni envs\n- Release body from annotated tag message\n- Удалить build-all-firmwares.yml (не актуально)\n- Revert build-all-firmwares to first version\n- Fix version resolution in build-all-firmwares workflow\n- Add build-all-firmwares workflow for 1.15.0b* tags\n- Fix RAK, T114, T1000 builds\n- Fix RAK, T114, T1000e builds\n\n### Документация\n- Require human-readable changelogs on every firmware push\n- Fix remaining rendering issues\n- Add missing periods at sentence endings\n- Fix FAQ rendering\n- Fix FAQ heading capitalization\n- Fix FAQ link rendering\n- Fix FAQ resource link rendering\n- Fix FAQ bullet list rendering\n- Remove extra FAQ TOC indentation\n- Fix typos, grammar, and formatting in FAQ and code comments\n- Fix minor typos in README and terminal_chat_cli\n- Fix broken and misaligned tables\n- Remove duplicate radio.rxgain entry and fix hardware note\n- Fix typos, grammar and Wi-Fi capitalisation across docs\n- Add south_edition section to README — concepts, variants, wiki link\n- Rewrite companion-cli.md — full CLI reference with all commands\n- Wifi add/del — document quoted SSID syntax for names with spaces\n- Bugfix-channel-clock + build-actions guide\n- Companion CLOCK on OLED, PM inline, PM CLOK and CLOK DIM settings\n- Companion Settings UI page\n- Уточнить логику lpcompDownHandler — shutdown при USB+mv<3000\n- Консолидация changes/ в docs/changes/, перевод на русский, исправления\n- Add explanatory notes for txdelay, direct.txdelay, and rxdelay CLI commands\n- Add changes documentation vs upstream\n- Add radio.rxgain command reference\n- Align gps output description with CLI\n- Clarify path length encoding\n- Sync companion and kiss protocol docs\n- Sync CLI and payload docs with implementation\n- Correct CLI command forms and targeted typos\n\n### Рефакторинг\n- CLOK DIM — simplify to ON/OFF (remove USB mode)\n- Add populateContactFromAdvert()\n- Remove redundant import statement\n- Readability\n- Use macro from ttgo repo for readability\n- Use _getContactsChannelsFS() instead of ifdefs\n- Lilgo_t3s3 with CustomSX1262::std_init()\n- RAK4631 with CustomSX1262::std_init()\n- Promicro with CustomSX1262::std_init()\n- More conditionals for GPS\n- Sensors are now wrapped in conditionals\n- FaketecBoard to PromicroBoard\n\n### Обслуживание\n- Prerelease-кэш ondemand + автоочистка ассетов\n- Убрать ветку southedition-origin из CI и доки Darktec\n- Normalize board JSON line endings\n- Pin CustomLFS to 0.2.2 (upstream)\n- Add .claude/ to .gitignore\n- Update .gitignore\n- Cleanup\n- Refactor to use GxEPD2 fork\n\n### Прочее\n- Revert \"fix(ui): не переводить кириллицу дважды в GFX print/getTextWidth\"\n- Set up Cursor Cloud dev environment (PlatformIO) 🤖🤖 (#1)\n- [OS] fix(ui): ST7735 hardware SPI on ESP32 — ~100x faster frame draw\n- [OS] fix(eink): force re-draw after full refresh to prevent white screen\n- [OS] fix(ui): hide Rotation setting on non-eInk displays\n- [OS] feat(wifi): restore WiFi→BLE fallback background retry\n- [OS] revert SEC: remove antighost setting + WiFi-BLE retry\n- [OS] remove dead UIMessageSender methods (sendContactMsg/sendChannelMsg/calcSentBytes)\n- [OS] remove promicro_eink_spi: contains SEC code and RF-plan, not for public south\n- [OS] fix: build compat after 1.16 merge — radio_driver API, NodePrefs fields, UITask guards\n- Fix local TerminalCLI chat handling\n- Decouple cyr2lat from companion CLI\n- Fix Cyrillic rendering in GFX display drivers\n- Add BuildLab Scout board variant (ESP32-S3-Zero + E22-900M30S)\n- Heltec T114 Buzzer support on pin 16\n- [SEC] feat(sensors): auto-detect BME280/BME680/BMP280/AHT2x address on I2C scan\n- [OS] feat(sensors): auto-detect BME280/BME680/BMP280/AHT2x address on I2C scan\n- [SEC] feat(sensors): add BME280 (temp/pressure/humidity) to ProMicro WeAct sensor set\n- [OS] feat(sensors): add BME280 (temp/pressure/humidity) to ProMicro WeAct sensor set\n- [SEC] fix(sensors): enable Wire1 (TWIM1) and INA sensors on ProMicro WeAct eInk\n- [OS] fix(sensors): enable Wire1 (TWIM1) and INA sensors on ProMicro WeAct eInk\n- [OS] fix(eink): hibernate after begin() full refresh to enable correct partial refresh on SSD1680\n- Добавлена дополнительная очистка экрана при старте UI для корректной работы WaveShare дисплеев\n- src/helpers/ui/GxEPDDisplay.cpp — исправления eInk дисплея 1. reset_duration 2ms → 10ms SSD1680 требует минимум 10ms импульс RST. При 2ms дисплей мог стартовать с неопределённым состоянием.\n- Fix ProMicro sensors uptime and USB power state\n- * version 1.16.0\n- * default now 8, per the will of the peoples.\n- Change default power saving setting to 'off'\n- * new CLI config: flood.max.advert  (default 16)\n- * number allocations: Ripple range reserved\n- build fixes for nibble_screen_connect and thinknode_m2\n- build fix for rp2040 companion usb\n- add missing radio_init() for rak11310\n- pin platform-raspberrypi to 4e22a0d\n- build fixes for LilyGo T-Echo Card\n- * powersaving on/off lowercase fix\n- Added \"override\" to getIRQGpio() for ESP32Board.h\n- значительно улучшена стабильность чтения кнопки joystick_down\n- чтение напряжения батареи происходит не чаще чем 1 раз в 5 минут для уменьшения вероятности коллизий с кнопкой джойстика\n- Подключение кнопки \"вниз\" на adc pin, поддержка экранов 213 и 290 через разные env\n\n---\n\nCommunity-сборка **beeline09** на базе south_edition (форк ветки Rogovogor / MeshCore).\nFlasher: https://beeline09.github.io/darktec/\n"
+    "tag": "darktec-v1.16.0b8",
+    "name": "Darktec v1.16.0b8",
+    "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b8",
+    "publishedAt": "2026-08-14T20:17:07Z",
+    "notes": "## Darktec v1.16.0b8\n\nИзменения с `darktec-v1.16.0b7`:\n\n### Новое\n- On-demand кастомизация LORA_* (freq/BW/SF/CR/TX)\n- On-demand сборка с кастомным ADVERT_NAME\n- Build adc/off protect matrix and cache PlatformIO\n- Versioned releases, all roles, human changelogs\n- Выбрать режим защиты батареи через DARKTEC_BATT_PROTECT\n- Добавить поддержку платы Darktec\n- EInk antighost OFF by default + WiFi→BLE fallback retry\n- Adds flood.max.unscoped setting\n- Integrate BME680 Bosch BSEC support for RAK4631\n- Add physical DOWN button (D17/KEY_DOWN) to joystick d-pad\n- New variant ProMicro NRF52840 + WeAct eInk + HT-RA62/E22/E22P\n- Enable buzzer on pin 46\n- Add kiss modem env\n- WiFi non-blocking auto-reconnect (upstream, merged with WITH_WIFI_SWITCHING)\n- Add CMD_SEND_RAW_PACKET (upstream)\n- FIRMWARE_VER_CODE=12, send_unscoped, CMD_SET_FLOOD_SCOPE_KEY variant (upstream)\n- Add message history and read-later UX for companion radio\n- Add adc.multiplier support to T114 (companion_radio)\n- Add USB companion radio target for non-shell variant\n- Dynamic WiFi/BLE/USB switching (WITH_WIFI_SWITCHING)\n- Add local build scripts (build-local.ps1 / build-local.sh)\n- DISPLAY_TZ UTC0 default for all display-capable variants\n- CLOCK e-ink — add date line below clock\n- CLOCK PM inline on OLED, PM CLOK and CLOK DIM settings\n- CLOCK page on OLED — size-3 clock with date, removed eInk-only restriction\n- Settings UI page — CLI Chat, CLI PIN reveal, Timesync, one-button navigation\n- Companion CLI — Remote CLI (PM+PIN) и TerminalCLI (канал)\n- CLI logging for both PM and TerminalCLI approaches\n- Companion CLI (Approach 1 — PM PIN + Approach 2 — TerminalCLI channel)\n- LPCOMP runtime low-voltage shutdown для promicro\n- Support selective builds via variant spec in release tags\n- Add screen_180 companion variants for E290 and E213\n- Room server time sync from advert timestamps\n- Repeater time sync — GPS re-sync, isTimeReliable, diagnostics\n- Timesync CLI command and sync stats\n- Repeater time sync from advert timestamps\n- Enable GPS on RAK 1W kit\n- Add Non-Shell (screenless) companion BLE variant\n- Add CYRILLIC_SUPPORT=1 to companion_radio envs for all display-capable variants\n- Add USB Companion Radio env for Heltec Wireless Paper\n\n### Исправления\n- Не переводить кириллицу дважды в GFX print/getTextWidth\n- Ondemand/matrix — не использовать -U для батареи/LORA\n- On-demand флаги при имени с пробелами\n- ADC recovery по VBAT без USB, SoftDevice off и радио-профиль EU868\n- Publish nRF OTA zips for Serial DFU web flasher\n- Keep all Darktec UF2s — stop wiping out/ per variant\n- Stop undefining CFG_DEBUG on Darktec nRF52 builds\n- ADC sleep/wake вместо SYSTEMOFF+LPCOMP\n- Убрать hard cutoff SYSTEMOFF/LPCOMP, мешавший recovery\n- Переименовать аптаймы, сбрасывать on-batt при отключении зарядки\n- Не выпускать в эфир, дропать входящие из эфира\n- Update wio-e5-mini pio config to address SubGhz dependency issue\n- Rename `CMD_DEVICE_QEURY` to `CMD_DEVICE_QUERY`\n- Remap joystick in settings — ENTER=next item, LEFT/RIGHT=value\n- Fix UP scroll wrap-around in settings menu\n- Joystick remapping, instant button response, eink post-full-refresh reinit\n- Reduce deghosting artifacts and unify message font size\n- Node name in header, time source right-aligned next to battery\n- Simplify eink clock layout, no regression on other displays\n- Fix eink clock layout for 250x122 display\n- Correct layout for WeAct 2.13\" 250x122 display\n- Widen TRACE offset to uint16 to avoid narrowing (upstream)\n- Uni builds — BLE auto PIN is now random per boot, not persisted\n- BLE PIN reset — clearer auto mode in CLI and app handler\n- Wifi add/del — support quoted SSIDs with spaces\n- Add eInk anti-ghosting strategy for GxEPD2 display driver\n- Add eInk anti-ghosting strategy for E290 and E213 displays\n- Trigger UI redraw when time is synced via app or advert\n- BLE PIN persistence on ESP32 + NRF52 BLE flash/stack fixes\n- Defer Cyr2Lat prefs saves to avoid NRF52 BLE flash hang\n- Fix stack overflow in remote CLI and flash hang on NRF52 BLE\n- Defer savePrefs() flash writes to avoid BLE hang on NRF52\n- Unify ST7789 coordinate system in drawV3ClockString\n- Scale T114 clock and persist UI settings\n- TerminalCLI channel overwrite + NRF52 clock display\n- Rename E290 companion_uni -> companion_radio_uni; drop _companion_uni from build\n- E-ink UI — auto-scale clock, scale Settings line height, fix CLOCK label typo\n- E-ink companion envs — add WITH_COMPANION_CLI, fix DISPLAY_TZ quoting, add WP 180° variants\n- CLI trailing whitespace causing Unknown command; update docs\n- CLOK DIM USB — raise VBUS threshold to 4200mV (TP4056 CV phase)\n\n### Сборка / CI\n- Валидация advert_name — только латиница\n- Поднять лимит LORA_BW on-demand до 1625 кГц\n- Parallelize firmware builds by role matrix\n- Auto-build UF2 matrix and publish darktec-latest\n- Pin peaceiris/actions-gh-pages to v4.1.0 for Node.js 24 support\n- Update GitHub Actions and Python version, fix ruby-version typo\n- Use gh release upload for append — preserves existing assets\n- Add release_tag input to append artifacts to existing release\n- Add workflow_dispatch inputs for targeted companion builds\n- Clean up companion build scripts, unify to _companion_radio_uni only\n- Switch companion CI to *_companion_radio_uni / *_companion_uni envs\n- Release body from annotated tag message\n- Удалить build-all-firmwares.yml (не актуально)\n- Revert build-all-firmwares to first version\n- Fix version resolution in build-all-firmwares workflow\n- Add build-all-firmwares workflow for 1.15.0b* tags\n- Fix RAK, T114, T1000 builds\n- Fix RAK, T114, T1000e builds\n\n### Документация\n- Require human-readable changelogs on every firmware push\n- Fix remaining rendering issues\n- Add missing periods at sentence endings\n- Fix FAQ rendering\n- Fix FAQ heading capitalization\n- Fix FAQ link rendering\n- Fix FAQ resource link rendering\n- Fix FAQ bullet list rendering\n- Remove extra FAQ TOC indentation\n- Fix typos, grammar, and formatting in FAQ and code comments\n- Fix minor typos in README and terminal_chat_cli\n- Fix broken and misaligned tables\n- Remove duplicate radio.rxgain entry and fix hardware note\n- Fix typos, grammar and Wi-Fi capitalisation across docs\n- Add south_edition section to README — concepts, variants, wiki link\n- Rewrite companion-cli.md — full CLI reference with all commands\n- Wifi add/del — document quoted SSID syntax for names with spaces\n- Bugfix-channel-clock + build-actions guide\n- Companion CLOCK on OLED, PM inline, PM CLOK and CLOK DIM settings\n- Companion Settings UI page\n- Уточнить логику lpcompDownHandler — shutdown при USB+mv<3000\n- Консолидация changes/ в docs/changes/, перевод на русский, исправления\n- Add explanatory notes for txdelay, direct.txdelay, and rxdelay CLI commands\n- Add changes documentation vs upstream\n- Add radio.rxgain command reference\n- Align gps output description with CLI\n- Clarify path length encoding\n- Sync companion and kiss protocol docs\n- Sync CLI and payload docs with implementation\n- Correct CLI command forms and targeted typos\n\n### Рефакторинг\n- CLOK DIM — simplify to ON/OFF (remove USB mode)\n- Add populateContactFromAdvert()\n- Remove redundant import statement\n- Readability\n- Use macro from ttgo repo for readability\n- Use _getContactsChannelsFS() instead of ifdefs\n- Lilgo_t3s3 with CustomSX1262::std_init()\n- RAK4631 with CustomSX1262::std_init()\n- Promicro with CustomSX1262::std_init()\n- More conditionals for GPS\n- Sensors are now wrapped in conditionals\n- FaketecBoard to PromicroBoard\n\n### Обслуживание\n- Prerelease-кэш ondemand + автоочистка ассетов\n- Убрать ветку southedition-origin из CI и доки Darktec\n- Normalize board JSON line endings\n- Pin CustomLFS to 0.2.2 (upstream)\n- Add .claude/ to .gitignore\n- Update .gitignore\n- Cleanup\n- Refactor to use GxEPD2 fork\n\n### Прочее\n- Fix CYRILLIC_SUPPORT for some displays (UTF8 already converted inside UTTask.cpp)\n- Revert \"fix(ui): не переводить кириллицу дважды в GFX print/getTextWidth\"\n- Set up Cursor Cloud dev environment (PlatformIO) 🤖🤖 (#1)\n- [OS] fix(ui): ST7735 hardware SPI on ESP32 — ~100x faster frame draw\n- [OS] fix(eink): force re-draw after full refresh to prevent white screen\n- [OS] fix(ui): hide Rotation setting on non-eInk displays\n- [OS] feat(wifi): restore WiFi→BLE fallback background retry\n- [OS] revert SEC: remove antighost setting + WiFi-BLE retry\n- [OS] remove dead UIMessageSender methods (sendContactMsg/sendChannelMsg/calcSentBytes)\n- [OS] remove promicro_eink_spi: contains SEC code and RF-plan, not for public south\n- [OS] fix: build compat after 1.16 merge — radio_driver API, NodePrefs fields, UITask guards\n- Fix local TerminalCLI chat handling\n- Decouple cyr2lat from companion CLI\n- Fix Cyrillic rendering in GFX display drivers\n- Add BuildLab Scout board variant (ESP32-S3-Zero + E22-900M30S)\n- Heltec T114 Buzzer support on pin 16\n- [SEC] feat(sensors): auto-detect BME280/BME680/BMP280/AHT2x address on I2C scan\n- [OS] feat(sensors): auto-detect BME280/BME680/BMP280/AHT2x address on I2C scan\n- [SEC] feat(sensors): add BME280 (temp/pressure/humidity) to ProMicro WeAct sensor set\n- [OS] feat(sensors): add BME280 (temp/pressure/humidity) to ProMicro WeAct sensor set\n- [SEC] fix(sensors): enable Wire1 (TWIM1) and INA sensors on ProMicro WeAct eInk\n- [OS] fix(sensors): enable Wire1 (TWIM1) and INA sensors on ProMicro WeAct eInk\n- [OS] fix(eink): hibernate after begin() full refresh to enable correct partial refresh on SSD1680\n- Добавлена дополнительная очистка экрана при старте UI для корректной работы WaveShare дисплеев\n- src/helpers/ui/GxEPDDisplay.cpp — исправления eInk дисплея 1. reset_duration 2ms → 10ms SSD1680 требует минимум 10ms импульс RST. При 2ms дисплей мог стартовать с неопределённым состоянием.\n- Fix ProMicro sensors uptime and USB power state\n- * version 1.16.0\n- * default now 8, per the will of the peoples.\n- Change default power saving setting to 'off'\n- * new CLI config: flood.max.advert  (default 16)\n- * number allocations: Ripple range reserved\n- build fixes for nibble_screen_connect and thinknode_m2\n- build fix for rp2040 companion usb\n- add missing radio_init() for rak11310\n- pin platform-raspberrypi to 4e22a0d\n- build fixes for LilyGo T-Echo Card\n- * powersaving on/off lowercase fix\n- Added \"override\" to getIRQGpio() for ESP32Board.h\n- значительно улучшена стабильность чтения кнопки joystick_down\n- чтение напряжения батареи происходит не чаще чем 1 раз в 5 минут для уменьшения вероятности коллизий с кнопкой джойстика\n\n---\n\nCommunity-сборка **beeline09** на базе south_edition (форк ветки Rogovogor / MeshCore).\nFlasher: https://beeline09.github.io/darktec/\n"
   },
   "files": [
     {
       "name": "Darktec_companion_radio_ble_lifepo4_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lifepo4_1s_adc.uf2",
-      "size": 951296,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lifepo4_1s_adc.uf2",
+      "size": 949760,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lifepo4_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lifepo4_1s_adc.zip",
-      "size": 476359,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lifepo4_1s_adc.zip",
+      "size": 475623,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_lifepo4_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lifepo4_1s_off.uf2",
-      "size": 950784,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lifepo4_1s_off.uf2",
+      "size": 949248,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lifepo4_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lifepo4_1s_off.zip",
-      "size": 476055,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lifepo4_1s_off.zip",
+      "size": 475335,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_liion_1s_adc.uf2",
-      "size": 951296,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_liion_1s_adc.uf2",
+      "size": 949760,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_liion_1s_adc.zip",
-      "size": 476343,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_liion_1s_adc.zip",
+      "size": 475623,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_liion_1s_off.uf2",
-      "size": 950784,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_liion_1s_off.uf2",
+      "size": 949248,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_liion_1s_off.zip",
-      "size": 476039,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_liion_1s_off.zip",
+      "size": 475319,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lto_1s_adc.uf2",
-      "size": 951296,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lto_1s_adc.uf2",
+      "size": 949760,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lto_1s_adc.zip",
-      "size": 476343,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lto_1s_adc.zip",
+      "size": 475623,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lto_1s_off.uf2",
-      "size": 950784,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lto_1s_off.uf2",
+      "size": 949248,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lto_1s_off.zip",
-      "size": 476055,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lto_1s_off.zip",
+      "size": 475319,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_2s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lto_2s_adc.uf2",
-      "size": 951296,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lto_2s_adc.uf2",
+      "size": 949760,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_2s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lto_2s_adc.zip",
-      "size": 476343,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lto_2s_adc.zip",
+      "size": 475623,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_2s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lto_2s_off.uf2",
-      "size": 950784,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lto_2s_off.uf2",
+      "size": 949248,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_2s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_ble_lto_2s_off.zip",
-      "size": 476055,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_ble_lto_2s_off.zip",
+      "size": 475319,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lifepo4_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lifepo4_1s_adc.uf2",
-      "size": 941056,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lifepo4_1s_adc.uf2",
+      "size": 939520,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lifepo4_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lifepo4_1s_adc.zip",
-      "size": 471079,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lifepo4_1s_adc.zip",
+      "size": 470343,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lifepo4_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lifepo4_1s_off.uf2",
-      "size": 940032,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lifepo4_1s_off.uf2",
+      "size": 939008,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lifepo4_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lifepo4_1s_off.zip",
-      "size": 470775,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lifepo4_1s_off.zip",
+      "size": 470055,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_liion_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_liion_1s_adc.uf2",
-      "size": 940544,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_liion_1s_adc.uf2",
+      "size": 939520,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_liion_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_liion_1s_adc.zip",
-      "size": 471063,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_liion_1s_adc.zip",
+      "size": 470342,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_liion_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_liion_1s_off.uf2",
-      "size": 940032,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_liion_1s_off.uf2",
+      "size": 938496,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_liion_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_liion_1s_off.zip",
-      "size": 470759,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_liion_1s_off.zip",
+      "size": 470039,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lto_1s_adc.uf2",
-      "size": 940544,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lto_1s_adc.uf2",
+      "size": 939520,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lto_1s_adc.zip",
-      "size": 471063,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lto_1s_adc.zip",
+      "size": 470342,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lto_1s_off.uf2",
-      "size": 940032,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lto_1s_off.uf2",
+      "size": 938496,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lto_1s_off.zip",
-      "size": 470775,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lto_1s_off.zip",
+      "size": 470039,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_2s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lto_2s_adc.uf2",
-      "size": 940544,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lto_2s_adc.uf2",
+      "size": 939520,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_2s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lto_2s_adc.zip",
-      "size": 471063,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lto_2s_adc.zip",
+      "size": 470343,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_2s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lto_2s_off.uf2",
-      "size": 940032,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lto_2s_off.uf2",
+      "size": 938496,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_2s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_companion_radio_usb_lto_2s_off.zip",
-      "size": 470775,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_companion_radio_usb_lto_2s_off.zip",
+      "size": 470039,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lifepo4_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lifepo4_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lifepo4_1s_adc.uf2",
       "size": 697856,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lifepo4_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lifepo4_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lifepo4_1s_adc.zip",
       "size": 349695,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lifepo4_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lifepo4_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lifepo4_1s_off.uf2",
       "size": 698368,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lifepo4_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lifepo4_1s_off.zip",
-      "size": 349759,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lifepo4_1s_off.zip",
+      "size": 349758,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_liion_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_liion_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_liion_1s_adc.uf2",
       "size": 697856,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_liion_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_liion_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_liion_1s_adc.zip",
       "size": 349695,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_liion_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_liion_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_liion_1s_off.uf2",
       "size": 698368,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_liion_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_liion_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_liion_1s_off.zip",
       "size": 349759,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lto_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lto_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lto_1s_adc.uf2",
       "size": 697856,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lto_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lto_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lto_1s_adc.zip",
       "size": 349695,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lto_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lto_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lto_1s_off.uf2",
       "size": 698368,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lto_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lto_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lto_1s_off.zip",
       "size": 349759,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lto_2s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lto_2s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lto_2s_adc.uf2",
       "size": 697856,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lto_2s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lto_2s_adc.zip",
-      "size": 349694,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lto_2s_adc.zip",
+      "size": 349695,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lto_2s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lto_2s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lto_2s_off.uf2",
       "size": 698368,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lto_2s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_kiss_modem_lto_2s_off.zip",
-      "size": 349759,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_kiss_modem_lto_2s_off.zip",
+      "size": 349758,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.uf2",
       "size": 829440,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.zip",
       "size": 415271,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lifepo4_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lifepo4_1s_off.uf2",
       "size": 829440,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lifepo4_1s_off.zip",
-      "size": 415334,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lifepo4_1s_off.zip",
+      "size": 415335,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_liion_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_liion_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_liion_1s_adc.uf2",
       "size": 829440,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_liion_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_liion_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_liion_1s_adc.zip",
       "size": 415271,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_liion_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_liion_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_liion_1s_off.uf2",
       "size": 829440,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_liion_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_liion_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_liion_1s_off.zip",
       "size": 415335,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lto_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lto_1s_adc.uf2",
       "size": 829440,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lto_1s_adc.zip",
-      "size": 415271,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lto_1s_adc.zip",
+      "size": 415270,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lto_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lto_1s_off.uf2",
       "size": 829440,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lto_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lto_1s_off.zip",
       "size": 415335,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_2s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lto_2s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lto_2s_adc.uf2",
       "size": 829440,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_2s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lto_2s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lto_2s_adc.zip",
       "size": 415271,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_2s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lto_2s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lto_2s_off.uf2",
       "size": 829440,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_2s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_bridge_rs232_lto_2s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_bridge_rs232_lto_2s_off.zip",
       "size": 415335,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lifepo4_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lifepo4_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lifepo4_1s_adc.uf2",
       "size": 835072,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lifepo4_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lifepo4_1s_adc.zip",
-      "size": 418230,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lifepo4_1s_adc.zip",
+      "size": 418231,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lifepo4_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lifepo4_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lifepo4_1s_off.uf2",
       "size": 835072,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lifepo4_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lifepo4_1s_off.zip",
-      "size": 418310,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lifepo4_1s_off.zip",
+      "size": 418311,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_liion_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_liion_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_liion_1s_adc.uf2",
       "size": 835072,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_liion_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_liion_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_liion_1s_adc.zip",
       "size": 418231,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_liion_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_liion_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_liion_1s_off.uf2",
       "size": 835072,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_liion_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_liion_1s_off.zip",
-      "size": 418311,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_liion_1s_off.zip",
+      "size": 418310,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lto_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lto_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lto_1s_adc.uf2",
       "size": 835072,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lto_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lto_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lto_1s_adc.zip",
       "size": 418231,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lto_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lto_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lto_1s_off.uf2",
       "size": 835072,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lto_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lto_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lto_1s_off.zip",
       "size": 418311,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lto_2s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lto_2s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lto_2s_adc.uf2",
       "size": 835072,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lto_2s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lto_2s_adc.zip",
-      "size": 418231,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lto_2s_adc.zip",
+      "size": 418230,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lto_2s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lto_2s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lto_2s_off.uf2",
       "size": 835072,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lto_2s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_repeater_lto_2s_off.zip",
-      "size": 418310,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_repeater_lto_2s_off.zip",
+      "size": 418311,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lifepo4_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lifepo4_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lifepo4_1s_adc.uf2",
       "size": 824320,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lifepo4_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lifepo4_1s_adc.zip",
-      "size": 412758,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lifepo4_1s_adc.zip",
+      "size": 412759,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lifepo4_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lifepo4_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lifepo4_1s_off.uf2",
       "size": 824320,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lifepo4_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lifepo4_1s_off.zip",
-      "size": 412823,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lifepo4_1s_off.zip",
+      "size": 412822,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_liion_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_liion_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_liion_1s_adc.uf2",
       "size": 824320,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_liion_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_liion_1s_adc.zip",
-      "size": 412757,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_liion_1s_adc.zip",
+      "size": 412759,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_liion_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_liion_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_liion_1s_off.uf2",
       "size": 824320,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_liion_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_liion_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_liion_1s_off.zip",
       "size": 412823,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lto_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lto_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lto_1s_adc.uf2",
       "size": 824320,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lto_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lto_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lto_1s_adc.zip",
       "size": 412759,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lto_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lto_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lto_1s_off.uf2",
       "size": 824320,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lto_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lto_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lto_1s_off.zip",
       "size": 412823,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lto_2s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lto_2s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lto_2s_adc.uf2",
       "size": 824320,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lto_2s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lto_2s_adc.zip",
-      "size": 412758,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lto_2s_adc.zip",
+      "size": 412759,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lto_2s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lto_2s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lto_2s_off.uf2",
       "size": 824320,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lto_2s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_room_server_lto_2s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_room_server_lto_2s_off.zip",
       "size": 412823,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lifepo4_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lifepo4_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lifepo4_1s_adc.uf2",
       "size": 816640,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lifepo4_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lifepo4_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lifepo4_1s_adc.zip",
       "size": 409015,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lifepo4_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lifepo4_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lifepo4_1s_off.uf2",
       "size": 816640,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lifepo4_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lifepo4_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lifepo4_1s_off.zip",
       "size": 409095,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_liion_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_liion_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_liion_1s_adc.uf2",
       "size": 816640,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_liion_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_liion_1s_adc.zip",
-      "size": 409015,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_liion_1s_adc.zip",
+      "size": 409014,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_liion_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_liion_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_liion_1s_off.uf2",
       "size": 816640,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_liion_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_liion_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_liion_1s_off.zip",
       "size": 409095,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lto_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lto_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lto_1s_adc.uf2",
       "size": 816640,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lto_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lto_1s_adc.zip",
-      "size": 409014,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lto_1s_adc.zip",
+      "size": 409015,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lto_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lto_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lto_1s_off.uf2",
       "size": 816640,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lto_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lto_1s_off.zip",
-      "size": 409095,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lto_1s_off.zip",
+      "size": 409094,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lto_2s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lto_2s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lto_2s_adc.uf2",
       "size": 816640,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lto_2s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lto_2s_adc.zip",
-      "size": 409015,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lto_2s_adc.zip",
+      "size": 409014,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lto_2s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lto_2s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lto_2s_off.uf2",
       "size": 816640,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lto_2s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_sensor_lto_2s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_sensor_lto_2s_off.zip",
       "size": 409095,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lifepo4_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lifepo4_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lifepo4_1s_adc.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lifepo4_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lifepo4_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lifepo4_1s_adc.zip",
       "size": 372359,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lifepo4_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lifepo4_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lifepo4_1s_off.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lifepo4_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lifepo4_1s_off.zip",
-      "size": 372421,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lifepo4_1s_off.zip",
+      "size": 372422,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_liion_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_liion_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_liion_1s_adc.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_liion_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_liion_1s_adc.zip",
-      "size": 372358,
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_liion_1s_adc.zip",
+      "size": 372359,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_liion_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_liion_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_liion_1s_off.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_liion_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_liion_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_liion_1s_off.zip",
       "size": 372423,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lto_1s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lto_1s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lto_1s_adc.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lto_1s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lto_1s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lto_1s_adc.zip",
       "size": 372359,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lto_1s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lto_1s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lto_1s_off.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lto_1s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lto_1s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lto_1s_off.zip",
       "size": 372423,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lto_2s_adc.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lto_2s_adc.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lto_2s_adc.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lto_2s_adc.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lto_2s_adc.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lto_2s_adc.zip",
       "size": 372359,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lto_2s_off.uf2",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lto_2s_off.uf2",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lto_2s_off.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lto_2s_off.zip",
-      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b7/Darktec_terminal_chat_lto_2s_off.zip",
+      "url": "https://github.com/beeline09/MeshCore/releases/download/darktec-v1.16.0b8/Darktec_terminal_chat_lto_2s_off.zip",
       "size": 372423,
       "contentType": "application/zip"
     }

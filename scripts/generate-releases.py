@@ -6,12 +6,14 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "darktec" / "releases.json"
+SHA_OUT = ROOT / "darktec" / "south_edition_sha.txt"
 REPO = os.environ.get("FIRMWARE_REPO", "beeline09/MeshCore")
 API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
@@ -144,6 +146,14 @@ def main() -> None:
     print(
         f"Wrote {OUT} · tag={manifest['release']['tag']!r} · files={len(manifest['files'])}"
     )
+    try:
+        commit = fetch_json(f"{API}/repos/{REPO}/commits/south_edition")
+        sha = str(commit.get("sha") or "")[:8].lower()
+        if sha:
+            SHA_OUT.write_text(f"{sha}\n", encoding="utf-8")
+            print(f"Wrote {SHA_OUT} → {sha}")
+    except Exception as err:  # noqa: BLE001
+        print(f"south_edition sha skip: {err}", file=sys.stderr)
 
 
 if __name__ == "__main__":

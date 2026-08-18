@@ -31,8 +31,13 @@ const REPEATER_SETUP_URL = "https://config.meshcore.io";
 const REPEATER_SETUP_FEATURES =
   "directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800";
 const FIRMWARE_REPO = "beeline09/MeshCore";
+/** Optional one-shot fallback only — primary source is same-origin releases.json. */
 const RELEASES_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases?per_page=40`;
 const TAG_PREFIX = "darktec-v";
+const RELEASES_MANIFEST_URLS = [
+  () => new URL("../darktec/releases.json", import.meta.url).href,
+  () => new URL("./releases.json", import.meta.url).href,
+];
 
 const ROLES = [
   { id: "companion_radio_ble", title: "Companion BLE", blurb: "BLE + OLED UI", advertName: "Darktec Companion BLE" },
@@ -277,7 +282,7 @@ function syncCellsForChem() {
       String(state.cells),
       (id) => {
         state.cells = Number(id);
-        void refreshOndemandFromCache().then(updateDownload);
+        void refreshOndemandFromCache().then(updateDownload).catch(() => {});
         renderAll();
       },
     );
@@ -333,19 +338,19 @@ function syncOnlineActionButtons(firmwareReady) {
   const uf2 = findAsset("uf2");
   const zipOk = Boolean(findAsset("zip"));
   const ready = Boolean(firmwareReady && uf2);
-  const needBuild = needsCustomBuild() && !uf2;
+  const zipReady = Boolean(firmwareReady && zipOk);
+  const needBuild = needsCustomBuild() && !uf2 && !zipOk;
 
   if (els.dfuBtn) {
     els.dfuBtn.hidden = !ready;
     els.dfuBtn.disabled = !ready;
   }
   if (els.flashBtn) {
-    // Catalog: zip on same-origin mirror. Custom: zip on GitHub + mirrored to
-    // darktec/firmware/ondemand/ after on-demand CI (CORS-safe Serial DFU).
-    const canSerialFlashBtn = ready && zipOk && serialOk;
-    els.flashBtn.hidden = !ready;
-    els.flashBtn.disabled = !canSerialFlashBtn;
-    els.flashBtn.title = canSerialFlashBtn
+    // Stock + custom: OTA zip from same-origin mirrors (latest / ondemand).
+    const canSerial = zipReady && serialOk;
+    els.flashBtn.hidden = !zipReady;
+    els.flashBtn.disabled = !canSerial;
+    els.flashBtn.title = canSerial
       ? "Прошивка через Serial (Web Serial)"
       : !zipOk
         ? "Нужен OTA zip (дождитесь публикации сборки)"
@@ -408,46 +413,71 @@ function syncNameStepLabels() {
 }
 
 async function refreshOndemandFromCache() {
-  if (!needsCustomBuild()) {
-    state.ondemand = null;
-    setBuildControls({ show: false });
-    return;
-  }
-  const radioErr = validateRadio(state.radio);
-  if (radioErr) {
-    state.ondemand = null;
-    setBuildControls({ show: false, hint: radioErr });
-    return;
-  }
-  if (!state.southSha) {
-    state.southSha = await fetchSouthEditionSha();
-  }
-  const base = ondemandBaseName({
-    role: state.role,
-    chem: state.chem,
-    cells: state.cells,
-    protect: state.protect,
-    nameSlug: customNameSlug(),
-    radio: state.radio,
-    sha: state.southSha,
-  });
-  const found = await findOndemandAssets(base);
-  state.ondemand = { uf2: found.uf2, zip: found.zip };
-  if (found.uf2) {
-    setBuildControls({
-      show: false,
-      hint: found.zip
-        ? `Готово: ${base} — UF2, OTA zip (телефон) и Serial «Прошить».`
-        : `Готово: ${base}.uf2 — скачайте UF2. OTA zip ещё публикуется…`,
-      building: state.building,
+  try {
+    if (!needsCustomBuild()) {
+      state.ondemand = null;
+      setBuildControls({ show: false });
+      return;
+    }
+    const radioErr = validateRadio(state.radio);
+    if (radioErr) {
+      state.ondemand = null;
+      setBuildControls({ show: false, hint: radioErr });
+      return;
+    }
+    if (!state.southSha) {
+      state.southSha = await fetchSouthEditionSha();
+    }
+    if (!state.southSha) {
+      state.ondemand = null;
+      setBuildControls({
+        show: true,
+        hint:
+          "Не удалось определить версию south_edition (sha). Нажмите «Собрать» или обновите страницу позже.",
+        building: state.building,
+      });
+      return;
+    }
+    const base = ondemandBaseName({
+      role: state.role,
+      chem: state.chem,
+      cells: state.cells,
+      protect: state.protect,
+      nameSlug: customNameSlug(),
+      radio: state.radio,
+      sha: state.southSha,
     });
-  } else {
-    setBuildControls({
-      show: true,
-      hint:
-        "Готовой прошивки для этих параметров ещё нет. Нажмите «Собрать» — инструкция, что нажать на GitHub, затем ~5 мин ожидания.",
-      building: state.building,
-    });
+    const found = await findOndemandAssets(base);
+    state.ondemand = { uf2: found.uf2, zip: found.zip };
+    if (found.uf2 || found.zip) {
+      setBuildControls({
+        show: false,
+        hint: found.uf2 && found.zip
+          ? `Готово: ${base} — UF2, OTA zip (телефон) и Serial «Прошить».`
+          : found.zip
+            ? `Готово: ${base}.zip — OTA / Serial. UF2 ещё зеркалится…`
+            : `Готово: ${base}.uf2 — скачайте UF2. OTA zip ещё публикуется…`,
+        building: state.building,
+      });
+    } else {
+      setBuildControls({
+        show: true,
+        hint:
+          "Готовой прошивки для этих параметров ещё нет. Нажмите «Собрать» — инструкция, что нажать на GitHub, затем ~5 мин ожидания.",
+        building: state.building,
+      });
+    }
+  } catch (err) {
+    console.warn("ondemand refresh", err);
+    state.ondemand = null;
+    if (needsCustomBuild()) {
+      setBuildControls({
+        show: true,
+        hint:
+          "Не удалось проверить кэш кастомных сборок. Нажмите «Собрать» или обновите страницу.",
+        building: state.building,
+      });
+    }
   }
 }
 
@@ -470,7 +500,7 @@ function updateDownload() {
       });
       return;
     }
-    if (!asset) {
+    if (!asset && !zipAsset) {
       els.status.className = "status";
       els.status.textContent =
         "Готовой прошивки нет — нажмите «Собрать», затем подождите ~5 мин.";
@@ -487,7 +517,9 @@ function updateDownload() {
       });
       return;
     }
-    const size = asset.size ? ` · ${(asset.size / 1024).toFixed(0)} KiB` : "";
+    const size = (asset || zipAsset).size
+      ? ` · ${((asset || zipAsset).size / 1024).toFixed(0)} KiB`
+      : "";
     els.status.className = "status";
     els.status.textContent = `Прошивка готова${size}`;
     els.flashStatus.className = "status";
@@ -497,22 +529,41 @@ function updateDownload() {
     } else if (!zipAsset) {
       els.flashStatus.textContent =
         "UF2 готов. OTA zip ещё публикуется — «Прошить» и «OTA для телефона» появятся через минуту.";
+    } else if (!asset) {
+      els.flashStatus.textContent =
+        "OTA zip готов (Serial «Прошить» / телефон). UF2 ещё зеркалится — «Скачать UF2» / DFU появятся чуть позже.";
     } else {
       els.flashStatus.textContent =
         "Готово: Serial «Прошить», DFU или OTA zip для телефона.";
     }
-    els.downloadBtn.href = asset.url;
-    els.downloadBtn.setAttribute("download", asset.name);
-    if (els.fileName) {
-      els.fileName.hidden = false;
-      els.fileName.textContent = asset.name;
+    if (asset) {
+      els.downloadBtn.href = asset.url;
+      els.downloadBtn.setAttribute("download", asset.name);
+      if (els.fileName) {
+        els.fileName.hidden = false;
+        els.fileName.textContent = asset.name;
+      }
+      if (els.flashFileName) {
+        els.flashFileName.hidden = false;
+        els.flashFileName.textContent = asset.name;
+      }
+    } else if (zipAsset) {
+      els.downloadBtn.href = zipAsset.url;
+      els.downloadBtn.setAttribute("download", zipAsset.name);
+      if (els.fileName) {
+        els.fileName.hidden = false;
+        els.fileName.textContent = zipAsset.name;
+      }
+      if (els.flashFileName) {
+        els.flashFileName.hidden = false;
+        els.flashFileName.textContent = zipAsset.name;
+      }
     }
-    if (els.flashFileName) {
-      els.flashFileName.hidden = false;
-      els.flashFileName.textContent = asset.name;
-    }
-    setDownloadEnabled(true);
-    setBuildControls({ show: false, hint: `Готово: ${asset.name}` });
+    setDownloadEnabled(Boolean(asset || zipAsset));
+    setBuildControls({
+      show: false,
+      hint: `Готово: ${(asset || zipAsset).name}`,
+    });
     return;
   }
 
@@ -574,19 +625,19 @@ function renderAll() {
     // Switching role resets to that firmware's default advert name.
     state.advertNameTouched = false;
     syncAdvertNameFromRole({ force: true });
-    void refreshOndemandFromCache().then(updateDownload);
+    void refreshOndemandFromCache().then(updateDownload).catch(() => {});
     renderAll();
   });
   renderChoices(els.chemChoices, CHEMS, state.chem, (id) => {
     state.chem = id;
     syncCellsForChem();
-    void refreshOndemandFromCache().then(updateDownload);
+    void refreshOndemandFromCache().then(updateDownload).catch(() => {});
     renderAll();
   });
   renderChoices(els.protectChoices, PROTECTS, state.protect, (id) => {
     state.protect = id;
     syncProtectHint();
-    void refreshOndemandFromCache().then(updateDownload);
+    void refreshOndemandFromCache().then(updateDownload).catch(() => {});
     renderAll();
   });
   syncCellsForChem();
@@ -724,7 +775,45 @@ function selectRelease(tag) {
   updateDownload();
 }
 
-async function loadReleases() {
+/**
+ * Apply a static same-origin releases.json (CI: scripts/generate-releases.mjs).
+ * File URLs are remapped to ./firmware/latest mirrors for CORS-safe Serial DFU.
+ */
+function applyStaticReleasesManifest(data) {
+  const tag = data?.release?.tag;
+  if (!tag) return false;
+  const files = (data.files || [])
+    .filter((f) => DARKTEC_ASSET.test(f.name) && !/^Darktec_uf2_/i.test(f.name))
+    .map((f) => ({
+      name: f.name,
+      url: localFirmwareUrl(f.name),
+      size: f.size,
+    }));
+  if (!files.length) return false;
+
+  const synthetic = {
+    tag_name: tag,
+    name: data.release.name || tag,
+    published_at: data.release.publishedAt || null,
+    body: data.release.notes || "",
+    html_url: data.release.url || "",
+    draft: false,
+    prerelease: false,
+    assets: files.map((f) => ({
+      name: f.name,
+      browser_download_url: f.url,
+      size: f.size,
+    })),
+  };
+
+  state.releases = [synthetic];
+  state.selectedTag = tag;
+  populateVersionSelect();
+  selectRelease(tag);
+  return true;
+}
+
+async function loadReleasesFromApi() {
   const res = await fetch(RELEASES_API, {
     headers: { Accept: "application/vnd.github+json" },
   });
@@ -734,7 +823,6 @@ async function loadReleases() {
   const versioned = all.filter(
     (r) => !r.draft && !r.prerelease && /^darktec-v\d+\.\d+\.\d+b\d+$/.test(r.tag_name),
   );
-  // Only fully published matrices (128 Darktec_* uf2+zip). Skip partial / old naming.
   const complete = versioned.filter(isReleaseComplete);
   const latest = all.find((r) => !r.draft && r.tag_name === "darktec-latest");
 
@@ -744,14 +832,43 @@ async function loadReleases() {
       ? [latest]
       : [];
 
-  if (!state.releases.length) {
-    showBuildingEmptyState();
-    return;
+  if (!state.releases.length) return false;
+
+  // Prefer same-origin firmware mirrors over GitHub CDN (CORS).
+  for (const rel of state.releases) {
+    for (const asset of rel.assets || []) {
+      if (DARKTEC_ASSET.test(asset.name) && !/^Darktec_uf2_/i.test(asset.name)) {
+        asset.browser_download_url = localFirmwareUrl(asset.name);
+      }
+    }
   }
 
   state.selectedTag = state.releases[0].tag_name;
   populateVersionSelect();
   selectRelease(state.selectedTag);
+  return true;
+}
+
+async function loadReleases() {
+  for (const urlFn of RELEASES_MANIFEST_URLS) {
+    const url = urlFn();
+    try {
+      const res = await fetch(url, { cache: "no-cache" });
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (applyStaticReleasesManifest(data)) return;
+    } catch (err) {
+      console.warn("releases.json miss", url, err);
+    }
+  }
+
+  try {
+    if (await loadReleasesFromApi()) return;
+  } catch (err) {
+    console.warn("GitHub releases API fallback failed", err);
+  }
+
+  showBuildingEmptyState();
 }
 
 function initCarousel() {
@@ -1344,16 +1461,22 @@ async function boot() {
     state.southSha = await fetchSouthEditionSha();
   } catch (err) {
     console.warn("south_edition sha", err);
+    state.southSha = null;
   }
   try {
     await loadReleases();
   } catch (err) {
     console.error(err);
     els.status.className = "status error";
-    els.status.textContent = `Ошибка загрузки релизов: ${err.message}`;
+    els.status.textContent = `Ошибка загрузки релизов: ${err.message || err}`;
     els.changelogBody.textContent = els.status.textContent;
+    showBuildingEmptyState();
   }
-  await refreshOndemandFromCache();
+  try {
+    await refreshOndemandFromCache();
+  } catch (err) {
+    console.warn("boot ondemand", err);
+  }
   renderAll();
 }
 
@@ -1403,7 +1526,9 @@ function wireOndemandUi() {
   const scheduleRefresh = () => {
     clearTimeout(debounce);
     debounce = setTimeout(() => {
-      void refreshOndemandFromCache().then(updateDownload);
+      void refreshOndemandFromCache()
+        .then(updateDownload)
+        .catch((err) => console.warn("ondemand schedule", err));
     }, 300);
   };
 
@@ -1461,6 +1586,11 @@ function wireOndemandUi() {
     if (!proceed) return;
     try {
       if (!state.southSha) state.southSha = await fetchSouthEditionSha();
+      if (!state.southSha) {
+        throw new Error(
+          "Не удалось определить sha ветки south_edition. Обновите страницу или дождитесь синка манифеста.",
+        );
+      }
       const nameSlug = customNameSlug();
       const base = ondemandBaseName({
         role: state.role,

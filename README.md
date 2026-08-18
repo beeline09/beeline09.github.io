@@ -10,9 +10,10 @@
 
 Это **не** официальный [meshcore.io/flasher](https://meshcore.io/flasher). Бинарники берутся из Releases форка [`beeline09/MeshCore`](https://github.com/beeline09/MeshCore/tree/south_edition) (ветка `south_edition`); сайт только статическая витрина.
 
-Манифест на странице сначала читается **напрямую из GitHub Releases API**
-(`darktec-latest`), запасной вариант — статический `darktec/releases.json`
-(обновляется Actions по schedule / `repository_dispatch`).
+Манифест на странице читается из **same-origin** `darktec/releases.json`
+(обновляется Actions по schedule / `repository_dispatch`). Живой GitHub API —
+только запасной one-shot fallback, не в цикле. On-demand lab использует
+`darktec/firmware/ondemand/ondemand-manifest.json` + зеркала zip/uf2.
 
 ## Автосборка прошивок
 
@@ -27,9 +28,12 @@
 
 Кастомное имя ноды → Release-кэш **`darktec-ondemand`** в MeshCore.
 
-1. Страница ищет ассет `Darktec_{role}_{chem}_{Ns}_{protect}__{name_slug}__{sha8}.{uf2,zip}`.
+1. Страница ищет ассет в same-origin зеркале `darktec/firmware/ondemand/`
+   (`ondemand-manifest.json` / probe), имя вида
+   `Darktec_{role}_{chem}_{Ns}_{protect}__{name_slug}__{radio}__{sha8}.{uf2,zip}`.
 2. При промахе открывается issue с меткой `darktec-ondemand` (или body `<!-- darktec-ondemand ... -->`).
-3. Workflow **Build Darktec On-Demand** собирает один вариант и заливает в тот же Release (`--clobber`).
+3. Workflow **Build Darktec On-Demand** собирает один вариант и заливает в Release (`--clobber`),
+   затем **Sync Darktec releases** зеркалит файлы на Pages.
 
 Стабильный `/darktec/` не меняется и по-прежнему берёт каталог из `darktec-latest`.
 

@@ -19,8 +19,10 @@ const REPEATER_SETUP_URL = "https://config.meshcore.io";
 const REPEATER_SETUP_FEATURES =
   "directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800";
 const FIRMWARE_REPO = "beeline09/MeshCore";
+/** Optional one-shot fallback — primary source is same-origin releases.json. */
 const RELEASES_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases?per_page=40`;
 const TAG_PREFIX = "darktec-v";
+const RELEASES_MANIFEST_URL = new URL("./releases.json", import.meta.url).href;
 
 const ROLES = [
   { id: "companion_radio_ble", title: "Companion BLE", blurb: "BLE + OLED UI" },
@@ -445,34 +447,88 @@ function selectRelease(tag) {
   updateDownload();
 }
 
+function applyStaticReleasesManifest(data) {
+  const tag = data?.release?.tag;
+  if (!tag) return false;
+  const files = (data.files || [])
+    .filter((f) => DARKTEC_ASSET.test(f.name) && !/^Darktec_uf2_/i.test(f.name))
+    .map((f) => ({
+      name: f.name,
+      url: localFirmwareUrl(f.name),
+      size: f.size,
+    }));
+  if (!files.length) return false;
+
+  const synthetic = {
+    tag_name: tag,
+    name: data.release.name || tag,
+    published_at: data.release.publishedAt || null,
+    body: data.release.notes || "",
+    html_url: data.release.url || "",
+    draft: false,
+    prerelease: false,
+    assets: files.map((f) => ({
+      name: f.name,
+      browser_download_url: f.url,
+      size: f.size,
+    })),
+  };
+
+  state.releases = [synthetic];
+  state.selectedTag = tag;
+  populateVersionSelect();
+  selectRelease(tag);
+  return true;
+}
+
 async function loadReleases() {
-  const res = await fetch(RELEASES_API, {
-    headers: { Accept: "application/vnd.github+json" },
-  });
-  if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
-  const all = await res.json();
-
-  const versioned = all.filter(
-    (r) => !r.draft && !r.prerelease && /^darktec-v\d+\.\d+\.\d+b\d+$/.test(r.tag_name),
-  );
-  // Only fully published matrices (128 Darktec_* uf2+zip). Skip partial / old naming.
-  const complete = versioned.filter(isReleaseComplete);
-  const latest = all.find((r) => !r.draft && r.tag_name === "darktec-latest");
-
-  state.releases = complete.length
-    ? complete
-    : latest && isReleaseComplete(latest)
-      ? [latest]
-      : [];
-
-  if (!state.releases.length) {
-    showBuildingEmptyState();
-    return;
+  try {
+    const res = await fetch(RELEASES_MANIFEST_URL, { cache: "no-cache" });
+    if (res.ok) {
+      const data = await res.json();
+      if (applyStaticReleasesManifest(data)) return;
+    }
+  } catch (err) {
+    console.warn("releases.json miss", err);
   }
 
-  state.selectedTag = state.releases[0].tag_name;
-  populateVersionSelect();
-  selectRelease(state.selectedTag);
+  try {
+    const res = await fetch(RELEASES_API, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
+    const all = await res.json();
+
+    const versioned = all.filter(
+      (r) => !r.draft && !r.prerelease && /^darktec-v\d+\.\d+\.\d+b\d+$/.test(r.tag_name),
+    );
+    const complete = versioned.filter(isReleaseComplete);
+    const latest = all.find((r) => !r.draft && r.tag_name === "darktec-latest");
+
+    state.releases = complete.length
+      ? complete
+      : latest && isReleaseComplete(latest)
+        ? [latest]
+        : [];
+
+    if (state.releases.length) {
+      for (const rel of state.releases) {
+        for (const asset of rel.assets || []) {
+          if (DARKTEC_ASSET.test(asset.name) && !/^Darktec_uf2_/i.test(asset.name)) {
+            asset.browser_download_url = localFirmwareUrl(asset.name);
+          }
+        }
+      }
+      state.selectedTag = state.releases[0].tag_name;
+      populateVersionSelect();
+      selectRelease(state.selectedTag);
+      return;
+    }
+  } catch (err) {
+    console.warn("GitHub releases API fallback failed", err);
+  }
+
+  showBuildingEmptyState();
 }
 
 function initCarousel() {

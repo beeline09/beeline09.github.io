@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2026-08-18T19:35:14.281Z",
+  "sourceTag": "darktec-ondemand",
+  "southSha": "8fab2b3f",
+  "files": [
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_adc__adiga-repeater__673b8cc9.zip",
+      "size": 476359,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_adc__adiga-repeater__673b8cc9.zip"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__5c730189.zip",
+      "size": 476359,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__5c730189.zip"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__646084f7.zip",
+      "size": 476359,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__646084f7.zip"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__cb13f2ac.zip",
+      "size": 475639,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__cb13f2ac.zip"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_adc__mkp-b09-darktec__f869p075-bw62p5-sf8-cr8-tx22__cb13f2ac.zip",
+      "size": 475670,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_adc__mkp-b09-darktec__f869p075-bw62p5-sf8-cr8-tx22__cb13f2ac.zip"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_adc__myrepeater__673b8cc9.zip",
+      "size": 476359,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_adc__myrepeater__673b8cc9.zip"
+    },
+    {
+      "name": "Darktec_companion_radio_usb_lifepo4_1s_off__darktec__f869p075-bw62p5-sf8-cr8-tx22__5c730189.zip",
+      "size": 471079,
+      "url": "./firmware/ondemand/Darktec_companion_radio_usb_lifepo4_1s_off__darktec__f869p075-bw62p5-sf8-cr8-tx22__5c730189.zip"
+    },
+    {
+      "name": "Darktec_companion_radio_usb_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__34b284ef.zip",
+      "size": 471079,
+      "url": "./firmware/ondemand/Darktec_companion_radio_usb_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__34b284ef.zip"
+    }
+  ]
+}

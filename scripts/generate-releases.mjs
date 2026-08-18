@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
 const outPath = join(root, "darktec", "releases.json");
+const shaOutPath = join(root, "darktec", "south_edition_sha.txt");
 
 const repo = process.env.FIRMWARE_REPO || "beeline09/MeshCore";
 const apiBase = process.env.GITHUB_API_URL || "https://api.github.com";
@@ -148,6 +149,17 @@ async function main() {
   console.log(
     `Wrote ${outPath} · tag=${manifest.release.tag ?? "none"} · files=${manifest.files.length}`,
   );
+
+  try {
+    const commit = await fetchJson(`${apiBase}/repos/${repo}/commits/south_edition`);
+    const sha = String(commit.sha || "").slice(0, 8).toLowerCase();
+    if (sha) {
+      writeFileSync(shaOutPath, `${sha}\n`, "utf8");
+      console.log(`Wrote ${shaOutPath} → ${sha}`);
+    }
+  } catch (err) {
+    console.warn("south_edition sha skip:", err.message || err);
+  }
 }
 
 main().catch((err) => {

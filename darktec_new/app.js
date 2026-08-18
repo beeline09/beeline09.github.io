@@ -1525,11 +1525,15 @@ function wireOndemandUi() {
   let debounce = null;
   const scheduleRefresh = () => {
     clearTimeout(debounce);
+    // Wait until typing settles; skip invalid / tiny partial names (no probe spam).
     debounce = setTimeout(() => {
+      if (needsCustomBuild() && validateAdvertName(state.advertName)) {
+        return;
+      }
       void refreshOndemandFromCache()
         .then(updateDownload)
         .catch((err) => console.warn("ondemand schedule", err));
-    }, 300);
+    }, 700);
   };
 
   els.advertNameInput?.addEventListener("input", () => {

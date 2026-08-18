@@ -196,7 +196,8 @@ export function ondemandBaseName({ role, chem, cells, protect, nameSlug, radio, 
 }
 
 /**
- * Probe same-origin ondemand mirror for uf2/zip (manifest + optional HEAD).
+ * Resolve uf2/zip from same-origin ondemand-manifest.json only.
+ * Exact basename match — no HEAD/GET spam on partial names while typing.
  * Never hits GitHub Releases API.
  * @returns {Promise<{uf2: object|null, zip: object|null, releaseMissing: boolean}>}
  */
@@ -216,44 +217,12 @@ export async function findOndemandAssets(baseName) {
       };
     };
 
-    let uf2 = fromManifest("uf2");
-    let zip = fromManifest("zip");
-
-    const probe = async (ext) => {
-      const name = `${baseName}.${ext}`;
-      const url = ondemandAssetUrl(name);
-      try {
-        const head = await fetch(url, { method: "HEAD", cache: "no-cache" });
-        if (head.ok) {
-          const len = head.headers.get("content-length");
-          return {
-            name,
-            url,
-            size: len ? Number(len) : undefined,
-          };
-        }
-      } catch {
-        /* some hosts reject HEAD — try a tiny ranged GET */
-      }
-      try {
-        const res = await fetch(url, {
-          cache: "no-cache",
-          headers: { Range: "bytes=0-0" },
-        });
-        if (res.ok || res.status === 206) {
-          return { name, url, size: undefined };
-        }
-      } catch {
-        /* miss */
-      }
-      return null;
+    // Zip-only mirror is enough for Serial DFU + OTA; UF2 can appear on next mirror.
+    return {
+      uf2: fromManifest("uf2"),
+      zip: fromManifest("zip"),
+      releaseMissing: false,
     };
-
-    if (!zip) zip = await probe("zip");
-    if (!uf2) uf2 = await probe("uf2");
-
-    // Zip-only mirror is enough for Serial DFU + OTA; UF2 download can wait for mirror.
-    return { uf2, zip, releaseMissing: false };
   } catch (err) {
     console.warn("findOndemandAssets", err);
     return { uf2: null, zip: null, releaseMissing: false };

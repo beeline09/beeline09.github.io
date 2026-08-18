@@ -392,16 +392,23 @@ export function promptPickUf2DiskForUpdate(opts = {}) {
     cancelBtn.textContent = "Отмена";
 
     let settled = false;
+    const dismiss = () => {
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && backdrop.contains(active)) {
+        active.blur();
+      }
+      backdrop.remove();
+    };
     const finish = (value) => {
       if (settled) return;
       settled = true;
-      backdrop.remove();
+      dismiss();
       resolve(value);
     };
     const fail = (err) => {
       if (settled) return;
       settled = true;
-      backdrop.remove();
+      dismiss();
       reject(err);
     };
 
@@ -758,16 +765,23 @@ export function promptPickDfuSerialPort(opts = {}) {
     cancelBtn.textContent = "Отмена";
 
     let settled = false;
+    const dismiss = () => {
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && backdrop.contains(active)) {
+        active.blur();
+      }
+      backdrop.remove();
+    };
     const finish = (value) => {
       if (settled) return;
       settled = true;
-      backdrop.remove();
+      dismiss();
       resolve(value);
     };
     const fail = (err) => {
       if (settled) return;
       settled = true;
-      backdrop.remove();
+      dismiss();
       reject(err);
     };
 

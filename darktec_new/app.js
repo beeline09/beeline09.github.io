@@ -828,19 +828,90 @@ function syncConsoleUi() {
   }
 }
 
+/**
+ * Move focus out of a modal before it becomes aria-hidden / inert.
+ * Avoids: "Blocked aria-hidden on an element because its descendant retained focus".
+ * @param {HTMLElement | null} modal
+ * @param {HTMLElement | null} [restoreTo]
+ */
+function defocusModal(modal, restoreTo) {
+  const active = document.activeElement;
+  if (active instanceof HTMLElement && modal?.contains(active)) {
+    active.blur();
+  }
+  const target =
+    restoreTo instanceof HTMLElement &&
+    restoreTo.isConnected &&
+    typeof restoreTo.focus === "function"
+      ? restoreTo
+      : null;
+  if (target) {
+    try {
+      target.focus({ preventScroll: true });
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+/**
+ * @param {HTMLElement | null} modal
+ * @param {{ focusEl?: HTMLElement | null }} [opts]
+ */
+function revealModal(modal, opts = {}) {
+  if (!modal) return;
+  modal.hidden = false;
+  modal.removeAttribute("hidden");
+  modal.setAttribute("aria-hidden", "false");
+  if ("inert" in modal) modal.inert = false;
+  const focusEl =
+    opts.focusEl ||
+    modal.querySelector(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+  if (focusEl instanceof HTMLElement) {
+    try {
+      focusEl.focus({ preventScroll: true });
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+/**
+ * @param {HTMLElement | null} modal
+ * @param {HTMLElement | null} [restoreTo]
+ */
+function concealModal(modal, restoreTo) {
+  if (!modal) return;
+  defocusModal(modal, restoreTo);
+  modal.hidden = true;
+  modal.setAttribute("hidden", "");
+  modal.setAttribute("aria-hidden", "true");
+  if ("inert" in modal) modal.inert = true;
+}
+
+/** @type {HTMLElement | null} */
+let consoleFocusReturn = null;
+
 function openConsoleModal() {
   if (!els.consoleModal) return;
-  els.consoleModal.hidden = false;
-  els.consoleModal.removeAttribute("hidden");
-  els.consoleModal.setAttribute("aria-hidden", "false");
+  if (els.consoleModal.hidden) {
+    const active = document.activeElement;
+    consoleFocusReturn =
+      active instanceof HTMLElement && !els.consoleModal.contains(active)
+        ? active
+        : els.consoleBtn;
+  }
+  revealModal(els.consoleModal);
   document.body.style.overflow = "hidden";
 }
 
 function hideConsoleModal() {
   if (!els.consoleModal) return;
-  els.consoleModal.hidden = true;
-  els.consoleModal.setAttribute("hidden", "");
-  els.consoleModal.setAttribute("aria-hidden", "true");
+  const restore = consoleFocusReturn || els.consoleBtn;
+  consoleFocusReturn = null;
+  concealModal(els.consoleModal, restore);
   document.body.style.overflow = "";
 }
 
@@ -1242,9 +1313,14 @@ function showBuildHelpModal() {
       return;
     }
 
+    const active = document.activeElement;
+    const returnFocus =
+      active instanceof HTMLElement && !modal.contains(active)
+        ? active
+        : els.buildBtnOnline || els.buildBtn;
+
     const finish = (ok) => {
-      modal.hidden = true;
-      modal.setAttribute("aria-hidden", "true");
+      concealModal(modal, returnFocus);
       els.buildHelpOkBtn.removeEventListener("click", onOk);
       els.buildHelpCancelBtn.removeEventListener("click", onCancel);
       modal.removeEventListener("click", onBackdrop);
@@ -1264,9 +1340,7 @@ function showBuildHelpModal() {
     els.buildHelpCancelBtn.addEventListener("click", onCancel);
     modal.addEventListener("click", onBackdrop);
     document.addEventListener("keydown", onKey);
-    modal.hidden = false;
-    modal.setAttribute("aria-hidden", "false");
-    els.buildHelpOkBtn.focus();
+    revealModal(modal, { focusEl: els.buildHelpOkBtn });
   });
 }
 

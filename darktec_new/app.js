@@ -138,6 +138,8 @@ const els = {
   downloadStepLabel: document.getElementById("downloadStepLabel"),
   status: document.getElementById("status"),
   downloadBtn: document.getElementById("downloadBtn"),
+  downloadOtaBtn: document.getElementById("downloadOtaBtn"),
+  otaHint: document.getElementById("otaHint"),
   fileName: document.getElementById("fileName"),
   versionSelect: document.getElementById("versionSelect"),
   changelogBody: document.getElementById("changelogBody"),
@@ -295,7 +297,30 @@ function setDownloadEnabled(enabled) {
     els.downloadBtn.href = "#";
     els.downloadBtn.removeAttribute("download");
   }
+  syncOtaDownloadButton(enabled ? findAsset("zip") : null);
   syncOnlineActionButtons(enabled);
+}
+
+/**
+ * Offline «OTA для телефона»: GitHub release URL works in <a href> (no CORS).
+ * @param {{ name: string, url: string }|null} zipAsset
+ */
+function syncOtaDownloadButton(zipAsset) {
+  const btn = els.downloadOtaBtn;
+  if (!btn) return;
+  if (zipAsset?.url) {
+    btn.removeAttribute("aria-disabled");
+    btn.href = zipAsset.url;
+    btn.setAttribute("download", zipAsset.name);
+    btn.title = `Скачать ${zipAsset.name} для OTA из приложения MeshCore`;
+  } else {
+    btn.setAttribute("aria-disabled", "true");
+    btn.href = "#";
+    btn.removeAttribute("download");
+    btn.title = needsCustomBuild()
+      ? "OTA zip ещё нет — дождитесь окончания сборки (CI публикует .uf2 и .zip)"
+      : "OTA zip недоступен для этой сборки";
+  }
 }
 
 /**
@@ -315,16 +340,15 @@ function syncOnlineActionButtons(firmwareReady) {
     els.dfuBtn.disabled = !ready;
   }
   if (els.flashBtn) {
-    // Каталог: Serial через zip на зеркале. Кастом: zip на GitHub без CORS —
-    // кнопка видна, но активна только для каталога (иначе «Только DFU»).
-    const canSerialFlashBtn =
-      ready && zipOk && serialOk && !needsCustomBuild();
+    // Catalog: zip on same-origin mirror. Custom: zip on GitHub + mirrored to
+    // darktec/firmware/ondemand/ after on-demand CI (CORS-safe Serial DFU).
+    const canSerialFlashBtn = ready && zipOk && serialOk;
     els.flashBtn.hidden = !ready;
     els.flashBtn.disabled = !canSerialFlashBtn;
     els.flashBtn.title = canSerialFlashBtn
       ? "Прошивка через Serial (Web Serial)"
-      : needsCustomBuild()
-        ? "Для кастомной сборки используйте «Только DFU» (UF2 на диск)"
+      : !zipOk
+        ? "Нужен OTA zip (дождитесь публикации сборки)"
         : "Нужны Chrome/Edge и OTA zip";
   }
   if (els.bootloaderBtn) {
@@ -412,7 +436,9 @@ async function refreshOndemandFromCache() {
   if (found.uf2) {
     setBuildControls({
       show: false,
-      hint: `Готово: ${base}.uf2 — скачайте UF2 (Offline) и прошейте.`,
+      hint: found.zip
+        ? `Готово: ${base} — UF2, OTA zip (телефон) и Serial «Прошить».`
+        : `Готово: ${base}.uf2 — скачайте UF2. OTA zip ещё публикуется…`,
       building: state.building,
     });
   } else {
@@ -470,10 +496,10 @@ function updateDownload() {
         "Готово к прошивке через режим DFU (кнопка «Только DFU»). Для «Прошить» нужен Chrome / Edge.";
     } else if (!zipAsset) {
       els.flashStatus.textContent =
-        "Готово к прошивке через режим DFU. Serial zip ещё нет — «Прошить» недоступна.";
+        "UF2 готов. OTA zip ещё публикуется — «Прошить» и «OTA для телефона» появятся через минуту.";
     } else {
       els.flashStatus.textContent =
-        "Готово к прошивке через Serial или Режим DFU.";
+        "Готово: Serial «Прошить», DFU или OTA zip для телефона.";
     }
     els.downloadBtn.href = asset.url;
     els.downloadBtn.setAttribute("download", asset.name);
@@ -527,10 +553,10 @@ function updateDownload() {
       "Готово к прошивке через режим DFU. Для «Прошить» нужен Chrome / Edge.";
   } else if (!zipAsset) {
     els.flashStatus.textContent =
-      "OTA .zip ещё нет. Доступен режим DFU («Только DFU»); «Прошить» пока недоступна.";
+      "OTA .zip ещё нет. Доступен режим DFU («Только DFU»); «Прошить» / OTA для телефона пока недоступны.";
   } else {
     els.flashStatus.textContent =
-      "Готово к прошивке через Serial или Режим DFU.";
+      "Готово: Serial «Прошить», DFU или OTA zip для телефона.";
   }
   els.downloadBtn.href = asset.url;
   els.downloadBtn.setAttribute("download", asset.name);
@@ -790,6 +816,9 @@ function initCarousel() {
 
 els.downloadBtn.addEventListener("click", (ev) => {
   if (els.downloadBtn.getAttribute("aria-disabled") === "true") ev.preventDefault();
+});
+els.downloadOtaBtn?.addEventListener("click", (ev) => {
+  if (els.downloadOtaBtn.getAttribute("aria-disabled") === "true") ev.preventDefault();
 });
 
 els.versionSelect.addEventListener("change", () => {
@@ -1130,31 +1159,54 @@ function wireUsbTools() {
 }
 
 function localFirmwareUrl(fileName) {
-  return new URL(`./firmware/latest/${fileName}`, import.meta.url).href;
+  // Shared stock mirror under /darktec/ (not duplicated into darktec_new/).
+  return new URL(`../darktec/firmware/latest/${fileName}`, import.meta.url).href;
+}
+
+function ondemandFirmwareUrl(fileName) {
+  return new URL(`../darktec/firmware/ondemand/${fileName}`, import.meta.url).href;
+}
+
+/**
+ * @param {string} url
+ * @returns {Promise<Blob|null>}
+ */
+async function tryFetchZipBlob(url) {
+  try {
+    const res = await fetch(url, { cache: "no-cache" });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    if (!blob || blob.size < 256) return null;
+    return blob;
+  } catch (err) {
+    console.warn("OTA zip fetch miss", url, err);
+    return null;
+  }
 }
 
 async function loadOtaZipBlob(zipName) {
-  const localUrl = localFirmwareUrl(zipName);
-  let localStatus = 0;
-  try {
-    const res = await fetch(localUrl, { cache: "no-cache" });
-    localStatus = res.status;
-    if (res.ok) return await res.blob();
-  } catch (err) {
-    console.warn("local OTA zip miss", err);
+  // 1) Stock catalog mirror
+  const localBlob = await tryFetchZipBlob(localFirmwareUrl(zipName));
+  if (localBlob) return localBlob;
+
+  // 2) On-demand mirror (custom builds) — may lag ~1–2 min after CI
+  const odUrl = ondemandFirmwareUrl(zipName);
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const odBlob = await tryFetchZipBlob(odUrl);
+    if (odBlob) return odBlob;
+    if (attempt < 5) {
+      await new Promise((r) => setTimeout(r, 2500));
+    }
   }
 
-  // GitHub release assets redirect to release-assets.githubusercontent.com without CORS
-  // ACAO headers, so browser fetch from the release URL fails. Same-origin Pages mirror
-  // (scripts/mirror-firmware.py / Sync Darktec releases) is required for Serial DFU.
+  // GitHub release assets redirect without CORS — browser fetch cannot read them.
   const zipAsset = findAsset("zip");
   const releaseHint = zipAsset?.url
-    ? ` Релизный файл есть (${zipAsset.url}), но браузер не может скачать его из‑за CORS — нужен сайт‑зеркало.`
+    ? ` Файл на GitHub есть (${zipAsset.url}), скачайте «OTA для телефона» или подождите зеркало сайта (~1–2 мин после сборки).`
     : "";
   throw new Error(
-    `Нет OTA-пакета ${zipName} на зеркале сайта` +
-      (localStatus ? ` (HTTP ${localStatus})` : "") +
-      `.${releaseHint} Запустите workflow «Sync Darktec releases» в beeline09.github.io после публикации Darktec.`,
+    `Нет OTA-пакета ${zipName} на зеркале сайта.` +
+      `${releaseHint} Для кастомных сборок workflow «Sync Darktec releases» зеркалит zip в darktec/firmware/ondemand/.`,
   );
 }
 

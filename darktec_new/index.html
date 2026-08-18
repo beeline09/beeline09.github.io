@@ -248,8 +248,13 @@
             <div class="download-row">
               <button type="button" class="btn btn-ghost" id="buildBtn" hidden>Собрать</button>
               <a class="btn btn-primary" id="downloadBtn" href="#" aria-disabled="true">Скачать UF2</a>
+              <a class="btn btn-ghost" id="downloadOtaBtn" href="#" aria-disabled="true" title="OTA-пакет для обновления из приложения MeshCore на телефоне">OTA для телефона</a>
               <span class="file-name" id="fileName" hidden></span>
             </div>
+            <p class="hint" id="otaHint">
+              <strong>UF2</strong> — копирование на DFU-диск с компьютера.
+              <strong>OTA zip</strong> — обновление из мобильного приложения MeshCore.
+            </p>
             <p class="hint" id="buildHint" hidden></p>
           </div>
           <div class="dfu">

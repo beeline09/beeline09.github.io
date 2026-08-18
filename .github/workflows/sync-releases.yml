@@ -5,7 +5,7 @@ on:
   schedule:
     - cron: "17 6,18 * * *"
   repository_dispatch:
-    types: [meshcore-release]
+    types: [meshcore-release, darktec-ondemand]
 
 permissions:
   contents: write
@@ -18,33 +18,52 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node
+        if: github.event_name != 'repository_dispatch' || github.event.action == 'meshcore-release'
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
       - name: Generate darktec/releases.json
+        if: github.event_name != 'repository_dispatch' || github.event.action == 'meshcore-release'
         env:
           FIRMWARE_REPO: beeline09/MeshCore
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/generate-releases.mjs
 
       - name: Mirror UF2s to darktec/firmware/latest
+        if: github.event_name != 'repository_dispatch' || github.event.action == 'meshcore-release'
         env:
           FIRMWARE_REPO: beeline09/MeshCore
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CLIENT_TAG: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.tag || '' }}
         run: python3 scripts/mirror-firmware.py
 
+      - name: Mirror on-demand OTA zips
+        if: >
+          github.event_name == 'schedule' ||
+          github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'repository_dispatch' && github.event.action == 'darktec-ondemand')
+        env:
+          FIRMWARE_REPO: beeline09/MeshCore
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLIENT_ASSETS: ${{ github.event.client_payload.assets || '' }}
+        run: python3 scripts/mirror-ondemand.py
+
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add darktec/releases.json darktec/firmware/latest
+          git add darktec/releases.json darktec/firmware/latest darktec/firmware/ondemand
           if git diff --staged --quiet; then
             echo "No changes"
             exit 0
           fi
-          git commit -m "chore(darktec): sync releases + mirror UF2 for online flasher"
+          if [ "${{ github.event.action }}" = "darktec-ondemand" ]; then
+            MSG="chore(darktec): mirror on-demand OTA zip for Serial DFU"
+          else
+            MSG="chore(darktec): sync releases + mirror UF2 for online flasher"
+          fi
+          git commit -m "$MSG"
           # Pages deploy / concurrent syncs can advance main; rebase then push.
           git pull --rebase origin main
           git push

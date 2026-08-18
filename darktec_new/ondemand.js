@@ -189,7 +189,7 @@ export function buildIssueUrl({
 }
 
 /**
- * Poll until uf2 appears or timeout.
+ * Poll until uf2 (+ zip when published) appears or timeout.
  * @returns {Promise<{uf2: object, zip: object|null}>}
  */
 export async function pollOndemandAssets(baseName, {
@@ -199,12 +199,20 @@ export async function pollOndemandAssets(baseName, {
   signal,
 } = {}) {
   const started = Date.now();
+  /** @type {object|null} */
+  let seenUf2 = null;
   while (Date.now() - started < timeoutMs) {
     if (signal?.aborted) throw new Error("aborted");
     const found = await findOndemandAssets(baseName);
     if (onTick) onTick(found);
-    if (found.uf2) return found;
+    if (found.uf2 && found.zip) return found;
+    if (found.uf2) {
+      seenUf2 = found;
+      // CI uploads uf2+zip together; wait briefly for zip before accepting uf2-only.
+      if (Date.now() - started > 90_000) return found;
+    }
     await new Promise((r) => setTimeout(r, intervalMs));
   }
+  if (seenUf2) return { ...seenUf2, zip: seenUf2.zip || null };
   throw new Error("timeout");
 }

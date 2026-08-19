@@ -1075,6 +1075,16 @@ function initCarousel() {
     } catch {
       /* ignore */
     }
+    const centerPhoto = () => {
+      stage.scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: "smooth",
+      });
+    };
+    requestAnimationFrame(() => {
+      requestAnimationFrame(centerPhoto);
+    });
   });
 
   let startX = 0;
@@ -1719,16 +1729,35 @@ function showBuildHelpModal() {
 }
 
 function wireSelectChevrons() {
-  document.querySelectorAll(".select-wrap").forEach((wrap) => {
+  const wraps = [...document.querySelectorAll(".select-wrap")];
+  const setOpen = (wrap, open) => wrap.classList.toggle("is-open", open);
+
+  wraps.forEach((wrap) => {
     const select = wrap.querySelector("select");
     if (!select) return;
-    const setOpen = (open) => wrap.classList.toggle("is-open", open);
-    select.addEventListener("mousedown", () => {
-      setOpen(!wrap.classList.contains("is-open"));
+    select.addEventListener("toggle", (ev) => {
+      if (ev.newState === "open") setOpen(wrap, true);
+      else if (ev.newState === "closed") setOpen(wrap, false);
     });
-    select.addEventListener("blur", () => setOpen(false));
-    select.addEventListener("change", () => setOpen(false));
+    select.addEventListener("mousedown", () => setOpen(wrap, true));
+    select.addEventListener("change", () => setOpen(wrap, false));
+    select.addEventListener("blur", () => setOpen(wrap, false));
+    select.addEventListener("keydown", (ev) => {
+      if (ev.key === "Escape") setOpen(wrap, false);
+    });
   });
+
+  // Native <select> often keeps focus after the picker is dismissed by a click
+  // elsewhere, so blur never fires — drop the chevron on any outside pointer.
+  document.addEventListener(
+    "pointerdown",
+    (ev) => {
+      wraps.forEach((wrap) => {
+        if (!wrap.contains(ev.target)) setOpen(wrap, false);
+      });
+    },
+    true,
+  );
 }
 
 function wireOndemandUi() {

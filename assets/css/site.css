@@ -442,15 +442,17 @@ a:hover {
   font-size: clamp(2.1rem, 5.5vw, 3.4rem);
 }
 
-.hero-lead {
+.hero p.hero-lead {
   margin: 1rem 0 0;
-  max-width: 40rem;
+  max-width: none;
+  width: 100%;
   color: var(--muted);
   line-height: 1.55;
 }
 
 .fork-card {
   margin-top: 1.5rem;
+  width: 100%;
   padding: 1.1rem 1.2rem;
   border: 1px solid rgba(230, 160, 18, 0.35);
   border-radius: var(--radius);
@@ -470,6 +472,8 @@ a:hover {
 
 .fork-card p {
   margin: 0;
+  max-width: none;
+  width: 100%;
   color: var(--ink);
   line-height: 1.5;
   font-size: 0.98rem;
@@ -483,6 +487,7 @@ a:hover {
 
 .disclaimer-note {
   margin-top: 0.85rem;
+  width: 100%;
   padding: 0.95rem 1.15rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -500,6 +505,8 @@ a:hover {
 
 .disclaimer-note p {
   margin: 0;
+  max-width: none;
+  width: 100%;
   color: var(--muted);
   line-height: 1.5;
   font-size: 0.92rem;

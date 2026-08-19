@@ -119,19 +119,27 @@ function pickReleases(releases) {
   return [{ release: releases.find((r) => !r.draft) || null, files: [] }];
 }
 
+function mirrorFileUrl(tag, name) {
+  if (!tag || tag === "darktec-latest") {
+    return `./firmware/latest/${name}`;
+  }
+  return `./firmware/releases/${tag}/${name}`;
+}
+
 function buildReleaseEntry(release, files) {
   if (!release) return null;
+  const tag = release.tag_name;
   return {
     release: {
-      tag: release.tag_name,
-      name: release.name || release.tag_name,
+      tag,
+      name: release.name || tag,
       url: release.html_url,
       publishedAt: release.published_at,
       notes: release.body || "",
     },
     files: files.map((asset) => ({
       name: asset.name,
-      url: asset.browser_download_url,
+      url: mirrorFileUrl(tag, asset.name),
       size: asset.size,
       contentType: asset.content_type || "application/octet-stream",
     })),

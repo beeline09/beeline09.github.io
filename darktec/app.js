@@ -853,7 +853,7 @@ function staticReleaseToSynthetic(entry) {
     .filter((f) => DARKTEC_ASSET.test(f.name) && !/^Darktec_uf2_/i.test(f.name))
     .map((f) => ({
       name: f.name,
-      url: localFirmwareUrl(f.name),
+      url: localFirmwareUrl(f.name, tag),
       size: f.size,
     }));
   if (!files.length) return null;
@@ -877,7 +877,7 @@ function staticReleaseToSynthetic(entry) {
 /**
  * Apply a static same-origin releases.json (CI: scripts/generate-releases.mjs).
  * Supports both the old single-release shape and the new multi-release shape.
- * File URLs are remapped to ./firmware/latest mirrors for CORS-safe Serial DFU.
+ * File URLs are remapped to per-version same-origin mirrors for CORS-safe Serial DFU.
  */
 function applyStaticReleasesManifest(data) {
   const entries = Array.isArray(data?.releases)
@@ -927,7 +927,7 @@ async function loadReleasesFromApi() {
   for (const rel of state.releases) {
     for (const asset of rel.assets || []) {
       if (DARKTEC_ASSET.test(asset.name) && !/^Darktec_uf2_/i.test(asset.name)) {
-        asset.browser_download_url = localFirmwareUrl(asset.name);
+        asset.browser_download_url = localFirmwareUrl(asset.name, rel.tag_name);
       }
     }
   }
@@ -1592,8 +1592,10 @@ function wireUsbTools() {
   syncConsoleUi();
 }
 
-function localFirmwareUrl(fileName) {
-  return new URL(`./firmware/latest/${fileName}`, import.meta.url).href;
+function localFirmwareUrl(fileName, tag = state.selectedTag) {
+  const dir =
+    !tag || tag === "darktec-latest" ? "latest" : `releases/${tag}`;
+  return new URL(`./firmware/${dir}/${fileName}`, import.meta.url).href;
 }
 
 function ondemandFirmwareUrl(fileName) {
@@ -1618,8 +1620,8 @@ async function tryFetchZipBlob(url) {
 }
 
 async function loadOtaZipBlob(zipName) {
-  // 1) Stock catalog mirror
-  const localBlob = await tryFetchZipBlob(localFirmwareUrl(zipName));
+  const tag = state.selectedTag;
+  const localBlob = await tryFetchZipBlob(localFirmwareUrl(zipName, tag));
   if (localBlob) return localBlob;
 
   // 2) On-demand mirror (custom builds) — may lag ~1–2 min after CI
@@ -1638,8 +1640,8 @@ async function loadOtaZipBlob(zipName) {
     ? ` Файл на GitHub есть (${zipAsset.url}), скачайте «ZIP для BLE-OTA» или подождите зеркало сайта (~1–2 мин после сборки).`
     : "";
   throw new Error(
-    `Нет OTA-пакета ${zipName} на зеркале сайта.` +
-      `${releaseHint} Для кастомных сборок workflow «Sync Darktec releases» зеркалит zip в darktec/firmware/ondemand/.`,
+    `Нет OTA-пакета ${zipName} для ${displayVersion(tag)} на зеркале сайта.` +
+      `${releaseHint} Дождитесь sync CI или выберите другую версию.`,
   );
 }
 

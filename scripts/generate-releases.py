@@ -117,13 +117,20 @@ def pick_releases(releases: list):
     return [(None, [])]
 
 
+def mirror_file_url(tag: str, name: str) -> str:
+    if not tag or tag == "darktec-latest":
+        return f"./firmware/latest/{name}"
+    return f"./firmware/releases/{tag}/{name}"
+
+
 def build_release_entry(release, files):
     if not release:
         return None
+    tag = release.get("tag_name") or ""
     return {
         "release": {
-            "tag": release.get("tag_name"),
-            "name": release.get("name") or release.get("tag_name"),
+            "tag": tag,
+            "name": release.get("name") or tag,
             "url": release.get("html_url"),
             "publishedAt": release.get("published_at"),
             "notes": release.get("body") or "",
@@ -131,7 +138,7 @@ def build_release_entry(release, files):
         "files": [
             {
                 "name": asset["name"],
-                "url": asset["browser_download_url"],
+                "url": mirror_file_url(tag, asset["name"]),
                 "size": asset.get("size"),
                 "contentType": asset.get("content_type") or "application/octet-stream",
             }

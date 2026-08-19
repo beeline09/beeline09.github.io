@@ -82,44 +82,46 @@ async function fetchJson(url) {
   return res.json();
 }
 
-function pickRelease(releases) {
-  // Prefer a fully published matrix (128 Darktec_* uf2+zip); skip partial uploads.
-  for (const release of releases) {
-    if (release.draft || release.prerelease) continue;
-    if (!isReleaseComplete(release)) continue;
-    const files = (release.assets || []).filter((a) => isDarktecAsset(a.name));
-    return { release, files };
+function pickReleases(releases) {
+  const complete = releases.filter(
+    (release) =>
+      !release.draft &&
+      !release.prerelease &&
+      /^darktec-v\d+\.\d+\.\d+b\d+$/.test(release.tag_name || "") &&
+      isReleaseComplete(release),
+  );
+  if (complete.length) {
+    return complete.map((release) => ({
+      release,
+      files: (release.assets || []).filter((a) => isDarktecAsset(a.name)),
+    }));
   }
+
+  const latest = releases.find(
+    (release) => !release.draft && !release.prerelease && release.tag_name === "darktec-latest",
+  );
+  if (latest && isReleaseComplete(latest)) {
+    return [
+      {
+        release: latest,
+        files: (latest.assets || []).filter((a) => isDarktecAsset(a.name)),
+      },
+    ];
+  }
+
   for (const release of releases) {
     if (release.draft) continue;
     const files = (release.assets || []).filter((a) => isDarktecAsset(a.name));
     if (files.length > 0) {
-      return { release, files };
+      return [{ release, files }];
     }
   }
-  return { release: releases.find((r) => !r.draft) || null, files: [] };
+  return [{ release: releases.find((r) => !r.draft) || null, files: [] }];
 }
 
-function buildManifest(release, files) {
-  if (!release) {
-    return {
-      generatedAt: new Date().toISOString(),
-      sourceRepo: repo,
-      release: {
-        tag: null,
-        name: null,
-        url: `https://github.com/${repo}/releases`,
-        publishedAt: null,
-        notes:
-          "Релизов не найдено. Создайте GitHub Release с ассетами Darktec_*.uf2.",
-      },
-      files: [],
-    };
-  }
-
+function buildReleaseEntry(release, files) {
+  if (!release) return null;
   return {
-    generatedAt: new Date().toISOString(),
-    sourceRepo: repo,
     release: {
       tag: release.tag_name,
       name: release.name || release.tag_name,
@@ -136,18 +138,49 @@ function buildManifest(release, files) {
   };
 }
 
+function buildManifest(picked) {
+  const releases = picked
+    .map(({ release: rel, files }) => buildReleaseEntry(rel, files))
+    .filter(Boolean);
+  const first = releases[0];
+  if (!first) {
+    return {
+      generatedAt: new Date().toISOString(),
+      sourceRepo: repo,
+      release: {
+        tag: null,
+        name: null,
+        url: `https://github.com/${repo}/releases`,
+        publishedAt: null,
+        notes:
+          "Релизов не найдено. Создайте GitHub Release с ассетами Darktec_*.uf2.",
+      },
+      files: [],
+      releases: [],
+    };
+  }
+
+  return {
+    generatedAt: new Date().toISOString(),
+    sourceRepo: repo,
+    release: first.release,
+    files: first.files,
+    releases,
+  };
+}
+
 async function main() {
   const url = `${apiBase}/repos/${repo}/releases?per_page=30`;
   console.log(`Fetching ${url}`);
   const releases = await fetchJson(url);
-  const { release, files } = pickRelease(releases);
-  const manifest = buildManifest(release, files);
+  const picked = pickReleases(releases);
+  const manifest = buildManifest(picked);
 
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
   console.log(
-    `Wrote ${outPath} · tag=${manifest.release.tag ?? "none"} · files=${manifest.files.length}`,
+    `Wrote ${outPath} · tag=${manifest.release.tag ?? "none"} · files=${manifest.files.length} · releases=${manifest.releases?.length ?? 0}`,
   );
 
   try {

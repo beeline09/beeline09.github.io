@@ -76,46 +76,51 @@ def fetch_json(url: str):
         return json.load(resp)
 
 
-def pick_release(releases: list):
-    # Prefer a fully published matrix (128 Darktec_* uf2+zip); skip partial uploads.
+def pick_releases(releases: list):
+    complete = []
     for release in releases:
         if release.get("draft") or release.get("prerelease"):
+            continue
+        if not re.match(r"^darktec-v\d+\.\d+\.\d+b\d+$", release.get("tag_name") or ""):
             continue
         if not is_release_complete(release):
             continue
         files = [a for a in release.get("assets") or [] if is_darktec_asset(a.get("name", ""))]
-        return release, files
+        complete.append((release, files))
+    if complete:
+        return complete
+
+    latest = next(
+        (
+            release
+            for release in releases
+            if not release.get("draft")
+            and not release.get("prerelease")
+            and release.get("tag_name") == "darktec-latest"
+            and is_release_complete(release)
+        ),
+        None,
+    )
+    if latest:
+        files = [a for a in latest.get("assets") or [] if is_darktec_asset(a.get("name", ""))]
+        return [(latest, files)]
+
     for release in releases:
         if release.get("draft"):
             continue
         files = [a for a in release.get("assets") or [] if is_darktec_asset(a.get("name", ""))]
         if files:
-            return release, files
+            return [(release, files)]
     for release in releases:
         if not release.get("draft"):
-            return release, []
-    return None, []
+            return [(release, [])]
+    return [(None, [])]
 
 
-def build_manifest(release, files):
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+def build_release_entry(release, files):
     if not release:
-        return {
-            "generatedAt": now,
-            "sourceRepo": REPO,
-            "release": {
-                "tag": None,
-                "name": None,
-                "url": f"https://github.com/{REPO}/releases",
-                "publishedAt": None,
-                "notes": "Релизов не найдено. Создайте GitHub Release с ассетами Darktec_*.uf2.",
-            },
-            "files": [],
-        }
-
+        return None
     return {
-        "generatedAt": now,
-        "sourceRepo": REPO,
         "release": {
             "tag": release.get("tag_name"),
             "name": release.get("name") or release.get("tag_name"),
@@ -135,16 +140,43 @@ def build_manifest(release, files):
     }
 
 
+def build_manifest(picked):
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    releases = [build_release_entry(release, files) for release, files in picked]
+    releases = [entry for entry in releases if entry]
+    if not releases:
+        return {
+            "generatedAt": now,
+            "sourceRepo": REPO,
+            "release": {
+                "tag": None,
+                "name": None,
+                "url": f"https://github.com/{REPO}/releases",
+                "publishedAt": None,
+                "notes": "Релизов не найдено. Создайте GitHub Release с ассетами Darktec_*.uf2.",
+            },
+            "files": [],
+            "releases": [],
+        }
+    return {
+        "generatedAt": now,
+        "sourceRepo": REPO,
+        "release": releases[0]["release"],
+        "files": releases[0]["files"],
+        "releases": releases,
+    }
+
+
 def main() -> None:
     url = f"{API}/repos/{REPO}/releases?per_page=30"
     print(f"Fetching {url}")
     releases = fetch_json(url)
-    release, files = pick_release(releases)
-    manifest = build_manifest(release, files)
+    picked = pick_releases(releases)
+    manifest = build_manifest(picked)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(
-        f"Wrote {OUT} · tag={manifest['release']['tag']!r} · files={len(manifest['files'])}"
+        f"Wrote {OUT} · tag={manifest['release']['tag']!r} · files={len(manifest['files'])} · releases={len(manifest.get('releases') or [])}"
     )
     try:
         commit = fetch_json(f"{API}/repos/{REPO}/commits/south_edition")

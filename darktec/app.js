@@ -846,28 +846,24 @@ function selectRelease(tag) {
   updateDownload();
 }
 
-/**
- * Apply a static same-origin releases.json (CI: scripts/generate-releases.mjs).
- * File URLs are remapped to ./firmware/latest mirrors for CORS-safe Serial DFU.
- */
-function applyStaticReleasesManifest(data) {
-  const tag = data?.release?.tag;
-  if (!tag) return false;
-  const files = (data.files || [])
+function staticReleaseToSynthetic(entry) {
+  const tag = entry?.release?.tag;
+  if (!tag) return null;
+  const files = (entry.files || [])
     .filter((f) => DARKTEC_ASSET.test(f.name) && !/^Darktec_uf2_/i.test(f.name))
     .map((f) => ({
       name: f.name,
       url: localFirmwareUrl(f.name),
       size: f.size,
     }));
-  if (!files.length) return false;
+  if (!files.length) return null;
 
-  const synthetic = {
+  return {
     tag_name: tag,
-    name: data.release.name || tag,
-    published_at: data.release.publishedAt || null,
-    body: data.release.notes || "",
-    html_url: data.release.url || "",
+    name: entry.release.name || tag,
+    published_at: entry.release.publishedAt || null,
+    body: entry.release.notes || "",
+    html_url: entry.release.url || "",
     draft: false,
     prerelease: false,
     assets: files.map((f) => ({
@@ -876,11 +872,33 @@ function applyStaticReleasesManifest(data) {
       size: f.size,
     })),
   };
+}
 
-  state.releases = [synthetic];
-  state.selectedTag = tag;
+/**
+ * Apply a static same-origin releases.json (CI: scripts/generate-releases.mjs).
+ * Supports both the old single-release shape and the new multi-release shape.
+ * File URLs are remapped to ./firmware/latest mirrors for CORS-safe Serial DFU.
+ */
+function applyStaticReleasesManifest(data) {
+  const entries = Array.isArray(data?.releases)
+    ? data.releases
+    : data?.release
+      ? [data]
+      : [];
+  const releases = entries
+    .map(staticReleaseToSynthetic)
+    .filter(Boolean)
+    .sort((a, b) => {
+      const at = Date.parse(a.published_at || 0) || 0;
+      const bt = Date.parse(b.published_at || 0) || 0;
+      return bt - at;
+    });
+  if (!releases.length) return false;
+
+  state.releases = releases;
+  state.selectedTag = releases[0].tag_name;
   populateVersionSelect();
-  selectRelease(tag);
+  selectRelease(state.selectedTag);
   return true;
 }
 

@@ -668,6 +668,7 @@ a:hover {
 
 .version-select {
   appearance: none;
+  -webkit-appearance: none;
   background: rgba(8, 10, 9, 0.75);
   color: var(--ink);
   border: 1px solid rgba(230, 160, 18, 0.4);
@@ -677,6 +678,44 @@ a:hover {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   max-width: min(100%, 220px);
+}
+
+.select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  max-width: min(100%, 280px);
+}
+
+.select-wrap .version-select {
+  width: 100%;
+  max-width: none;
+  padding-right: 2.15rem;
+  cursor: pointer;
+}
+
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 0.95rem;
+  top: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+  transition: transform 0.18s ease;
+}
+
+.select-wrap:has(select:open)::after,
+.select-wrap.is-open::after {
+  transform: translateY(-30%) rotate(225deg);
+}
+
+.radio-field .select-wrap {
+  display: block;
+  max-width: none;
 }
 
 .tabs-bar {

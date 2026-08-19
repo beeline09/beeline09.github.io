@@ -38,7 +38,6 @@ export const BOOTLOADER_UPDATE_DOCS_URL =
 
 const OTAFIX_UF2_FILENAME = "promicro_nrf52840_bootloader-0.9.2-OTAFIX2.1.uf2";
 
-/** Same-origin mirror (committed under darktec/firmware/bootloader/) — used by fetch. */
 const BOOTLOADER_UPDATE_UF2_LOCAL =
   `./firmware/bootloader/${OTAFIX_UF2_FILENAME}`;
 
@@ -389,16 +388,23 @@ export function promptPickUf2DiskForUpdate(opts = {}) {
     cancelBtn.textContent = "Отмена";
 
     let settled = false;
+    const dismiss = () => {
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && backdrop.contains(active)) {
+        active.blur();
+      }
+      backdrop.remove();
+    };
     const finish = (value) => {
       if (settled) return;
       settled = true;
-      backdrop.remove();
+      dismiss();
       resolve(value);
     };
     const fail = (err) => {
       if (settled) return;
       settled = true;
-      backdrop.remove();
+      dismiss();
       reject(err);
     };
 
@@ -755,16 +761,23 @@ export function promptPickDfuSerialPort(opts = {}) {
     cancelBtn.textContent = "Отмена";
 
     let settled = false;
+    const dismiss = () => {
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && backdrop.contains(active)) {
+        active.blur();
+      }
+      backdrop.remove();
+    };
     const finish = (value) => {
       if (settled) return;
       settled = true;
-      backdrop.remove();
+      dismiss();
       resolve(value);
     };
     const fail = (err) => {
       if (settled) return;
       settled = true;
-      backdrop.remove();
+      dismiss();
       reject(err);
     };
 

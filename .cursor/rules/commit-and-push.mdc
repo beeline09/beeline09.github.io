@@ -1,0 +1,10 @@
+---
+description: Always commit and push Pages site changes so the live site updates
+alwaysApply: true
+---
+
+# Коммит и пуш этого сайта
+
+Это GitHub Pages. После любых правок сайта **сразу коммить и пушить в `main`**, без ожидания отдельной просьбы — пользователь смотрит уже живой результат.
+
+Не коммитить `scripts/__pycache__/` и прочие артефакты.

@@ -3,7 +3,7 @@
 
 Stock catalog lives in darktec/firmware/latest (mirror-firmware.py).
 Custom builds from Release tag `darktec-ondemand` use this folder so
-`/darktec_new/` can Serial-DFU without hitting GitHub release CORS.
+`/darktec/` can Serial-DFU without hitting GitHub release CORS.
 
 Also writes ondemand-manifest.json for the browser (never poll api.github.com).
 """
@@ -146,7 +146,7 @@ def write_manifest(out: Path, south_sha: str | None) -> None:
             {
                 "name": p.name,
                 "size": p.stat().st_size,
-                # Path relative to /darktec/ — darktec_new remaps via import.meta.url.
+                # Path relative to /darktec/.
                 "url": f"./firmware/ondemand/{p.name}",
             }
         )

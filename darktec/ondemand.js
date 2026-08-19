@@ -9,12 +9,11 @@ const FIRMWARE_REPO = "beeline09/MeshCore";
 const ONDEMAND_TAG = "darktec-ondemand";
 const ONDEMAND_LABEL = "darktec-ondemand";
 
-/** Same-origin paths shared with /darktec/ (not duplicated into darktec_new/). */
 const ONDEMAND_MANIFEST_URL = new URL(
-  "../darktec/firmware/ondemand/ondemand-manifest.json",
+  "./firmware/ondemand/ondemand-manifest.json",
   import.meta.url,
 ).href;
-const SOUTH_SHA_URL = new URL("../darktec/south_edition_sha.txt", import.meta.url).href;
+const SOUTH_SHA_URL = new URL("./south_edition_sha.txt", import.meta.url).href;
 /** Optional one-shot fallbacks — never used in a poll loop. */
 const COMMITS_API = `https://api.github.com/repos/${FIRMWARE_REPO}/commits/south_edition`;
 
@@ -121,7 +120,7 @@ export function validateRadio(radio) {
 }
 
 function ondemandAssetUrl(fileName) {
-  return new URL(`../darktec/firmware/ondemand/${fileName}`, import.meta.url).href;
+  return new URL(`./firmware/ondemand/${fileName}`, import.meta.url).href;
 }
 
 /** @type {{ files: Array<{name:string,size?:number,url?:string}>, southSha?: string|null }|null} */
@@ -243,7 +242,7 @@ export function buildIssueUrl({
   const r = normalizeRadio(radio);
   const title = `darktec-ondemand: ${role} ${chem} ${cells}s ${protect} ${nameSlug}`;
   const body = [
-    "Запрос кастомной сборки Darktec из `/darktec_new/`.",
+    "Запрос кастомной сборки Darktec из `/darktec/`.",
     "",
     "<!-- darktec-ondemand",
     `role_slug=${role}`,

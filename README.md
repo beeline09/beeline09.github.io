@@ -5,14 +5,14 @@
 | URL | Содержимое |
 |-----|------------|
 | https://beeline09.github.io | Хаб проектов |
-| https://beeline09.github.io/darktec/ | Стабильный flasher (роль / химия / защита → UF2 + Serial DFU) |
-| https://beeline09.github.io/darktec_new/ | Lab: то же + имя ноды + on-demand CI (`darktec-ondemand`) |
+| https://beeline09.github.io/darktec/ | Flasher: роли, химия, имя ноды, радио, on-demand CI (`darktec-ondemand`) |
+| https://beeline09.github.io/darktec_new/ | Редирект на `/darktec/` |
 
 Это **не** официальный [meshcore.io/flasher](https://meshcore.io/flasher). Бинарники берутся из Releases форка [`beeline09/MeshCore`](https://github.com/beeline09/MeshCore/tree/south_edition) (ветка `south_edition`); сайт только статическая витрина.
 
 Манифест на странице читается из **same-origin** `darktec/releases.json`
 (обновляется Actions по schedule / `repository_dispatch`). Живой GitHub API —
-только запасной one-shot fallback, не в цикле. On-demand lab использует
+только запасной one-shot fallback, не в цикле. Кастомные сборки используют
 `darktec/firmware/ondemand/ondemand-manifest.json` + зеркала zip/uf2.
 
 ## Автосборка прошивок
@@ -24,18 +24,16 @@
 - публикует/обновляет Release с тегом **`darktec-latest`**
 - опционально шлёт `repository_dispatch` на этот сайт (секрет `PAGES_DISPATCH_TOKEN` в MeshCore)
 
-## On-demand (lab `/darktec_new/`)
+## On-demand (имя ноды и радио)
 
-Кастомное имя ноды → Release-кэш **`darktec-ondemand`** в MeshCore.
+Кастомное имя ноды или параметры радио → Release-кэш **`darktec-ondemand`** в MeshCore.
 
-1. Страница ищет ассет в same-origin зеркале `darktec/firmware/ondemand/`
-   (`ondemand-manifest.json` / probe), имя вида
+1. Страница `/darktec/` ищет ассет в same-origin зеркале `darktec/firmware/ondemand/`
+   (`ondemand-manifest.json`), имя вида
    `Darktec_{role}_{chem}_{Ns}_{protect}__{name_slug}__{radio}__{sha8}.{uf2,zip}`.
 2. При промахе открывается issue с меткой `darktec-ondemand` (или body `<!-- darktec-ondemand ... -->`).
 3. Workflow **Build Darktec On-Demand** собирает один вариант и заливает в Release (`--clobber`),
    затем **Sync Darktec releases** зеркалит файлы на Pages.
-
-Стабильный `/darktec/` не меняется и по-прежнему берёт каталог из `darktec-latest`.
 
 ## Быстрый старт
 
@@ -73,11 +71,11 @@ python3 -m http.server 8080
 beeline09.github.io/
   index.html                 # хаб
   assets/css/site.css
-  darktec/                   # стабильный flasher
-  darktec_new/               # lab: имя ноды + on-demand CI
+  darktec/                   # flasher + firmware mirrors
     index.html
     app.js
     ondemand.js
+  darktec_new/               # редирект на /darktec/
   scripts/generate-releases.mjs
   .github/workflows/sync-releases.yml
 ```

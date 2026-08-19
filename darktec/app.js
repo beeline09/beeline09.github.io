@@ -4,36 +4,49 @@
  */
 
 import { SerialConsole } from "./lib/console.js";
-import { initPhotoCarousel } from "../assets/js/carousel.js";
 import {
   canSerialFlash,
-  enterDfuMode,
   flashNrfSerial,
-  forceAppPortToDfu,
   formatSerialFlashError,
   openDfuSerialPort,
   runBootloaderUpdate,
 } from "./serial-flash.js";
+import {
+  buildIssueUrl,
+  findOndemandAssets,
+  fetchSouthEditionSha,
+  isDefaultRadio,
+  normalizeRadio,
+  ondemandBaseName,
+  pollOndemandAssets,
+  RADIO_DEFAULTS,
+  sanitizeAdvertName,
+  slugifyName,
+  validateAdvertName,
+  validateRadio,
+} from "./ondemand.js";
 
 /** Official MeshCore USB config GUI (repeater / room). */
 const REPEATER_SETUP_URL = "https://config.meshcore.io";
 const REPEATER_SETUP_FEATURES =
   "directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800";
 const FIRMWARE_REPO = "beeline09/MeshCore";
-/** Optional one-shot fallback — primary source is same-origin releases.json. */
+/** Optional one-shot fallback only — primary source is same-origin releases.json. */
 const RELEASES_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases?per_page=40`;
 const TAG_PREFIX = "darktec-v";
-const RELEASES_MANIFEST_URL = new URL("./releases.json", import.meta.url).href;
+const RELEASES_MANIFEST_URLS = [
+  () => new URL("./releases.json", import.meta.url).href,
+];
 
 const ROLES = [
-  { id: "companion_radio_ble", title: "Companion BLE", blurb: "BLE + OLED UI" },
-  { id: "companion_radio_usb", title: "Companion USB", blurb: "USB serial companion" },
-  { id: "repeater", title: "Repeater", blurb: "Сетевой ретранслятор" },
-  { id: "repeater_bridge_rs232", title: "RS232 Bridge", blurb: "Repeater + Serial1" },
-  { id: "room_server", title: "Room server", blurb: "Комнатный сервер" },
-  { id: "terminal_chat", title: "Terminal chat", blurb: "Secure chat CLI" },
-  { id: "sensor", title: "Sensor", blurb: "Телеметрия / датчики" },
-  { id: "kiss_modem", title: "KISS modem", blurb: "KISS over LoRa" },
+  { id: "companion_radio_ble", title: "Companion BLE", blurb: "BLE + OLED UI", advertName: "Darktec Companion BLE" },
+  { id: "companion_radio_usb", title: "Companion USB", blurb: "USB serial companion", advertName: "Darktec Companion USB" },
+  { id: "repeater", title: "Repeater", blurb: "Сетевой ретранслятор", advertName: "Darktec Repeater" },
+  { id: "repeater_bridge_rs232", title: "RS232 Bridge", blurb: "Repeater + Serial1", advertName: "RS232 Bridge" },
+  { id: "room_server", title: "Room server", blurb: "Комнатный сервер", advertName: "Darktec Room" },
+  { id: "terminal_chat", title: "Terminal chat", blurb: "Secure chat CLI", advertName: "Darktec Chat" },
+  { id: "sensor", title: "Sensor", blurb: "Телеметрия / датчики", advertName: "Darktec Sensor" },
+  { id: "kiss_modem", title: "KISS modem", blurb: "KISS over LoRa", advertName: "Darktec KISS" },
 ];
 
 const CHEMS = [
@@ -48,16 +61,23 @@ const PROTECTS = [
     title: "Включена",
     blurb: "рекомендуется",
     hint:
-      "Батарея почти села → плата сама засыпает, чтобы не убить аккумулятор. Проснётся, когда начнёте заряжать штатным зарядником платы (или подключите USB к MCU).",
+      "Батарея почти села → плата сама засыпает. Проснётся, когда напряжение на батарее станет выше порога.",
   },
   {
     id: "off",
     title: "Выключена",
     blurb: "без автоотключения",
     hint:
-      "Без автоотключения по АЦП. Защита только от BMS на плате; если BMS нет или не сработает — батарею можно убить глубокой разрядкой.",
+      "Без автоотключения по АЦП. Защита только от BMS на плате; если BMS нет или не сработает — батарею можно убить глубокой разрядкой. Встроенный DC-DC может работать вплоть до 0,5 В на батарее, поэтому без BMS это может убить батарею.",
   },
 ];
+
+/** Pack voltages for ADC protect (critical sleep / wake), mV. From battery_chemistry.h. */
+const BATT_PROTECT_MV = {
+  liion: { 1: { sleep: 3000, wake: 3600 } },
+  lifepo4: { 1: { sleep: 2500, wake: 3100 } },
+  lto: { 1: { sleep: 1800, wake: 2200 }, 2: { sleep: 3600, wake: 4400 } },
+};
 
 /** Full matrix after protect modes: 8 roles × 4 chem/cells × 2 protect = 64 basenames. */
 const EXPECTED_CHEM_CELLS = [
@@ -69,7 +89,8 @@ const EXPECTED_CHEM_CELLS = [
 const EXPECTED_PROTECTS = ["adc", "off"];
 
 const DARKTEC_ASSET = /^Darktec_.+\.(uf2|zip)$/i;
-const BUILDING_MSG = "Прошивка ещё собирается. Приходите сюда позже.";
+const BUILDING_MSG = "Сборка…";
+const BUILDING_EMPTY = "Прошивка ещё собирается. Приходите сюда позже.";
 
 function expectedBasenames() {
   const names = [];
@@ -101,10 +122,20 @@ const state = {
   chem: "liion",
   cells: 1,
   protect: "adc",
+  advertName: "",
+  /** User edited name manually; role change won't overwrite until false. */
+  advertNameTouched: false,
+  radio: { ...RADIO_DEFAULTS },
   tab: "offline",
   releases: [],
   selectedTag: null,
   manifest: null,
+  /** @type {string|null} */
+  southSha: null,
+  /** @type {{ uf2: object|null, zip: object|null }|null} */
+  ondemand: null,
+  building: false,
+  pollAbort: null,
 };
 
 const els = {
@@ -115,10 +146,13 @@ const els = {
   chemHint: document.getElementById("chemHint"),
   protectChoices: document.getElementById("protectChoices"),
   protectHint: document.getElementById("protectHint"),
+  protectVoltages: document.getElementById("protectVoltages"),
   protectStepLabel: document.getElementById("protectStepLabel"),
   downloadStepLabel: document.getElementById("downloadStepLabel"),
   status: document.getElementById("status"),
   downloadBtn: document.getElementById("downloadBtn"),
+  downloadOtaBtn: document.getElementById("downloadOtaBtn"),
+  otaHint: document.getElementById("otaHint"),
   fileName: document.getElementById("fileName"),
   versionSelect: document.getElementById("versionSelect"),
   changelogBody: document.getElementById("changelogBody"),
@@ -146,6 +180,23 @@ const els = {
   consoleDisconnectBtn: document.getElementById("consoleDisconnectBtn"),
   consoleCloseBtn: document.getElementById("consoleCloseBtn"),
   consoleStatus: document.getElementById("consoleStatus"),
+  advertNameInput: document.getElementById("advertNameInput"),
+  nameStepLabel: document.getElementById("nameStepLabel"),
+  nameHint: document.getElementById("nameHint"),
+  buildBtn: document.getElementById("buildBtn"),
+  buildBtnOnline: document.getElementById("buildBtnOnline"),
+  buildHint: document.getElementById("buildHint"),
+  buildHintOnline: document.getElementById("buildHintOnline"),
+  buildHelpModal: document.getElementById("buildHelpModal"),
+  buildHelpOkBtn: document.getElementById("buildHelpOkBtn"),
+  buildHelpCancelBtn: document.getElementById("buildHelpCancelBtn"),
+  radioStepLabel: document.getElementById("radioStepLabel"),
+  radioFreq: document.getElementById("radioFreq"),
+  radioBw: document.getElementById("radioBw"),
+  radioSf: document.getElementById("radioSf"),
+  radioCr: document.getElementById("radioCr"),
+  radioTx: document.getElementById("radioTx"),
+  radioCustomHint: document.getElementById("radioCustomHint"),
 };
 
 /** @type {{ instance: SerialConsole | null, port: SerialPort | null }} */
@@ -166,7 +217,102 @@ function expectedZipName() {
   return `${expectedBaseName()}.zip`;
 }
 
+function defaultAdvertNameForRole(roleId = state.role) {
+  return ROLES.find((r) => r.id === roleId)?.advertName || "Darktec";
+}
+
+/** Empty field uses the role's baked-in default advert name. */
+function effectiveAdvertName() {
+  return state.advertName.trim() || defaultAdvertNameForRole(state.role);
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function syncNameHint() {
+  const def = defaultAdvertNameForRole();
+  if (els.nameHint) {
+    els.nameHint.innerHTML = `Только латиница! Если поле ввода пустое, имя ноды будет <strong>${escapeHtml(def)}</strong>.`;
+  }
+  if (els.advertNameInput) {
+    els.advertNameInput.placeholder = def;
+  }
+}
+
+function syncAdvertNameFromRole({ force = false } = {}) {
+  if (!force && state.advertNameTouched) {
+    syncNameHint();
+    return;
+  }
+  state.advertName = "";
+  if (els.advertNameInput) els.advertNameInput.value = "";
+  syncNameHint();
+}
+
+function fmtPackVolts(mv) {
+  return `${(mv / 1000).toFixed(2).replace(".", ",")} В`;
+}
+
+function syncRadioCustomHint() {
+  const el = els.radioCustomHint;
+  if (!el) return;
+  el.hidden = isDefaultRadio(state.radio);
+}
+
+function setStatusPair(kind, extra = "") {
+  const text =
+    kind === "ready"
+      ? "Готово"
+      : kind === "building"
+        ? "Сборка…"
+        : kind === "missing"
+          ? "Нет прошивки"
+          : kind === "error"
+            ? extra || "Ошибка"
+            : extra || "";
+  const cls =
+    kind === "error"
+      ? "status error"
+      : kind === "building" || kind === "pending"
+        ? "status pending"
+        : "status";
+  els.status.className = cls;
+  els.status.textContent = text;
+  els.flashStatus.className = cls;
+  els.flashStatus.textContent = text;
+}
+
+function isCustomName() {
+  return effectiveAdvertName() !== defaultAdvertNameForRole(state.role);
+}
+
+function needsCustomBuild() {
+  return isCustomName() || !isDefaultRadio(state.radio);
+}
+
+function customNameSlug() {
+  return slugifyName(effectiveAdvertName());
+}
+
+function readRadioFromInputs() {
+  return normalizeRadio({
+    freq: els.radioFreq?.value,
+    bw: els.radioBw?.value,
+    sf: els.radioSf?.value,
+    cr: els.radioCr?.value,
+    tx: els.radioTx?.value,
+  });
+}
+
 function findAsset(ext = "uf2") {
+  if (needsCustomBuild()) {
+    const asset = ext === "zip" ? state.ondemand?.zip : state.ondemand?.uf2;
+    return asset ?? null;
+  }
   const name = (ext === "zip" ? expectedZipName() : expectedFileName()).toLowerCase();
   return (state.manifest?.files ?? []).find((f) => f.name.toLowerCase() === name) ?? null;
 }
@@ -190,10 +336,8 @@ function syncCellsForChem() {
   if (!chem.cells.includes(state.cells)) state.cells = chem.cells[0];
   const multi = chem.cells.length > 1;
   els.cellsStep.hidden = !multi;
-  els.chemHint.textContent = chem.blurb;
-  els.protectStepLabel.textContent = multi
-    ? "4 · Защита батареи"
-    : "3 · Защита батареи";
+  els.chemHint.textContent = `${chem.blurb}. Важно выбрать правильный вариант — тот, на который настроены резисторы на плате.`;
+  syncNameStepLabels();
   if (multi) {
     renderChoices(
       els.cellsChoices,
@@ -205,7 +349,7 @@ function syncCellsForChem() {
       String(state.cells),
       (id) => {
         state.cells = Number(id);
-        updateDownload();
+        void refreshOndemandFromCache().then(updateDownload).catch(() => {});
         renderAll();
       },
     );
@@ -215,6 +359,21 @@ function syncCellsForChem() {
 function syncProtectHint() {
   const protect = PROTECTS.find((p) => p.id === state.protect);
   els.protectHint.textContent = protect?.hint ?? "";
+  const voltEl = els.protectVoltages;
+  if (!voltEl) return;
+  if (state.protect !== "adc") {
+    voltEl.hidden = true;
+    voltEl.textContent = "";
+    return;
+  }
+  const t = BATT_PROTECT_MV[state.chem]?.[state.cells];
+  if (!t) {
+    voltEl.hidden = true;
+    voltEl.textContent = "";
+    return;
+  }
+  voltEl.hidden = false;
+  voltEl.textContent = `Сон при ${fmtPackVolts(t.sleep)}, включение при ${fmtPackVolts(t.wake)}.`;
 }
 
 function setDownloadEnabled(enabled) {
@@ -225,11 +384,87 @@ function setDownloadEnabled(enabled) {
     els.downloadBtn.href = "#";
     els.downloadBtn.removeAttribute("download");
   }
+  syncOtaDownloadButton(enabled ? findAsset("zip") : null);
+  syncOnlineActionButtons(enabled);
+}
+
+/**
+ * Offline «ZIP для BLE-OTA»: GitHub release URL works in <a href> (no CORS).
+ * @param {{ name: string, url: string }|null} zipAsset
+ */
+function syncOtaDownloadButton(zipAsset) {
+  const btn = els.downloadOtaBtn;
+  if (!btn) return;
+  if (zipAsset?.url) {
+    btn.removeAttribute("aria-disabled");
+    btn.href = zipAsset.url;
+    btn.setAttribute("download", zipAsset.name);
+    btn.title = `Скачать ${zipAsset.name} для BLE-OTA`;
+  } else {
+    btn.setAttribute("aria-disabled", "true");
+    btn.href = "#";
+    btn.removeAttribute("download");
+    btn.title = needsCustomBuild()
+      ? "ZIP для BLE-OTA ещё нет — дождитесь окончания сборки"
+      : "ZIP для BLE-OTA недоступен для этой сборки";
+  }
+}
+
+/**
+ * Online tab:
+ * - firmware ready → Только DFU + bootloader + Прошить (active)
+ * - firmware missing → Собрать + bootloader; Прошить hidden; Только DFU hidden
+ */
+function syncOnlineActionButtons(firmwareReady) {
   const serialOk = canSerialFlash();
+  const uf2 = findAsset("uf2");
   const zipOk = Boolean(findAsset("zip"));
-  els.flashBtn.disabled = !enabled || !serialOk || !zipOk;
-  els.dfuBtn.disabled = !enabled || !serialOk;
-  if (els.bootloaderBtn) els.bootloaderBtn.disabled = !serialOk;
+  const ready = Boolean(firmwareReady && uf2);
+  const zipReady = Boolean(firmwareReady && zipOk);
+  const needBuild = needsCustomBuild() && !uf2 && !zipOk;
+
+  if (els.dfuBtn) {
+    els.dfuBtn.hidden = !ready;
+    els.dfuBtn.disabled = !ready;
+  }
+  if (els.flashBtn) {
+    // Stock + custom: OTA zip from same-origin mirrors (latest / ondemand).
+    const canSerial = zipReady && serialOk;
+    els.flashBtn.hidden = !zipReady;
+    els.flashBtn.disabled = !canSerial;
+    els.flashBtn.title = canSerial
+      ? "Прошивка через Serial (Web Serial)"
+      : !zipOk
+        ? "Нужен OTA zip (дождитесь публикации сборки)"
+        : "Нужны Chrome/Edge и OTA zip";
+  }
+  if (els.bootloaderBtn) {
+    els.bootloaderBtn.hidden = false;
+    els.bootloaderBtn.disabled = !serialOk;
+  }
+  // Собрать visibility is owned by setBuildControls; ensure online build shows when needed.
+  if (needBuild && !state.building) {
+    if (els.buildBtnOnline) els.buildBtnOnline.hidden = false;
+  }
+}
+
+/** Show/hide «Собрать» on Offline + Online tabs. */
+function setBuildControls({ show = false, hint = "", building = false } = {}) {
+  const visible = Boolean(show) && !building;
+  for (const btn of [els.buildBtn, els.buildBtnOnline]) {
+    if (btn) btn.hidden = !visible;
+  }
+  const text = hint || "";
+  for (const el of [els.buildHint, els.buildHintOnline]) {
+    if (!el) continue;
+    if (text) {
+      el.hidden = false;
+      el.textContent = text;
+    } else {
+      el.hidden = true;
+      el.textContent = "";
+    }
+  }
 }
 
 function showBuildingEmptyState() {
@@ -242,80 +477,196 @@ function showBuildingEmptyState() {
   els.status.textContent = BUILDING_MSG;
   els.flashStatus.className = "status pending";
   els.flashStatus.textContent = BUILDING_MSG;
-  els.changelogBody.innerHTML = `<p class="empty-build">${BUILDING_MSG}</p>`;
+  els.changelogBody.innerHTML = `<p class="empty-build">${BUILDING_EMPTY}</p>`;
   populateVersionSelect();
   setDownloadEnabled(false);
+}
+
+function syncNameStepLabels() {
+  const chem = CHEMS.find((c) => c.id === state.chem);
+  const multi = chem.cells.length > 1;
+  // role=1, chem=2, cells?=3, protect, name, radio
+  const protectN = multi ? 4 : 3;
+  const nameN = protectN + 1;
+  const radioN = nameN + 1;
+  els.protectStepLabel.textContent = `${protectN} · Защита батареи`;
+  if (els.nameStepLabel) els.nameStepLabel.textContent = `${nameN} · Имя ноды`;
+  if (els.radioStepLabel) els.radioStepLabel.textContent = `${radioN} · Параметры радио`;
+}
+
+async function refreshOndemandFromCache() {
+  try {
+    if (!needsCustomBuild()) {
+      state.ondemand = null;
+      setBuildControls({ show: false });
+      return;
+    }
+    const radioErr = validateRadio(state.radio);
+    if (radioErr) {
+      state.ondemand = null;
+      setBuildControls({ show: false, hint: radioErr });
+      return;
+    }
+    if (!state.southSha) {
+      state.southSha = await fetchSouthEditionSha();
+    }
+    if (!state.southSha) {
+      state.ondemand = null;
+      setBuildControls({
+        show: true,
+        hint:
+          "Не удалось определить версию south_edition (sha). Нажмите «Собрать» или обновите страницу позже.",
+        building: state.building,
+      });
+      return;
+    }
+    const base = ondemandBaseName({
+      role: state.role,
+      chem: state.chem,
+      cells: state.cells,
+      protect: state.protect,
+      nameSlug: customNameSlug(),
+      radio: state.radio,
+      sha: state.southSha,
+    });
+    const found = await findOndemandAssets(base);
+    state.ondemand = { uf2: found.uf2, zip: found.zip };
+    if (found.uf2 || found.zip) {
+      setBuildControls({
+        show: false,
+        hint: "",
+        building: state.building,
+      });
+    } else {
+      setBuildControls({
+        show: true,
+        hint:
+          "Готовой прошивки для этих параметров ещё нет. Нажмите «Собрать» — инструкция, что нажать на GitHub, затем ~5 мин ожидания.",
+        building: state.building,
+      });
+    }
+  } catch (err) {
+    console.warn("ondemand refresh", err);
+    state.ondemand = null;
+    if (needsCustomBuild()) {
+      setBuildControls({
+        show: true,
+        hint:
+          "Не удалось проверить кэш кастомных сборок. Нажмите «Собрать» или обновите страницу.",
+        building: state.building,
+      });
+    }
+  }
 }
 
 function updateDownload() {
   const asset = findAsset("uf2");
   const zipAsset = findAsset("zip");
 
+  if (needsCustomBuild()) {
+    if (state.building) {
+      setStatusPair("building");
+      setDownloadEnabled(false);
+      setBuildControls({
+        show: true,
+        hint: "Ждём сборку (~5 мин). На GitHub нажали Create/Submit? Можно закрыть вкладку GitHub.",
+        building: true,
+      });
+      return;
+    }
+    if (!asset && !zipAsset) {
+      setStatusPair("missing");
+      setDownloadEnabled(false);
+      if (els.fileName) els.fileName.hidden = true;
+      if (els.flashFileName) els.flashFileName.hidden = true;
+      setBuildControls({
+        show: true,
+        hint:
+          "Готовой прошивки для этих параметров ещё нет. Нажмите «Собрать» — инструкция на GitHub, затем ~5 мин.",
+      });
+      return;
+    }
+    setStatusPair("ready");
+    if (asset) {
+      els.downloadBtn.href = asset.url;
+      els.downloadBtn.setAttribute("download", asset.name);
+      if (els.fileName) {
+        els.fileName.hidden = false;
+        els.fileName.textContent = asset.name;
+      }
+      if (els.flashFileName) {
+        els.flashFileName.hidden = false;
+        els.flashFileName.textContent = asset.name;
+      }
+    } else if (zipAsset) {
+      els.downloadBtn.href = zipAsset.url;
+      els.downloadBtn.setAttribute("download", zipAsset.name);
+      if (els.fileName) {
+        els.fileName.hidden = false;
+        els.fileName.textContent = zipAsset.name;
+      }
+      if (els.flashFileName) {
+        els.flashFileName.hidden = false;
+        els.flashFileName.textContent = zipAsset.name;
+      }
+    }
+    setDownloadEnabled(Boolean(asset || zipAsset));
+    setBuildControls({ show: false });
+    return;
+  }
+
   if (!state.releases.length) {
-    els.status.className = "status pending";
-    els.status.textContent = BUILDING_MSG;
-    els.flashStatus.className = "status pending";
-    els.flashStatus.textContent = BUILDING_MSG;
+    setStatusPair("building");
     setDownloadEnabled(false);
     return;
   }
 
   if (!state.manifest) {
-    els.status.textContent = "Не удалось загрузить список прошивок.";
-    els.status.className = "status error";
-    els.flashStatus.textContent = els.status.textContent;
+    setStatusPair("error");
     setDownloadEnabled(false);
     return;
   }
 
   if (!asset) {
-    const tag = state.manifest.release?.tag;
-    els.status.className = "status";
-    els.status.textContent = tag
-      ? `В ${tag} нет файла для выбранной сборки.`
-      : BUILDING_MSG;
-    els.flashStatus.textContent = els.status.textContent;
+    setStatusPair("missing");
     setDownloadEnabled(false);
     return;
   }
 
-  const size = asset.size ? ` · ${(asset.size / 1024).toFixed(0)} KiB` : "";
-  els.status.className = "status";
-  els.status.textContent = `Готово${size}`;
-  els.flashStatus.className = "status";
-  if (!canSerialFlash()) {
-    els.flashStatus.textContent = "Онлайн-флешер: нужен Chrome / Edge (Web Serial).";
-  } else if (!zipAsset) {
-    els.flashStatus.textContent =
-      "OTA .zip ещё нет в зеркале/релизе. Offline UF2 доступен; дождитесь сборки с serial DFU пакетами.";
-  } else {
-    els.flashStatus.textContent = "Готово к Serial DFU";
-  }
+  setStatusPair("ready");
   els.downloadBtn.href = asset.url;
   els.downloadBtn.setAttribute("download", asset.name);
+  if (els.fileName) {
+    els.fileName.hidden = false;
+    els.fileName.textContent = asset.name;
+  }
+  setBuildControls({ show: false });
   setDownloadEnabled(true);
 }
 
 function renderAll() {
   renderChoices(els.roleChoices, ROLES, state.role, (id) => {
     state.role = id;
-    updateDownload();
+    syncAdvertNameFromRole();
+    void refreshOndemandFromCache().then(updateDownload).catch(() => {});
     renderAll();
   });
   renderChoices(els.chemChoices, CHEMS, state.chem, (id) => {
     state.chem = id;
     syncCellsForChem();
-    updateDownload();
+    void refreshOndemandFromCache().then(updateDownload).catch(() => {});
     renderAll();
   });
   renderChoices(els.protectChoices, PROTECTS, state.protect, (id) => {
     state.protect = id;
     syncProtectHint();
-    updateDownload();
+    void refreshOndemandFromCache().then(updateDownload).catch(() => {});
     renderAll();
   });
   syncCellsForChem();
   syncProtectHint();
+  syncNameStepLabels();
+  syncRadioCustomHint();
   updateDownload();
 }
 
@@ -448,6 +799,10 @@ function selectRelease(tag) {
   updateDownload();
 }
 
+/**
+ * Apply a static same-origin releases.json (CI: scripts/generate-releases.mjs).
+ * File URLs are remapped to ./firmware/latest mirrors for CORS-safe Serial DFU.
+ */
 function applyStaticReleasesManifest(data) {
   const tag = data?.release?.tag;
   if (!tag) return false;
@@ -482,49 +837,57 @@ function applyStaticReleasesManifest(data) {
   return true;
 }
 
+async function loadReleasesFromApi() {
+  const res = await fetch(RELEASES_API, {
+    headers: { Accept: "application/vnd.github+json" },
+  });
+  if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
+  const all = await res.json();
+
+  const versioned = all.filter(
+    (r) => !r.draft && !r.prerelease && /^darktec-v\d+\.\d+\.\d+b\d+$/.test(r.tag_name),
+  );
+  const complete = versioned.filter(isReleaseComplete);
+  const latest = all.find((r) => !r.draft && r.tag_name === "darktec-latest");
+
+  state.releases = complete.length
+    ? complete
+    : latest && isReleaseComplete(latest)
+      ? [latest]
+      : [];
+
+  if (!state.releases.length) return false;
+
+  // Prefer same-origin firmware mirrors over GitHub CDN (CORS).
+  for (const rel of state.releases) {
+    for (const asset of rel.assets || []) {
+      if (DARKTEC_ASSET.test(asset.name) && !/^Darktec_uf2_/i.test(asset.name)) {
+        asset.browser_download_url = localFirmwareUrl(asset.name);
+      }
+    }
+  }
+
+  state.selectedTag = state.releases[0].tag_name;
+  populateVersionSelect();
+  selectRelease(state.selectedTag);
+  return true;
+}
+
 async function loadReleases() {
-  try {
-    const res = await fetch(RELEASES_MANIFEST_URL, { cache: "no-cache" });
-    if (res.ok) {
+  for (const urlFn of RELEASES_MANIFEST_URLS) {
+    const url = urlFn();
+    try {
+      const res = await fetch(url, { cache: "no-cache" });
+      if (!res.ok) continue;
       const data = await res.json();
       if (applyStaticReleasesManifest(data)) return;
+    } catch (err) {
+      console.warn("releases.json miss", url, err);
     }
-  } catch (err) {
-    console.warn("releases.json miss", err);
   }
 
   try {
-    const res = await fetch(RELEASES_API, {
-      headers: { Accept: "application/vnd.github+json" },
-    });
-    if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
-    const all = await res.json();
-
-    const versioned = all.filter(
-      (r) => !r.draft && !r.prerelease && /^darktec-v\d+\.\d+\.\d+b\d+$/.test(r.tag_name),
-    );
-    const complete = versioned.filter(isReleaseComplete);
-    const latest = all.find((r) => !r.draft && r.tag_name === "darktec-latest");
-
-    state.releases = complete.length
-      ? complete
-      : latest && isReleaseComplete(latest)
-        ? [latest]
-        : [];
-
-    if (state.releases.length) {
-      for (const rel of state.releases) {
-        for (const asset of rel.assets || []) {
-          if (DARKTEC_ASSET.test(asset.name) && !/^Darktec_uf2_/i.test(asset.name)) {
-            asset.browser_download_url = localFirmwareUrl(asset.name);
-          }
-        }
-      }
-      state.selectedTag = state.releases[0].tag_name;
-      populateVersionSelect();
-      selectRelease(state.selectedTag);
-      return;
-    }
+    if (await loadReleasesFromApi()) return;
   } catch (err) {
     console.warn("GitHub releases API fallback failed", err);
   }
@@ -533,11 +896,246 @@ async function loadReleases() {
 }
 
 function initCarousel() {
-  initPhotoCarousel(els.photoCarousel);
+  const root = els.photoCarousel;
+  if (!root) return;
+  root.replaceChildren();
+
+  const total = 13;
+  const slideMs = 380;
+  const base = root.dataset.photosDir || "./photos/";
+  const spoiler = root.closest("details");
+  const srcOf = (i) => `${base}${String(i + 1).padStart(2, "0")}.png`;
+  const makeSlide = () => {
+    const img = document.createElement("img");
+    img.className = "carousel-slide";
+    img.alt = "";
+    img.decoding = "async";
+    img.draggable = false;
+    img.style.cssText =
+      "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;user-select:none;";
+    return img;
+  };
+
+  let index = 0;
+  let busy = false;
+
+  const stage = document.createElement("div");
+  stage.className = "carousel-stage";
+  stage.tabIndex = 0;
+  stage.setAttribute("role", "region");
+  stage.setAttribute("aria-label", "Фото платы. Листайте стрелками или свайпом.");
+  stage.style.position = "relative";
+  stage.style.overflow = "hidden";
+  stage.style.touchAction = "pan-y";
+  stage.style.userSelect = "none";
+
+  let current = makeSlide();
+  let incoming = makeSlide();
+  current.alt = "Darktec";
+  current.src = srcOf(0);
+  incoming.style.transform = "translate3d(100%,0,0)";
+  stage.append(current, incoming);
+
+  const controls = document.createElement("div");
+  controls.className = "carousel-controls";
+  const prev = document.createElement("button");
+  prev.type = "button";
+  prev.className = "btn btn-ghost";
+  prev.setAttribute("aria-label", "Предыдущее фото");
+  prev.textContent = "←";
+  const next = document.createElement("button");
+  next.type = "button";
+  next.className = "btn btn-ghost";
+  next.setAttribute("aria-label", "Следующее фото");
+  next.textContent = "→";
+  const counter = document.createElement("span");
+  counter.className = "carousel-counter";
+  controls.append(prev, counter, next);
+
+  const thumbs = document.createElement("div");
+  thumbs.className = "carousel-thumbs";
+
+  const updateChrome = () => {
+    counter.textContent = `${index + 1} / ${total}`;
+    current.alt = `Darktec, фото ${index + 1} из ${total}`;
+    thumbs.querySelectorAll("button").forEach((b, idx) => {
+      b.setAttribute("aria-current", String(idx === index));
+    });
+  };
+
+  const preload = (i) => {
+    const im = new Image();
+    im.src = srcOf(((i % total) + total) % total);
+  };
+
+  const directionFor = (from, to) => {
+    if (from === total - 1 && to === 0) return 1;
+    if (from === 0 && to === total - 1) return -1;
+    return to > from ? 1 : -1;
+  };
+
+  const show = (to, dir = 0) => {
+    const nextIdx = ((to % total) + total) % total;
+    if (nextIdx === index || busy) return;
+    const slideDir = dir || directionFor(index, nextIdx);
+    busy = true;
+    incoming.src = srcOf(nextIdx);
+    incoming.style.transition = "none";
+    current.style.transition = "none";
+    incoming.style.transform = `translate3d(${slideDir * 100}%,0,0)`;
+    current.style.transform = "translate3d(0,0,0)";
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const ease = `transform ${slideMs}ms ease`;
+        incoming.style.transition = ease;
+        current.style.transition = ease;
+        incoming.style.transform = "translate3d(0,0,0)";
+        current.style.transform = `translate3d(${-slideDir * 100}%,0,0)`;
+      });
+    });
+
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      incoming.removeEventListener("transitionend", onEnd);
+      window.clearTimeout(timer);
+      const outgoing = current;
+      current = incoming;
+      incoming = outgoing;
+      incoming.style.transition = "none";
+      incoming.style.transform = "translate3d(100%,0,0)";
+      current.style.transition = "none";
+      current.style.transform = "translate3d(0,0,0)";
+      index = nextIdx;
+      busy = false;
+      updateChrome();
+      preload(index + 1);
+      preload(index - 1);
+    };
+    const onEnd = (ev) => {
+      if (ev.propertyName && ev.propertyName !== "transform") return;
+      finish();
+    };
+    incoming.addEventListener("transitionend", onEnd);
+    const timer = window.setTimeout(finish, slideMs + 120);
+  };
+
+  for (let i = 0; i < total; i++) {
+    const t = document.createElement("button");
+    t.type = "button";
+    t.className = "carousel-thumb";
+    t.setAttribute("aria-label", `Фото ${i + 1}`);
+    const ti = document.createElement("img");
+    ti.src = srcOf(i);
+    ti.alt = "";
+    ti.loading = "lazy";
+    ti.draggable = false;
+    t.appendChild(ti);
+    t.addEventListener("click", () => show(i, directionFor(index, i)));
+    thumbs.appendChild(t);
+  }
+
+  prev.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    show(index - 1, -1);
+  });
+  next.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    show(index + 1, 1);
+  });
+
+  window.addEventListener(
+    "keydown",
+    (ev) => {
+      if (spoiler && !spoiler.open) return;
+      const el = ev.target;
+      if (el instanceof HTMLElement) {
+        const tag = el.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable) {
+          return;
+        }
+      }
+      if (ev.key === "ArrowLeft") {
+        ev.preventDefault();
+        show(index - 1, -1);
+      } else if (ev.key === "ArrowRight") {
+        ev.preventDefault();
+        show(index + 1, 1);
+      }
+    },
+    true,
+  );
+
+  spoiler?.addEventListener("toggle", () => {
+    if (!spoiler.open) return;
+    try {
+      stage.focus({ preventScroll: true });
+    } catch {
+      /* ignore */
+    }
+  });
+
+  let startX = 0;
+  let startY = 0;
+  let tracking = false;
+  const swipeFrom = (x, y) => {
+    if (!tracking) return;
+    tracking = false;
+    const dx = x - startX;
+    const dy = y - startY;
+    if (Math.abs(dx) < 36 || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) show(index + 1, 1);
+    else show(index - 1, -1);
+  };
+
+  stage.addEventListener("pointerdown", (ev) => {
+    if (ev.pointerType === "mouse" && ev.button !== 0) return;
+    tracking = true;
+    startX = ev.clientX;
+    startY = ev.clientY;
+    try {
+      stage.setPointerCapture(ev.pointerId);
+    } catch {
+      /* ignore */
+    }
+  });
+  stage.addEventListener("pointerup", (ev) => swipeFrom(ev.clientX, ev.clientY));
+  stage.addEventListener("pointercancel", () => {
+    tracking = false;
+  });
+  stage.addEventListener(
+    "touchstart",
+    (ev) => {
+      const t = ev.changedTouches[0];
+      if (!t) return;
+      tracking = true;
+      startX = t.clientX;
+      startY = t.clientY;
+    },
+    { passive: true },
+  );
+  stage.addEventListener(
+    "touchend",
+    (ev) => {
+      const t = ev.changedTouches[0];
+      if (t) swipeFrom(t.clientX, t.clientY);
+    },
+    { passive: true },
+  );
+
+  root.append(stage, controls, thumbs);
+  updateChrome();
+  preload(1);
+  preload(total - 1);
 }
 
 els.downloadBtn.addEventListener("click", (ev) => {
   if (els.downloadBtn.getAttribute("aria-disabled") === "true") ev.preventDefault();
+});
+els.downloadOtaBtn?.addEventListener("click", (ev) => {
+  if (els.downloadOtaBtn.getAttribute("aria-disabled") === "true") ev.preventDefault();
 });
 
 els.versionSelect.addEventListener("change", () => {
@@ -576,19 +1174,90 @@ function syncConsoleUi() {
   }
 }
 
+/**
+ * Move focus out of a modal before it becomes aria-hidden / inert.
+ * Avoids: "Blocked aria-hidden on an element because its descendant retained focus".
+ * @param {HTMLElement | null} modal
+ * @param {HTMLElement | null} [restoreTo]
+ */
+function defocusModal(modal, restoreTo) {
+  const active = document.activeElement;
+  if (active instanceof HTMLElement && modal?.contains(active)) {
+    active.blur();
+  }
+  const target =
+    restoreTo instanceof HTMLElement &&
+    restoreTo.isConnected &&
+    typeof restoreTo.focus === "function"
+      ? restoreTo
+      : null;
+  if (target) {
+    try {
+      target.focus({ preventScroll: true });
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+/**
+ * @param {HTMLElement | null} modal
+ * @param {{ focusEl?: HTMLElement | null }} [opts]
+ */
+function revealModal(modal, opts = {}) {
+  if (!modal) return;
+  modal.hidden = false;
+  modal.removeAttribute("hidden");
+  modal.setAttribute("aria-hidden", "false");
+  if ("inert" in modal) modal.inert = false;
+  const focusEl =
+    opts.focusEl ||
+    modal.querySelector(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+  if (focusEl instanceof HTMLElement) {
+    try {
+      focusEl.focus({ preventScroll: true });
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+/**
+ * @param {HTMLElement | null} modal
+ * @param {HTMLElement | null} [restoreTo]
+ */
+function concealModal(modal, restoreTo) {
+  if (!modal) return;
+  defocusModal(modal, restoreTo);
+  modal.hidden = true;
+  modal.setAttribute("hidden", "");
+  modal.setAttribute("aria-hidden", "true");
+  if ("inert" in modal) modal.inert = true;
+}
+
+/** @type {HTMLElement | null} */
+let consoleFocusReturn = null;
+
 function openConsoleModal() {
   if (!els.consoleModal) return;
-  els.consoleModal.hidden = false;
-  els.consoleModal.removeAttribute("hidden");
-  els.consoleModal.setAttribute("aria-hidden", "false");
+  if (els.consoleModal.hidden) {
+    const active = document.activeElement;
+    consoleFocusReturn =
+      active instanceof HTMLElement && !els.consoleModal.contains(active)
+        ? active
+        : els.consoleBtn;
+  }
+  revealModal(els.consoleModal);
   document.body.style.overflow = "hidden";
 }
 
 function hideConsoleModal() {
   if (!els.consoleModal) return;
-  els.consoleModal.hidden = true;
-  els.consoleModal.setAttribute("hidden", "");
-  els.consoleModal.setAttribute("aria-hidden", "true");
+  const restore = consoleFocusReturn || els.consoleBtn;
+  consoleFocusReturn = null;
+  concealModal(els.consoleModal, restore);
   document.body.style.overflow = "";
 }
 
@@ -810,28 +1479,50 @@ function localFirmwareUrl(fileName) {
   return new URL(`./firmware/latest/${fileName}`, import.meta.url).href;
 }
 
-async function loadOtaZipBlob(zipName) {
-  const localUrl = localFirmwareUrl(zipName);
-  let localStatus = 0;
+function ondemandFirmwareUrl(fileName) {
+  return new URL(`./firmware/ondemand/${fileName}`, import.meta.url).href;
+}
+
+/**
+ * @param {string} url
+ * @returns {Promise<Blob|null>}
+ */
+async function tryFetchZipBlob(url) {
   try {
-    const res = await fetch(localUrl, { cache: "no-cache" });
-    localStatus = res.status;
-    if (res.ok) return await res.blob();
+    const res = await fetch(url, { cache: "no-cache" });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    if (!blob || blob.size < 256) return null;
+    return blob;
   } catch (err) {
-    console.warn("local OTA zip miss", err);
+    console.warn("OTA zip fetch miss", url, err);
+    return null;
+  }
+}
+
+async function loadOtaZipBlob(zipName) {
+  // 1) Stock catalog mirror
+  const localBlob = await tryFetchZipBlob(localFirmwareUrl(zipName));
+  if (localBlob) return localBlob;
+
+  // 2) On-demand mirror (custom builds) — may lag ~1–2 min after CI
+  const odUrl = ondemandFirmwareUrl(zipName);
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const odBlob = await tryFetchZipBlob(odUrl);
+    if (odBlob) return odBlob;
+    if (attempt < 5) {
+      await new Promise((r) => setTimeout(r, 2500));
+    }
   }
 
-  // GitHub release assets redirect to release-assets.githubusercontent.com without CORS
-  // ACAO headers, so browser fetch from the release URL fails. Same-origin Pages mirror
-  // (scripts/mirror-firmware.py / Sync Darktec releases) is required for Serial DFU.
+  // GitHub release assets redirect without CORS — browser fetch cannot read them.
   const zipAsset = findAsset("zip");
   const releaseHint = zipAsset?.url
-    ? ` Релизный файл есть (${zipAsset.url}), но браузер не может скачать его из‑за CORS — нужен сайт‑зеркало.`
+    ? ` Файл на GitHub есть (${zipAsset.url}), скачайте «ZIP для BLE-OTA» или подождите зеркало сайта (~1–2 мин после сборки).`
     : "";
   throw new Error(
-    `Нет OTA-пакета ${zipName} на зеркале сайта` +
-      (localStatus ? ` (HTTP ${localStatus})` : "") +
-      `.${releaseHint} Запустите workflow «Sync Darktec releases» в beeline09.github.io после публикации Darktec.`,
+    `Нет OTA-пакета ${zipName} на зеркале сайта.` +
+      `${releaseHint} Для кастомных сборок workflow «Sync Darktec releases» зеркалит zip в darktec/firmware/ondemand/.`,
   );
 }
 
@@ -847,25 +1538,32 @@ function finishFlashUi() {
 }
 
 els.dfuBtn.addEventListener("click", async () => {
-  // Sync before awaits: reuse Console port or keep gesture for requestPort.
-  const consolePort = stealConsolePortForFlash();
+  const uf2 = findAsset("uf2");
+  if (!uf2?.url) {
+    els.flashStatus.className = "status error";
+    els.flashStatus.textContent = "UF2 недоступен для этой сборки.";
+    return;
+  }
   els.dfuBtn.disabled = true;
-  if (els.bootloaderBtn) els.bootloaderBtn.disabled = true;
   els.flashStatus.className = "status";
-  const onStatus = (msg) => {
-    els.flashStatus.className = "status";
-    els.flashStatus.textContent = msg;
-  };
+  els.flashStatus.textContent =
+    "Скачивание UF2… Дважды нажмите RESET, затем скопируйте файл на появившийся DFU-диск.";
   try {
-    if (consolePort) {
-      await forceAppPortToDfu(consolePort, onStatus);
-    } else {
-      await enterDfuMode(onStatus);
-    }
+    const a = document.createElement("a");
+    a.href = uf2.url;
+    a.setAttribute("download", uf2.name);
+    a.rel = "noopener";
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    els.flashStatus.className = "status";
+    els.flashStatus.textContent =
+      `Скачан ${uf2.name}. Двойной RESET → скопируйте UF2 на DFU-диск → плата перезагрузится.`;
   } catch (err) {
     console.error(err);
     els.flashStatus.className = "status error";
-    els.flashStatus.textContent = formatSerialFlashError(err);
+    els.flashStatus.textContent = err?.message || String(err);
   } finally {
     finishFlashUi();
   }
@@ -954,17 +1652,221 @@ els.flashBtn.addEventListener("click", async () => {
 
 async function boot() {
   initCarousel();
+  wireSelectChevrons();
   setTab("offline");
   wireUsbTools();
+  syncAdvertNameFromRole({ force: true });
+  wireOndemandUi();
+  try {
+    state.southSha = await fetchSouthEditionSha();
+  } catch (err) {
+    console.warn("south_edition sha", err);
+    state.southSha = null;
+  }
   try {
     await loadReleases();
   } catch (err) {
     console.error(err);
-    els.status.className = "status error";
-    els.status.textContent = `Ошибка загрузки релизов: ${err.message}`;
-    els.changelogBody.textContent = els.status.textContent;
+    setStatusPair("error");
+    els.changelogBody.textContent = `Ошибка загрузки релизов: ${err.message || err}`;
+    showBuildingEmptyState();
+  }
+  try {
+    await refreshOndemandFromCache();
+  } catch (err) {
+    console.warn("boot ondemand", err);
   }
   renderAll();
+}
+
+function showBuildHelpModal() {
+  return new Promise((resolve) => {
+    const modal = els.buildHelpModal;
+    if (!modal || !els.buildHelpOkBtn || !els.buildHelpCancelBtn) {
+      resolve(true);
+      return;
+    }
+
+    const active = document.activeElement;
+    const returnFocus =
+      active instanceof HTMLElement && !modal.contains(active)
+        ? active
+        : els.buildBtnOnline || els.buildBtn;
+
+    const finish = (ok) => {
+      concealModal(modal, returnFocus);
+      els.buildHelpOkBtn.removeEventListener("click", onOk);
+      els.buildHelpCancelBtn.removeEventListener("click", onCancel);
+      modal.removeEventListener("click", onBackdrop);
+      document.removeEventListener("keydown", onKey);
+      resolve(ok);
+    };
+    const onOk = () => finish(true);
+    const onCancel = () => finish(false);
+    const onBackdrop = (ev) => {
+      if (ev.target === modal) finish(false);
+    };
+    const onKey = (ev) => {
+      if (ev.key === "Escape") finish(false);
+    };
+
+    els.buildHelpOkBtn.addEventListener("click", onOk);
+    els.buildHelpCancelBtn.addEventListener("click", onCancel);
+    modal.addEventListener("click", onBackdrop);
+    document.addEventListener("keydown", onKey);
+    revealModal(modal, { focusEl: els.buildHelpOkBtn });
+  });
+}
+
+function wireSelectChevrons() {
+  document.querySelectorAll(".select-wrap").forEach((wrap) => {
+    const select = wrap.querySelector("select");
+    if (!select) return;
+    const setOpen = (open) => wrap.classList.toggle("is-open", open);
+    select.addEventListener("mousedown", () => {
+      setOpen(!wrap.classList.contains("is-open"));
+    });
+    select.addEventListener("blur", () => setOpen(false));
+    select.addEventListener("change", () => setOpen(false));
+  });
+}
+
+function wireOndemandUi() {
+  if (!els.advertNameInput && !els.radioFreq) return;
+
+  let debounce = null;
+  const scheduleRefresh = () => {
+    clearTimeout(debounce);
+    // Wait until typing settles; skip invalid / tiny partial names (no probe spam).
+    debounce = setTimeout(() => {
+      const nameErr = validateAdvertName(state.advertName);
+      if (nameErr) return;
+      void refreshOndemandFromCache()
+        .then(updateDownload)
+        .catch((err) => console.warn("ondemand schedule", err));
+    }, 700);
+  };
+
+  els.advertNameInput?.addEventListener("input", () => {
+    const cleaned = sanitizeAdvertName(els.advertNameInput.value);
+    if (cleaned !== els.advertNameInput.value) {
+      const pos = els.advertNameInput.selectionStart;
+      els.advertNameInput.value = cleaned;
+      // Keep caret roughly in place after stripping chars.
+      try {
+        els.advertNameInput.setSelectionRange(pos - 1, pos - 1);
+      } catch {
+        /* ignore */
+      }
+    }
+    state.advertName = els.advertNameInput.value;
+    state.advertNameTouched = true;
+    // Empty / default name → stock catalog immediately (don't leave buttons disabled).
+    if (!needsCustomBuild()) {
+      clearTimeout(debounce);
+      void refreshOndemandFromCache()
+        .then(updateDownload)
+        .catch((err) => console.warn("ondemand default name", err));
+      return;
+    }
+    scheduleRefresh();
+  });
+
+  const onRadioInput = () => {
+    state.radio = readRadioFromInputs();
+    syncRadioCustomHint();
+    scheduleRefresh();
+  };
+  for (const el of [
+    els.radioFreq,
+    els.radioBw,
+    els.radioSf,
+    els.radioCr,
+    els.radioTx,
+  ]) {
+    el?.addEventListener("input", onRadioInput);
+    el?.addEventListener("change", onRadioInput);
+  }
+
+  const onBuildClick = async () => {
+    if (!needsCustomBuild()) return;
+    const nameErr = validateAdvertName(state.advertName);
+    if (nameErr) {
+      els.status.className = "status error";
+      els.status.textContent = nameErr;
+      els.flashStatus.className = "status error";
+      els.flashStatus.textContent = nameErr;
+      return;
+    }
+    const advertName = effectiveAdvertName();
+    const radioErr = validateRadio(state.radio);
+    if (radioErr) {
+      els.status.className = "status error";
+      els.status.textContent = radioErr;
+      els.flashStatus.className = "status error";
+      els.flashStatus.textContent = radioErr;
+      return;
+    }
+    const proceed = await showBuildHelpModal();
+    if (!proceed) return;
+    try {
+      if (!state.southSha) state.southSha = await fetchSouthEditionSha();
+      if (!state.southSha) {
+        throw new Error(
+          "Не удалось определить sha ветки south_edition. Обновите страницу или дождитесь синка манифеста.",
+        );
+      }
+      const nameSlug = slugifyName(advertName);
+      const base = ondemandBaseName({
+        role: state.role,
+        chem: state.chem,
+        cells: state.cells,
+        protect: state.protect,
+        nameSlug,
+        radio: state.radio,
+        sha: state.southSha,
+      });
+      const url = buildIssueUrl({
+        role: state.role,
+        chem: state.chem,
+        cells: state.cells,
+        protect: state.protect,
+        advertName,
+        nameSlug,
+        radio: state.radio,
+        sha: state.southSha,
+      });
+      window.open(url, "_blank", "noopener");
+      state.building = true;
+      updateDownload();
+      if (state.pollAbort) state.pollAbort.abort();
+      state.pollAbort = new AbortController();
+      const found = await pollOndemandAssets(base, {
+        signal: state.pollAbort.signal,
+        onTick: () => {
+          setStatusPair("building");
+        },
+      });
+      state.ondemand = { uf2: found.uf2, zip: found.zip };
+      state.building = false;
+      updateDownload();
+    } catch (err) {
+      console.error(err);
+      state.building = false;
+      const msg =
+        err.message === "timeout"
+          ? "За 12 минут файл не появился. Проверьте, что на GitHub нажали Create/Submit, и обновите страницу."
+          : `Сборка: ${err.message}`;
+      els.status.className = "status error";
+      els.status.textContent = msg;
+      els.flashStatus.className = "status error";
+      els.flashStatus.textContent = msg;
+      updateDownload();
+    }
+  };
+
+  els.buildBtn?.addEventListener("click", () => void onBuildClick());
+  els.buildBtnOnline?.addEventListener("click", () => void onBuildClick());
 }
 
 boot();

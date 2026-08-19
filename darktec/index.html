@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/site.css?v=darktec4">
 </head>
 <body>
   <div class="wrap">
@@ -31,14 +31,14 @@
         <h1>Прошивки Darktec</h1>
       </div>
       <p class="hero-lead">
-        Сборки для платы Darktec by Dark Electronics: companion, repeater, room server и другие роли —
-        с вариантами химии батареи и режимом защиты от глубокой разрядки.
+        Данный флешер позволяет собрать свою прошивку с предопределёнными параметрами.
+        После прошивки нода будет полностью готова к работе в вашем регионе.
       </p>
 
       <aside class="fork-card" aria-label="О происхождении прошивки">
         <p class="fork-card-label">Важно</p>
         <p>
-          Это <strong>community-форк</strong> ветки
+          Это <strong>форк</strong> ветки
           <a href="https://github.com/rogovogor/MeshCore/tree/south_edition" target="_blank" rel="noopener">south_edition</a>
           (Rogovogor), основанной на оригинальном
           <a href="https://github.com/meshcore-dev/MeshCore" target="_blank" rel="noopener">MeshCore</a>.
@@ -72,9 +72,11 @@
         <h1>Darktec flasher</h1>
         <div class="version-controls">
           <label class="version-label" for="versionSelect">Версия</label>
-          <select id="versionSelect" class="version-select" disabled>
-            <option>загрузка…</option>
-          </select>
+          <div class="select-wrap">
+            <select id="versionSelect" class="version-select" disabled>
+              <option>загрузка…</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -121,16 +123,144 @@
           <h2 id="protectStepLabel">3 · Защита батареи</h2>
           <div class="choice-grid" id="protectChoices" role="group" aria-label="Защита батареи"></div>
           <p class="hint" id="protectHint"></p>
+          <p class="hint" id="protectVoltages" hidden></p>
+        </div>
+
+        <div class="step">
+          <h2 id="nameStepLabel">4 · Имя ноды</h2>
+          <label class="version-label" for="advertNameInput">Advert / node name</label>
+          <input
+            class="version-select"
+            id="advertNameInput"
+            type="text"
+            maxlength="31"
+            placeholder=""
+            autocomplete="off"
+            spellcheck="false"
+            lang="en"
+            pattern="[A-Za-z0-9 _.'\-]+"
+            title="Только латиница: A–Z, цифры, пробел, - _ . '"
+          >
+          <p class="hint" id="nameHint">
+            Только латиница! Если поле ввода пустое, имя ноды будет
+            <strong>Darktec Companion BLE</strong>.
+          </p>
+        </div>
+
+        <div class="step">
+          <h2 id="radioStepLabel">5 · Параметры радио</h2>
+          <details class="photo-spoiler radio-spoiler" id="radioSpoiler">
+            <summary>Изменить параметры радио</summary>
+            <div class="radio-spoiler-body">
+              <p class="hint" id="radioHint">
+                Поля предварительно заполнены настройками для Краснодарского края и Адыгеи.
+                Ниже вы можете изменить их.
+              </p>
+              <div class="radio-fields">
+                <label class="radio-field">
+                  <span class="version-label">Частота, МГц</span>
+                  <input class="version-select" id="radioFreq" type="number" step="0.001" min="150" max="960" value="869.075" inputmode="decimal">
+                </label>
+                <label class="radio-field">
+                  <span class="version-label">Полоса пропускания</span>
+                  <div class="select-wrap">
+                  <select class="version-select" id="radioBw">
+                    <option value="7.8">7.8 kHz</option>
+                    <option value="10.4">10.4 kHz</option>
+                    <option value="15.5">15.5 kHz</option>
+                    <option value="20.8">20.8 kHz</option>
+                    <option value="31.25">31.25 kHz</option>
+                    <option value="41.7">41.7 kHz</option>
+                    <option value="62.5" selected>62.5 kHz</option>
+                    <option value="125">125.0 kHz</option>
+                    <option value="250">250.0 kHz</option>
+                    <option value="500">500.0 kHz</option>
+                    <option value="203.125">203.125 kHz</option>
+                    <option value="406.25">406.25 kHz</option>
+                    <option value="812.5">812.5 kHz</option>
+                    <option value="1625">1625.0 kHz</option>
+                  </select>
+                  </div>
+                </label>
+                <label class="radio-field">
+                  <span class="version-label">Коэффициент расширения (SF)</span>
+                  <div class="select-wrap">
+                  <select class="version-select" id="radioSf">
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8" selected>8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                  </select>
+                  </div>
+                </label>
+                <label class="radio-field">
+                  <span class="version-label">Скорость кодирования (CR)</span>
+                  <div class="select-wrap">
+                  <select class="version-select" id="radioCr">
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8" selected>8</option>
+                  </select>
+                  </div>
+                </label>
+                <label class="radio-field">
+                  <span class="version-label">Мощность передатчика, dBm</span>
+                  <div class="select-wrap">
+                  <select class="version-select" id="radioTx">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                    <option value="19">19</option>
+                    <option value="20">20</option>
+                    <option value="21">21</option>
+                    <option value="22" selected>22</option>
+                  </select>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </details>
+          <p class="hint" id="radioCustomHint" hidden>
+            Дефолт: 869.075&nbsp;МГц&nbsp;/&nbsp;62.5&nbsp;kHz&nbsp;/&nbsp;SF8&nbsp;/&nbsp;CR8&nbsp;/&nbsp;22&nbsp;dBm.
+            Свои значения попадут в прошивку только после сборки.
+          </p>
         </div>
 
         <div id="paneOffline" role="tabpanel" aria-labelledby="tabOffline">
           <div class="step">
-            <h2 id="downloadStepLabel">Скачать</h2>
+            <h2 id="downloadStepLabel">Скачать / собрать</h2>
             <p class="status" id="status"></p>
             <div class="download-row">
+              <button type="button" class="btn btn-ghost" id="buildBtn" hidden>Собрать</button>
               <a class="btn btn-primary" id="downloadBtn" href="#" aria-disabled="true">Скачать UF2</a>
+              <a class="btn btn-ghost" id="downloadOtaBtn" href="#" aria-disabled="true" title="ZIP для BLE-OTA в приложении MeshCore">ZIP для BLE-OTA</a>
               <span class="file-name" id="fileName" hidden></span>
             </div>
+            <p class="hint" id="otaHint">
+              <strong>UF2</strong> — копирование на DFU-диск с компьютера.
+              <strong>ZIP для BLE-OTA</strong> — обновление из мобильного приложения MeshCore.
+            </p>
+            <p class="hint" id="buildHint" hidden></p>
           </div>
           <div class="dfu">
             <h2 class="dfu-title">Как прошить (DFU)</h2>
@@ -145,34 +275,33 @@
 
         <div id="paneOnline" role="tabpanel" aria-labelledby="tabOnline" hidden>
           <div class="step">
-            <h2>Прошить через USB Serial (как meshcore.io)</h2>
             <p class="hint">
-              Chrome / Edge + Web Serial: плата сама уходит в DFU (1200 baud), затем заливается
-              OTA <code>.zip</code> по serial — без ручного копирования на диск.
-              Обычно достаточно выбрать обычный COM один раз — DFU-порт подхватывается сам;
-              второй раз выбрать порт нужно только если автоопределение не сработало.
-              Для крупных прошивок на Darktec/ProMicro/nice!nano рекомендуется Adafruit UF2
-              ≥&nbsp;0.6.1 (лучше OTAFIX&nbsp;0.9.2) — проверьте и обновите отдельно кнопкой
-              «Обновить bootloader»; «Прошить» бутлоадер не проверяет и не спрашивает.
-              Обычная прошивка («Прошить» / «Только&nbsp;DFU») уводит плату в Serial&nbsp;DFU
-              через 1200&nbsp;baud — USB-диск при этом <strong>не ожидается</strong>.
-              «Обновить bootloader» пишет OTAFIX на <strong>USB-диск UF2</strong>:
-              подключите USB → <strong>дважды быстро RESET</strong> → появится том
-              (часто <code>NICE_NANO</code> / <code>MADMIXIN</code> / <code>FTHRS…</code>) →
-              «Выбрать диск UF2» (<code>INFO_UF2.TXT</code> → запись OTAFIX).
-              COM-порт для обновления бутлоадера не нужен.
+              При нажатии на кнопку <strong>«Только&nbsp;DFU»</strong> произойдёт прошивка
+              методом копирования файла обновления на диск, который появляется при переходе
+              в режим DFU.
+            </p>
+            <p class="hint">
+              Режим DFU включается <strong>двойным нажатием</strong> кнопки
+              <code>RESET</code>.
+            </p>
+            <p class="hint">
+              Если у вас старый бутлоадер (версия меньше&nbsp;0.6.1), обновите его,
+              предварительно переведя устройство в режим DFU.
+            </p>
+            <p class="hint">
+              Нажатие кнопки <strong>«Прошить»</strong> прошивает устройство через
+              Serial-интерфейс (не&nbsp;DFU). Для этого необходимо будет выбрать Serial
+              интерфейс вашего подключённого модуля.
             </p>
             <p class="status" id="flashStatus"></p>
             <div class="download-row">
-              <button type="button" class="btn btn-ghost" id="dfuBtn" disabled title="Serial DFU через COM (1200 baud), без USB-диска">Только DFU</button>
-              <button type="button" class="btn btn-ghost" id="bootloaderBtn" disabled title="OTAFIX на USB-диск UF2: двойной RESET, затем выбор тома (не COM)">Обновить bootloader (диск)</button>
-              <button type="button" class="btn btn-primary" id="flashBtn" disabled title="Прошивка OTA zip по Serial DFU (COM, 1200 baud)">Прошить</button>
+              <button type="button" class="btn btn-ghost" id="buildBtnOnline" hidden>Собрать</button>
+              <button type="button" class="btn btn-ghost" id="dfuBtn" hidden title="Скачать UF2 и скопировать на DFU-диск (двойной RESET)">Только DFU</button>
+              <button type="button" class="btn btn-ghost" id="bootloaderBtn" disabled title="OTAFIX на USB-диск UF2: двойной RESET, затем выбор тома">Обновить bootloader</button>
+              <button type="button" class="btn btn-primary" id="flashBtn" hidden title="Прошивка через Serial (Web Serial)">Прошить</button>
               <span class="file-name" id="flashFileName" hidden></span>
             </div>
-            <p class="hint">
-              После «Прошить» плата перезагрузится: для Console / «Настройка repeater»
-              снова выберите COM в режиме приложения (не DFU).
-            </p>
+            <p class="hint" id="buildHintOnline" hidden></p>
             <div class="progress-track" id="flashProgressTrack" hidden>
               <div class="progress-bar" id="flashProgressBar"></div>
             </div>
@@ -188,7 +317,6 @@
 
     <footer class="site-footer">
       <p>
-        Community builds <strong>beeline09</strong> · не сервис meshcore.io ·
         <a href="https://t.me/DarkElectronics" target="_blank" rel="noopener">Telegram</a>
       </p>
       <p class="footer-disclaimer">
@@ -198,9 +326,47 @@
   </div>
 
   <div
+    id="buildHelpModal"
+    class="modal-backdrop"
+    hidden
+    inert
+    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="buildHelpTitle"
+  >
+    <div class="modal-panel">
+      <h3 id="buildHelpTitle" class="modal-title">Как собрать прошивку</h3>
+      <div class="modal-body">
+        <p>
+          Готового файла для ваших настроек (имя и/или радио) ещё нет. Его нужно
+          один раз собрать через GitHub (это бесплатно, но без вашего подтверждения
+          сайт сам сборку запустить не может — такое ограничение).
+        </p>
+        <ol class="modal-steps">
+          <li>Сейчас откроется новая вкладка GitHub. Если попросит — <strong>войдите</strong> в аккаунт.</li>
+          <li>На странице <strong>ничего не меняйте</strong> в тексте.</li>
+          <li>Внизу нажмите зелёную кнопку <strong>«Create»</strong> или <strong>«Submit new issue»</strong>.</li>
+          <li>После этого вкладку GitHub можно <strong>закрыть</strong> и вернуться сюда.</li>
+          <li>На этой странице <strong>подождите около 5 минут</strong> — когда файл появится, кнопка «Скачать UF2» станет активной. Только тогда можно прошивать.</li>
+        </ol>
+        <p>
+          Если сразу нажать «Скачать» или «Прошить» — ничего не получится:
+          файла ещё нет.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="buildHelpCancelBtn">Отмена</button>
+        <button type="button" class="btn btn-primary" id="buildHelpOkBtn">Понятно, открыть GitHub</button>
+      </div>
+    </div>
+  </div>
+
+  <div
     id="consoleModal"
     class="modal-backdrop console-backdrop"
     hidden
+    inert
     aria-hidden="true"
     role="dialog"
     aria-modal="true"
@@ -237,6 +403,6 @@
     </div>
   </div>
 
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=darktec4"></script>
 </body>
 </html>

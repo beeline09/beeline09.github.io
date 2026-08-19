@@ -6,7 +6,6 @@
 |-----|------------|
 | https://beeline09.github.io | Хаб проектов |
 | https://beeline09.github.io/darktec/ | Flasher: роли, химия, имя ноды, радио, on-demand CI (`darktec-ondemand`) |
-| https://beeline09.github.io/darktec_new/ | Редирект на `/darktec/` |
 
 Это **не** официальный [meshcore.io/flasher](https://meshcore.io/flasher). Бинарники берутся из Releases форка [`beeline09/MeshCore`](https://github.com/beeline09/MeshCore/tree/south_edition) (ветка `south_edition`); сайт только статическая витрина.
 
@@ -75,7 +74,6 @@ beeline09.github.io/
     index.html
     app.js
     ondemand.js
-  darktec_new/               # редирект на /darktec/
   scripts/generate-releases.mjs
   .github/workflows/sync-releases.yml
 ```

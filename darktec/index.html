@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/site.css?v=darktec5">
+  <link rel="stylesheet" href="/assets/css/site.css?v=darktec6">
 </head>
 <body>
   <div class="wrap">
@@ -70,11 +70,22 @@
       <div class="panel-head">
         <h1>Darktec flasher</h1>
         <div class="version-controls">
-          <label class="version-label" for="versionSelect">Версия</label>
-          <div class="select-wrap">
-            <select id="versionSelect" class="version-select" disabled>
-              <option>загрузка…</option>
-            </select>
+          <label class="version-label" id="versionLabel">Версия</label>
+          <div class="dropdown" id="versionDropdown">
+            <button
+              type="button"
+              class="dropdown-trigger"
+              id="versionSelect"
+              aria-labelledby="versionLabel"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="versionMenu"
+              disabled
+            >
+              <span class="dropdown-value" id="versionValue">загрузка…</span>
+              <span class="dropdown-chevron" aria-hidden="true"></span>
+            </button>
+            <ul class="dropdown-menu" id="versionMenu" role="listbox" aria-labelledby="versionLabel" hidden></ul>
           </div>
         </div>
       </div>
@@ -406,6 +417,6 @@
     </div>
   </div>
 
-  <script type="module" src="./app.js?v=darktec5"></script>
+  <script type="module" src="./app.js?v=darktec6"></script>
 </body>
 </html>

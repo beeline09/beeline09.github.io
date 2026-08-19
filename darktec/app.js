@@ -155,6 +155,9 @@ const els = {
   otaHint: document.getElementById("otaHint"),
   fileName: document.getElementById("fileName"),
   versionSelect: document.getElementById("versionSelect"),
+  versionDropdown: document.getElementById("versionDropdown"),
+  versionMenu: document.getElementById("versionMenu"),
+  versionValue: document.getElementById("versionValue"),
   changelogBody: document.getElementById("changelogBody"),
   tabOffline: document.getElementById("tabOffline"),
   tabOnline: document.getElementById("tabOnline"),
@@ -765,29 +768,72 @@ function displayVersion(tag) {
   return tag;
 }
 
-function populateVersionSelect() {
-  const select = els.versionSelect;
-  select.replaceChildren();
-  if (!state.releases.length) {
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "собирается…";
-    select.appendChild(opt);
-    select.disabled = true;
+function versionOptionLabel(rel) {
+  const label = displayVersion(rel.tag_name);
+  const when = rel.published_at
+    ? new Date(rel.published_at).toLocaleDateString("ru-RU")
+    : "";
+  return when ? `${label} · ${when}` : label;
+}
+
+function setVersionDropdownOpen(open) {
+  const drop = els.versionDropdown;
+  const btn = els.versionSelect;
+  const menu = els.versionMenu;
+  if (!drop || !btn || !menu) return;
+  const next = Boolean(open) && !btn.disabled && state.releases.length > 0;
+  drop.classList.toggle("is-open", next);
+  btn.setAttribute("aria-expanded", String(next));
+  menu.hidden = !next;
+  if (next) {
+    const selected = menu.querySelector('[aria-selected="true"]');
+    (selected || menu.querySelector('[role="option"]'))?.focus();
+  }
+}
+
+function syncVersionTrigger() {
+  if (!els.versionValue || !els.versionMenu) return;
+  const rel =
+    state.releases.find((r) => r.tag_name === state.selectedTag) || state.releases[0];
+  if (!rel) {
+    els.versionValue.textContent = "собирается…";
     return;
   }
-  for (const rel of state.releases) {
-    const opt = document.createElement("option");
-    opt.value = rel.tag_name;
-    const label = displayVersion(rel.tag_name);
-    const when = rel.published_at
-      ? new Date(rel.published_at).toLocaleDateString("ru-RU")
-      : "";
-    opt.textContent = when ? `${label} · ${when}` : label;
-    select.appendChild(opt);
+  els.versionValue.textContent = versionOptionLabel(rel);
+  els.versionMenu.querySelectorAll('[role="option"]').forEach((opt) => {
+    opt.setAttribute("aria-selected", String(opt.dataset.value === rel.tag_name));
+  });
+}
+
+function populateVersionSelect() {
+  const btn = els.versionSelect;
+  const menu = els.versionMenu;
+  if (!btn || !menu) return;
+
+  menu.replaceChildren();
+  if (!state.releases.length) {
+    if (els.versionValue) els.versionValue.textContent = "собирается…";
+    btn.disabled = true;
+    setVersionDropdownOpen(false);
+    return;
   }
-  select.disabled = false;
-  if (state.selectedTag) select.value = state.selectedTag;
+
+  btn.disabled = false;
+  for (const rel of state.releases) {
+    const opt = document.createElement("li");
+    opt.setAttribute("role", "option");
+    opt.tabIndex = -1;
+    opt.className = "dropdown-option";
+    opt.dataset.value = rel.tag_name;
+    opt.textContent = versionOptionLabel(rel);
+    opt.addEventListener("click", () => {
+      selectRelease(rel.tag_name);
+      setVersionDropdownOpen(false);
+      btn.focus();
+    });
+    menu.appendChild(opt);
+  }
+  syncVersionTrigger();
 }
 
 function selectRelease(tag) {
@@ -796,6 +842,7 @@ function selectRelease(tag) {
   state.selectedTag = tag;
   state.manifest = manifestFromRelease(rel);
   els.changelogBody.innerHTML = renderMarkdownLite(rel.body || "_Нет описания._");
+  syncVersionTrigger();
   updateDownload();
 }
 
@@ -1148,8 +1195,50 @@ els.downloadOtaBtn?.addEventListener("click", (ev) => {
   if (els.downloadOtaBtn.getAttribute("aria-disabled") === "true") ev.preventDefault();
 });
 
-els.versionSelect.addEventListener("change", () => {
-  selectRelease(els.versionSelect.value);
+els.versionSelect?.addEventListener("click", () => {
+  if (!els.versionSelect || els.versionSelect.disabled) return;
+  const open = els.versionSelect.getAttribute("aria-expanded") === "true";
+  setVersionDropdownOpen(!open);
+});
+
+els.versionSelect?.addEventListener("keydown", (ev) => {
+  if (ev.key === "ArrowDown" || ev.key === "Enter" || ev.key === " ") {
+    ev.preventDefault();
+    setVersionDropdownOpen(true);
+  } else if (ev.key === "Escape") {
+    setVersionDropdownOpen(false);
+  }
+});
+
+els.versionMenu?.addEventListener("keydown", (ev) => {
+  const options = [...els.versionMenu.querySelectorAll('[role="option"]')];
+  const i = options.indexOf(document.activeElement);
+  if (ev.key === "Escape") {
+    ev.preventDefault();
+    setVersionDropdownOpen(false);
+    els.versionSelect?.focus();
+  } else if (ev.key === "ArrowDown") {
+    ev.preventDefault();
+    options[Math.min(Math.max(i, 0) + 1, options.length - 1)]?.focus();
+  } else if (ev.key === "ArrowUp") {
+    ev.preventDefault();
+    if (i <= 0) els.versionSelect?.focus();
+    else     options[i - 1]?.focus();
+  } else if (ev.key === "Enter" || ev.key === " ") {
+    ev.preventDefault();
+    if (i >= 0) options[i].click();
+  } else if (ev.key === "Home") {
+    ev.preventDefault();
+    options[0]?.focus();
+  } else if (ev.key === "End") {
+    ev.preventDefault();
+    options[options.length - 1]?.focus();
+  }
+});
+
+document.addEventListener("pointerdown", (ev) => {
+  const drop = els.versionDropdown;
+  if (drop && !drop.contains(ev.target)) setVersionDropdownOpen(false);
 });
 
 els.tabOffline.addEventListener("click", () => setTab("offline"));

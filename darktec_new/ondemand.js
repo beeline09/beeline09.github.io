@@ -51,7 +51,8 @@ export function sanitizeAdvertName(name) {
 /** @returns {string|null} error message or null if ok */
 export function validateAdvertName(name) {
   const s = String(name || "").trim();
-  if (!s) return "Укажите имя ноды (латиницей)";
+  // Empty = firmware default name for the selected role (stock or on-demand).
+  if (!s) return null;
   if (!ADVERT_NAME_ALLOWED.test(s)) {
     return "В имени ноды разрешена только латиница (A–Z), цифры, пробел и - _ . '";
   }

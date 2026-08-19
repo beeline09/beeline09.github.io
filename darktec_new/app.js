@@ -212,6 +212,11 @@ function defaultAdvertNameForRole(roleId = state.role) {
   return ROLES.find((r) => r.id === roleId)?.advertName || "Darktec";
 }
 
+/** Empty field uses the role's baked-in default advert name. */
+function effectiveAdvertName() {
+  return state.advertName.trim() || defaultAdvertNameForRole(state.role);
+}
+
 function syncAdvertNameFromRole({ force = false } = {}) {
   if (!force && state.advertNameTouched) return;
   const name = defaultAdvertNameForRole(state.role);
@@ -220,7 +225,7 @@ function syncAdvertNameFromRole({ force = false } = {}) {
 }
 
 function isCustomName() {
-  return state.advertName.trim() !== defaultAdvertNameForRole(state.role);
+  return effectiveAdvertName() !== defaultAdvertNameForRole(state.role);
 }
 
 function needsCustomBuild() {
@@ -228,7 +233,7 @@ function needsCustomBuild() {
 }
 
 function customNameSlug() {
-  return slugifyName(state.advertName);
+  return slugifyName(effectiveAdvertName());
 }
 
 function readRadioFromInputs() {
@@ -874,26 +879,55 @@ async function loadReleases() {
 function initCarousel() {
   const root = els.photoCarousel;
   if (!root) return;
-  const base = root.dataset.photosDir || "./photos/";
+  root.replaceChildren();
+
   const total = 13;
+  const slideMs = 380;
+  const base = root.dataset.photosDir || "./photos/";
+  const spoiler = root.closest("details");
+  const srcOf = (i) => `${base}${String(i + 1).padStart(2, "0")}.png`;
+  const makeSlide = () => {
+    const img = document.createElement("img");
+    img.className = "carousel-slide";
+    img.alt = "";
+    img.decoding = "async";
+    img.draggable = false;
+    img.style.cssText =
+      "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;user-select:none;";
+    return img;
+  };
+
   let index = 0;
+  let busy = false;
 
   const stage = document.createElement("div");
   stage.className = "carousel-stage";
-  const img = document.createElement("img");
-  img.alt = "Darktec";
-  img.loading = "lazy";
-  stage.appendChild(img);
+  stage.tabIndex = 0;
+  stage.setAttribute("role", "region");
+  stage.setAttribute("aria-label", "Фото платы. Листайте стрелками или свайпом.");
+  stage.style.position = "relative";
+  stage.style.overflow = "hidden";
+  stage.style.touchAction = "pan-y";
+  stage.style.userSelect = "none";
+
+  let current = makeSlide();
+  let incoming = makeSlide();
+  current.alt = "Darktec";
+  current.src = srcOf(0);
+  incoming.style.transform = "translate3d(100%,0,0)";
+  stage.append(current, incoming);
 
   const controls = document.createElement("div");
   controls.className = "carousel-controls";
   const prev = document.createElement("button");
   prev.type = "button";
   prev.className = "btn btn-ghost";
+  prev.setAttribute("aria-label", "Предыдущее фото");
   prev.textContent = "←";
   const next = document.createElement("button");
   next.type = "button";
   next.className = "btn btn-ghost";
+  next.setAttribute("aria-label", "Следующее фото");
   next.textContent = "→";
   const counter = document.createElement("span");
   counter.className = "carousel-counter";
@@ -902,33 +936,180 @@ function initCarousel() {
   const thumbs = document.createElement("div");
   thumbs.className = "carousel-thumbs";
 
-  const show = (i) => {
-    index = (i + total) % total;
-    const src = `${base}${String(index + 1).padStart(2, "0")}.png`;
-    img.src = src;
+  const updateChrome = () => {
     counter.textContent = `${index + 1} / ${total}`;
+    current.alt = `Darktec, фото ${index + 1} из ${total}`;
     thumbs.querySelectorAll("button").forEach((b, idx) => {
       b.setAttribute("aria-current", String(idx === index));
     });
+  };
+
+  const preload = (i) => {
+    const im = new Image();
+    im.src = srcOf(((i % total) + total) % total);
+  };
+
+  const directionFor = (from, to) => {
+    if (from === total - 1 && to === 0) return 1;
+    if (from === 0 && to === total - 1) return -1;
+    return to > from ? 1 : -1;
+  };
+
+  const show = (to, dir = 0) => {
+    const nextIdx = ((to % total) + total) % total;
+    if (nextIdx === index || busy) return;
+    const slideDir = dir || directionFor(index, nextIdx);
+    busy = true;
+    incoming.src = srcOf(nextIdx);
+    incoming.style.transition = "none";
+    current.style.transition = "none";
+    incoming.style.transform = `translate3d(${slideDir * 100}%,0,0)`;
+    current.style.transform = "translate3d(0,0,0)";
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const ease = `transform ${slideMs}ms ease`;
+        incoming.style.transition = ease;
+        current.style.transition = ease;
+        incoming.style.transform = "translate3d(0,0,0)";
+        current.style.transform = `translate3d(${-slideDir * 100}%,0,0)`;
+      });
+    });
+
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      incoming.removeEventListener("transitionend", onEnd);
+      window.clearTimeout(timer);
+      const outgoing = current;
+      current = incoming;
+      incoming = outgoing;
+      incoming.style.transition = "none";
+      incoming.style.transform = "translate3d(100%,0,0)";
+      current.style.transition = "none";
+      current.style.transform = "translate3d(0,0,0)";
+      index = nextIdx;
+      busy = false;
+      updateChrome();
+      preload(index + 1);
+      preload(index - 1);
+    };
+    const onEnd = (ev) => {
+      if (ev.propertyName && ev.propertyName !== "transform") return;
+      finish();
+    };
+    incoming.addEventListener("transitionend", onEnd);
+    const timer = window.setTimeout(finish, slideMs + 120);
   };
 
   for (let i = 0; i < total; i++) {
     const t = document.createElement("button");
     t.type = "button";
     t.className = "carousel-thumb";
+    t.setAttribute("aria-label", `Фото ${i + 1}`);
     const ti = document.createElement("img");
-    ti.src = `${base}${String(i + 1).padStart(2, "0")}.png`;
+    ti.src = srcOf(i);
     ti.alt = "";
     ti.loading = "lazy";
+    ti.draggable = false;
     t.appendChild(ti);
-    t.addEventListener("click", () => show(i));
+    t.addEventListener("click", () => show(i, directionFor(index, i)));
     thumbs.appendChild(t);
   }
 
-  prev.addEventListener("click", () => show(index - 1));
-  next.addEventListener("click", () => show(index + 1));
+  prev.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    show(index - 1, -1);
+  });
+  next.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    show(index + 1, 1);
+  });
+
+  window.addEventListener(
+    "keydown",
+    (ev) => {
+      if (spoiler && !spoiler.open) return;
+      const el = ev.target;
+      if (el instanceof HTMLElement) {
+        const tag = el.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable) {
+          return;
+        }
+      }
+      if (ev.key === "ArrowLeft") {
+        ev.preventDefault();
+        show(index - 1, -1);
+      } else if (ev.key === "ArrowRight") {
+        ev.preventDefault();
+        show(index + 1, 1);
+      }
+    },
+    true,
+  );
+
+  spoiler?.addEventListener("toggle", () => {
+    if (!spoiler.open) return;
+    try {
+      stage.focus({ preventScroll: true });
+    } catch {
+      /* ignore */
+    }
+  });
+
+  let startX = 0;
+  let startY = 0;
+  let tracking = false;
+  const swipeFrom = (x, y) => {
+    if (!tracking) return;
+    tracking = false;
+    const dx = x - startX;
+    const dy = y - startY;
+    if (Math.abs(dx) < 36 || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) show(index + 1, 1);
+    else show(index - 1, -1);
+  };
+
+  stage.addEventListener("pointerdown", (ev) => {
+    if (ev.pointerType === "mouse" && ev.button !== 0) return;
+    tracking = true;
+    startX = ev.clientX;
+    startY = ev.clientY;
+    try {
+      stage.setPointerCapture(ev.pointerId);
+    } catch {
+      /* ignore */
+    }
+  });
+  stage.addEventListener("pointerup", (ev) => swipeFrom(ev.clientX, ev.clientY));
+  stage.addEventListener("pointercancel", () => {
+    tracking = false;
+  });
+  stage.addEventListener(
+    "touchstart",
+    (ev) => {
+      const t = ev.changedTouches[0];
+      if (!t) return;
+      tracking = true;
+      startX = t.clientX;
+      startY = t.clientY;
+    },
+    { passive: true },
+  );
+  stage.addEventListener(
+    "touchend",
+    (ev) => {
+      const t = ev.changedTouches[0];
+      if (t) swipeFrom(t.clientX, t.clientY);
+    },
+    { passive: true },
+  );
+
   root.append(stage, controls, thumbs);
-  show(0);
+  updateChrome();
+  preload(1);
+  preload(total - 1);
 }
 
 els.downloadBtn.addEventListener("click", (ev) => {
@@ -1527,9 +1708,8 @@ function wireOndemandUi() {
     clearTimeout(debounce);
     // Wait until typing settles; skip invalid / tiny partial names (no probe spam).
     debounce = setTimeout(() => {
-      if (needsCustomBuild() && validateAdvertName(state.advertName)) {
-        return;
-      }
+      const nameErr = validateAdvertName(state.advertName);
+      if (nameErr) return;
       void refreshOndemandFromCache()
         .then(updateDownload)
         .catch((err) => console.warn("ondemand schedule", err));
@@ -1550,6 +1730,14 @@ function wireOndemandUi() {
     }
     state.advertName = els.advertNameInput.value;
     state.advertNameTouched = true;
+    // Empty / default name → stock catalog immediately (don't leave buttons disabled).
+    if (!needsCustomBuild()) {
+      clearTimeout(debounce);
+      void refreshOndemandFromCache()
+        .then(updateDownload)
+        .catch((err) => console.warn("ondemand default name", err));
+      return;
+    }
     scheduleRefresh();
   });
 
@@ -1578,6 +1766,7 @@ function wireOndemandUi() {
       els.flashStatus.textContent = nameErr;
       return;
     }
+    const advertName = effectiveAdvertName();
     const radioErr = validateRadio(state.radio);
     if (radioErr) {
       els.status.className = "status error";
@@ -1595,7 +1784,7 @@ function wireOndemandUi() {
           "Не удалось определить sha ветки south_edition. Обновите страницу или дождитесь синка манифеста.",
         );
       }
-      const nameSlug = customNameSlug();
+      const nameSlug = slugifyName(advertName);
       const base = ondemandBaseName({
         role: state.role,
         chem: state.chem,
@@ -1610,7 +1799,7 @@ function wireOndemandUi() {
         chem: state.chem,
         cells: state.cells,
         protect: state.protect,
-        advertName: state.advertName.trim(),
+        advertName,
         nameSlug,
         radio: state.radio,
         sha: state.southSha,

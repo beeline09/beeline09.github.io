@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/site.css?v=carousel3">
 </head>
 <body>
   <div class="wrap">
@@ -145,8 +145,10 @@
             Предзаполнено именем из прошивки для выбранной роли. Можно изменить
             <strong>только латиницей</strong> (A–Z, цифры, пробел, -&nbsp;_&nbsp;.&nbsp;').
             Кириллица и прочие символы не допускаются.
-            Если имя и радио — как в дефолте, берётся готовый файл из каталога;
-            иначе нужна сборка («Собрать», ~5&nbsp;мин).
+            Пустое поле = имя по умолчанию: ищем готовую прошивку в каталоге
+            (или предлагаем «Собрать», если её нет).
+            Если имя и радио — как в дефолте, берётся готовый файл;
+            иначе нужна сборка (~5&nbsp;мин).
           </p>
         </div>
 
@@ -392,6 +394,6 @@
     </div>
   </div>
 
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=carousel3"></script>
 </body>
 </html>

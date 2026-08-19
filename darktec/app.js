@@ -4,6 +4,7 @@
  */
 
 import { SerialConsole } from "./lib/console.js";
+import { initPhotoCarousel } from "../assets/js/carousel.js";
 import {
   canSerialFlash,
   enterDfuMode,
@@ -532,63 +533,7 @@ async function loadReleases() {
 }
 
 function initCarousel() {
-  const root = els.photoCarousel;
-  if (!root) return;
-  const base = root.dataset.photosDir || "./photos/";
-  const total = 13;
-  let index = 0;
-
-  const stage = document.createElement("div");
-  stage.className = "carousel-stage";
-  const img = document.createElement("img");
-  img.alt = "Darktec";
-  img.loading = "lazy";
-  stage.appendChild(img);
-
-  const controls = document.createElement("div");
-  controls.className = "carousel-controls";
-  const prev = document.createElement("button");
-  prev.type = "button";
-  prev.className = "btn btn-ghost";
-  prev.textContent = "←";
-  const next = document.createElement("button");
-  next.type = "button";
-  next.className = "btn btn-ghost";
-  next.textContent = "→";
-  const counter = document.createElement("span");
-  counter.className = "carousel-counter";
-  controls.append(prev, counter, next);
-
-  const thumbs = document.createElement("div");
-  thumbs.className = "carousel-thumbs";
-
-  const show = (i) => {
-    index = (i + total) % total;
-    const src = `${base}${String(index + 1).padStart(2, "0")}.png`;
-    img.src = src;
-    counter.textContent = `${index + 1} / ${total}`;
-    thumbs.querySelectorAll("button").forEach((b, idx) => {
-      b.setAttribute("aria-current", String(idx === index));
-    });
-  };
-
-  for (let i = 0; i < total; i++) {
-    const t = document.createElement("button");
-    t.type = "button";
-    t.className = "carousel-thumb";
-    const ti = document.createElement("img");
-    ti.src = `${base}${String(i + 1).padStart(2, "0")}.png`;
-    ti.alt = "";
-    ti.loading = "lazy";
-    t.appendChild(ti);
-    t.addEventListener("click", () => show(i));
-    thumbs.appendChild(t);
-  }
-
-  prev.addEventListener("click", () => show(index - 1));
-  next.addEventListener("click", () => show(index + 1));
-  root.append(stage, controls, thumbs);
-  show(0);
+  initPhotoCarousel(els.photoCarousel);
 }
 
 els.downloadBtn.addEventListener("click", (ev) => {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T19:03:59.456Z",
+  "generatedAt": "2026-08-21T05:36:28.354Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "26d1c4d9",
   "files": [
@@ -92,6 +92,16 @@
       "name": "Darktec_companion_radio_usb_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__34b284ef.zip",
       "size": 471079,
       "url": "./firmware/ondemand/Darktec_companion_radio_usb_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__34b284ef.zip"
+    },
+    {
+      "name": "Darktec_repeater_lifepo4_1s_adc__ozero-gk__f869p075-bw62p5-sf8-cr8-tx22__26d1c4d9.uf2",
+      "size": 835072,
+      "url": "./firmware/ondemand/Darktec_repeater_lifepo4_1s_adc__ozero-gk__f869p075-bw62p5-sf8-cr8-tx22__26d1c4d9.uf2"
+    },
+    {
+      "name": "Darktec_repeater_lifepo4_1s_adc__ozero-gk__f869p075-bw62p5-sf8-cr8-tx22__26d1c4d9.zip",
+      "size": 418166,
+      "url": "./firmware/ondemand/Darktec_repeater_lifepo4_1s_adc__ozero-gk__f869p075-bw62p5-sf8-cr8-tx22__26d1c4d9.zip"
     },
     {
       "name": "Darktec_repeater_liion_1s_adc__lab-test__673b8cc9.uf2",

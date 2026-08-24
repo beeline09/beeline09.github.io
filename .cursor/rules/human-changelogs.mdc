@@ -1,8 +1,23 @@
 ---
-description: Human-readable changelogs from git commits on every firmware push/release
+description: Human-readable Darktec changelogs — upstream link + only our changes
 alwaysApply: true
 ---
 
 # Changelogs из коммитов
 
-При каждом пуше/релизе прошивок **автоматически** формируй человекочитаемый changelog из git-коммитов (группировка на русском, без сырого git log). Пайплайн Darktec: `MeshCore/scripts/darktec-changelog.sh` + body релиза в CI.
+При каждом пуше/релизе прошивок **автоматически** формируй человекочитаемый changelog из git-коммитов (группировка на русском, без сырого git log).
+
+## Обязательная структура (Darktec / beeline09)
+
+Список изменений **всегда** в двух частях:
+
+1. **База upstream** — короткий текст, что прошивка наследует changelog ветки Rogovogor `south_edition`, со ссылкой: https://github.com/rogovogor/MeshCore/tree/south_edition
+2. **Только наши** — ниже список изменений **beeline09 / Darktec** (пути `variants/darktec`, darktec CI/скрипты, on-demand и т.п.). Без коммитов upstream MeshCore / Rogovogor.
+
+Пайплайн: `MeshCore/scripts/darktec-changelog.sh` → body GitHub Release → спойлер на `beeline09.github.io/darktec/`.
+
+## Не делать
+
+- Смешивать upstream-коммиты в «наш» список.
+- Сырой `git log` без группировки/перефразирования.
+- Пустой body у релиза, если есть наши коммиты в диапазоне.

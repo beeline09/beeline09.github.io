@@ -951,6 +951,20 @@ a:hover {
   line-height: 1.5;
 }
 
+.changelog-base {
+  margin: 0 0 0.85rem;
+  color: var(--ink);
+}
+
+.changelog-base a {
+  color: var(--amber);
+}
+
+.changelog-ours-title {
+  margin: 0 0 0.45rem !important;
+  font-size: 1.05rem;
+}
+
 .changelog-body h3,
 .changelog-body h4 {
   color: var(--ink);

@@ -682,6 +682,75 @@ function setTab(tab) {
   els.paneOnline.hidden = offline;
 }
 
+const UPSTREAM_SOUTH_EDITION_URL =
+  "https://github.com/rogovogor/MeshCore/tree/south_edition";
+
+/** Keep only beeline09/Darktec bullets from mixed release notes. */
+const OURS_CHANGE_RE =
+  /darktec|on-?demand|beeline09|DARKTEC_|Serial DFU|web flasher|кириллиц|зарядк|защит\w*\s+бата|battery protect|adc\/?off|ADVERT_NAME|LORA_\*|OLED от|OLED и не гасить|VBAT|SoftDevice|EU868|human changelog|Versioned releases|Darktec UF2|UF2 matrix|имя с пробелами|имя нод|advert_name|матриц/i;
+
+function filterOurChangelogMarkdown(md) {
+  const lines = (md || "").split(/\r?\n/);
+  const out = [];
+  let sectionHasItems = false;
+  let pendingHeading = null;
+
+  const flushHeading = () => {
+    if (pendingHeading && sectionHasItems) {
+      out.push(pendingHeading);
+      pendingHeading = null;
+    } else {
+      pendingHeading = null;
+    }
+  };
+
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (trimmed.startsWith("---")) break;
+    if (/^Community-сборка/i.test(trimmed) || /^Flasher:/i.test(trimmed)) continue;
+    if (/^Прошивка основана на/i.test(trimmed)) continue;
+    if (/^Изменения с `/i.test(trimmed)) continue;
+    if (/^### Изменения beeline09/i.test(trimmed)) continue;
+    if (/^##\s/.test(trimmed)) continue;
+
+    if (/^#{3,4}\s/.test(trimmed)) {
+      flushHeading();
+      pendingHeading = trimmed.replace(/^####\s/, "### ");
+      sectionHasItems = false;
+      continue;
+    }
+
+    if (trimmed.startsWith("- ")) {
+      if (!OURS_CHANGE_RE.test(trimmed)) continue;
+      if (pendingHeading) {
+        out.push(pendingHeading);
+        pendingHeading = null;
+      }
+      sectionHasItems = true;
+      out.push(trimmed);
+      continue;
+    }
+  }
+  flushHeading();
+  return out.join("\n");
+}
+
+function renderChangelogHtml(md) {
+  const ours = filterOurChangelogMarkdown(md);
+  const body = ours
+    ? renderMarkdownLite(ours)
+    : "<p><em>Нет отдельных изменений beeline09/Darktec в этой версии.</em></p>";
+  return [
+    `<p class="changelog-base">Прошивка основана на списке изменений базовой ветки ` +
+      `<a href="${UPSTREAM_SOUTH_EDITION_URL}" target="_blank" rel="noopener">south_edition</a> ` +
+      `(Rogovogor / MeshCore). Полный upstream-changelog смотрите там.</p>`,
+    `<h3 class="changelog-ours-title">Изменения beeline09 / Darktec</h3>`,
+    body,
+  ].join("\n");
+}
+
 function renderMarkdownLite(md) {
   const escape = (s) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -721,6 +790,10 @@ function renderMarkdownLite(md) {
       let item = escape(line.slice(2));
       item = item.replace(/`([^`]+)`/g, "<code>$1</code>");
       item = item.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      item = item.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener">$1</a>',
+      );
       html.push(`<li>${item}</li>`);
       continue;
     }
@@ -732,6 +805,10 @@ function renderMarkdownLite(md) {
     let p = escape(line);
     p = p.replace(/`([^`]+)`/g, "<code>$1</code>");
     p = p.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    p = p.replace(
+      /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener">$1</a>',
+    );
     html.push(`<p>${p}</p>`);
   }
   if (inList) html.push("</ul>");
@@ -841,7 +918,7 @@ function selectRelease(tag) {
   if (!rel) return;
   state.selectedTag = tag;
   state.manifest = manifestFromRelease(rel);
-  els.changelogBody.innerHTML = renderMarkdownLite(rel.body || "_Нет описания._");
+  els.changelogBody.innerHTML = renderChangelogHtml(rel.body || "");
   syncVersionTrigger();
   updateDownload();
 }

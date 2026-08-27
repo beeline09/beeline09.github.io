@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-27T17:41:03.601Z",
+  "generatedAt": "2026-08-27T19:42:05.384Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "160d16c0",
   "files": [
@@ -72,6 +72,16 @@
       "name": "Darktec_companion_radio_ble_liion_1s_adc__myrepeater__673b8cc9.zip",
       "size": 476359,
       "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_adc__myrepeater__673b8cc9.zip"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_off__darktec-test1__f869p075-bw62p5-sf8-cr8-tx22__160d16c0.uf2",
+      "size": 955904,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_off__darktec-test1__f869p075-bw62p5-sf8-cr8-tx22__160d16c0.uf2"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_off__darktec-test1__f869p075-bw62p5-sf8-cr8-tx22__160d16c0.zip",
+      "size": 478591,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_off__darktec-test1__f869p075-bw62p5-sf8-cr8-tx22__160d16c0.zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lifepo4_1s_off__darktec__f869p075-bw62p5-sf8-cr8-tx22__5c730189.uf2",

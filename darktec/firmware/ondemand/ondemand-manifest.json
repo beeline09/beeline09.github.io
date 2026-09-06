@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-06T11:04:18.838Z",
+  "generatedAt": "2026-09-06T18:11:05.117Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "160d16c0",
   "files": [
@@ -12,6 +12,16 @@
       "name": "Darktec_companion_radio_ble_liion_1s_adc__adiga-repeater__673b8cc9.zip",
       "size": 476359,
       "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_adc__adiga-repeater__673b8cc9.zip"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_adc__berimor__f868p95-bw62p5-sf9-cr7-tx1__160d16c0.uf2",
+      "size": 956416,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_adc__berimor__f868p95-bw62p5-sf9-cr7-tx1__160d16c0.uf2"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_adc__berimor__f868p95-bw62p5-sf9-cr7-tx1__160d16c0.zip",
+      "size": 478895,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_adc__berimor__f868p95-bw62p5-sf9-cr7-tx1__160d16c0.zip"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__5c730189.uf2",

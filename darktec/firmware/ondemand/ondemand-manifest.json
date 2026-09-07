@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T11:18:39.753Z",
+  "generatedAt": "2026-09-07T11:54:33.292Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "160d16c0",
   "files": [
@@ -182,6 +182,16 @@
       "name": "Darktec_repeater_lifepo4_1s_adc__ozero-gk__f869p075-bw62p5-sf8-cr8-tx22__26d1c4d9.zip",
       "size": 418166,
       "url": "./firmware/ondemand/Darktec_repeater_lifepo4_1s_adc__ozero-gk__f869p075-bw62p5-sf8-cr8-tx22__26d1c4d9.zip"
+    },
+    {
+      "name": "Darktec_repeater_liion_1s_adc__gor-don-direct__f868p731-bw62p5-sf9-cr7-tx22__160d16c0.uf2",
+      "size": 835072,
+      "url": "./firmware/ondemand/Darktec_repeater_liion_1s_adc__gor-don-direct__f868p731-bw62p5-sf9-cr7-tx22__160d16c0.uf2"
+    },
+    {
+      "name": "Darktec_repeater_liion_1s_adc__gor-don-direct__f868p731-bw62p5-sf9-cr7-tx22__160d16c0.zip",
+      "size": 418167,
+      "url": "./firmware/ondemand/Darktec_repeater_liion_1s_adc__gor-don-direct__f868p731-bw62p5-sf9-cr7-tx22__160d16c0.zip"
     },
     {
       "name": "Darktec_repeater_liion_1s_adc__lab-test__673b8cc9.uf2",

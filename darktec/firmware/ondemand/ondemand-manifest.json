@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-11T11:29:52.992Z",
+  "generatedAt": "2026-09-11T14:06:02.495Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "160d16c0",
   "files": [
@@ -222,6 +222,16 @@
       "name": "Darktec_repeater_liion_1s_adc__semsam-repeater2__f864p281-bw62p5-sf8-cr7-tx22__160d16c0.zip",
       "size": 418167,
       "url": "./firmware/ondemand/Darktec_repeater_liion_1s_adc__semsam-repeater2__f864p281-bw62p5-sf8-cr7-tx22__160d16c0.zip"
+    },
+    {
+      "name": "Darktec_repeater_liion_1s_off__gor-don-direct__f868p731-bw62p5-sf9-cr7-tx22__160d16c0.uf2",
+      "size": 835072,
+      "url": "./firmware/ondemand/Darktec_repeater_liion_1s_off__gor-don-direct__f868p731-bw62p5-sf9-cr7-tx22__160d16c0.uf2"
+    },
+    {
+      "name": "Darktec_repeater_liion_1s_off__gor-don-direct__f868p731-bw62p5-sf9-cr7-tx22__160d16c0.zip",
+      "size": 418262,
+      "url": "./firmware/ondemand/Darktec_repeater_liion_1s_off__gor-don-direct__f868p731-bw62p5-sf9-cr7-tx22__160d16c0.zip"
     },
     {
       "name": "Darktec_repeater_lto_1s_adc__dd-rxsnd-rep__f864p281-bw62p5-sf8-cr7-tx22__160d16c0.uf2",

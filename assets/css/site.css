@@ -551,7 +551,11 @@ a:hover {
 }
 
 .radio-spoiler {
-  margin-top: 0;
+  margin-top: 0.85rem;
+}
+
+.radio-spoiler + .radio-spoiler {
+  margin-top: 0.55rem;
 }
 
 .radio-spoiler-body {

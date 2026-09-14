@@ -179,8 +179,8 @@
           <p class="hint" id="protectVoltages" hidden></p>
         </div>
 
-        <div class="step">
-          <h2 id="nameStepLabel">4 · Имя ноды</h2>
+        <div class="step preset-step">
+          <h2 id="presetStepLabel">4 · Предопределённые параметры</h2>
           <label class="version-label" for="advertNameInput">Advert / node name</label>
           <input
             class="version-select"
@@ -198,10 +198,7 @@
             Только латиница! Если поле ввода пустое, имя ноды будет
             <strong>Darktec Companion BLE</strong>.
           </p>
-        </div>
 
-        <div class="step">
-          <h2 id="radioStepLabel">5 · Параметры радио</h2>
           <details class="photo-spoiler radio-spoiler" id="radioSpoiler">
             <summary>Изменить параметры радио</summary>
             <div class="radio-spoiler-body">
@@ -293,6 +290,30 @@
               </div>
             </div>
           </details>
+
+          <details class="photo-spoiler radio-spoiler" id="powerSpoiler">
+            <summary>Питание</summary>
+            <div class="radio-spoiler-body">
+              <label class="radio-field">
+                <span class="version-label">ADC Multiplier</span>
+                <input
+                  class="version-select"
+                  id="adcMultiplierInput"
+                  type="text"
+                  inputmode="decimal"
+                  value="1.750"
+                  autocomplete="off"
+                  spellcheck="false"
+                  title="Число от 0.5 до 10, не более трёх знаков после точки или запятой"
+                >
+              </label>
+              <p class="hint" id="adcHint">
+                Делитель VBAT. По умолчанию <strong>1.750</strong> (100к/100к).
+                Только число, не более трёх знаков после точки или запятой.
+              </p>
+            </div>
+          </details>
+
           <p class="hint" id="radioCustomHint" hidden>
             Дефолт: 869.075&nbsp;МГц&nbsp;/&nbsp;62.5&nbsp;kHz&nbsp;/&nbsp;SF8&nbsp;/&nbsp;CR8&nbsp;/&nbsp;22&nbsp;dBm.
             Свои значения попадут в прошивку только после сборки.

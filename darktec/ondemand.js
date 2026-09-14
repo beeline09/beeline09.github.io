@@ -30,6 +30,58 @@ export const RADIO_DEFAULTS = Object.freeze({
   tx: 22,
 });
 
+/** VBAT divider default (100k/100k, calibrated). Matches variants/darktec. */
+export const ADC_DEFAULT = 1.75;
+
+/** Keep digits and at most one `.`/`,` with ≤3 fractional digits. */
+export function sanitizeAdcMultiplierInput(raw) {
+  let intp = "";
+  let sep = "";
+  let frac = "";
+  for (const ch of String(raw ?? "")) {
+    if (ch >= "0" && ch <= "9") {
+      if (sep) {
+        if (frac.length < 3) frac += ch;
+      } else {
+        intp += ch;
+      }
+    } else if ((ch === "." || ch === ",") && !sep) {
+      sep = ch;
+    }
+  }
+  return sep ? `${intp}${sep}${frac}` : intp;
+}
+
+export function parseAdcMultiplier(raw) {
+  const t = String(raw ?? "").trim();
+  if (!t) return ADC_DEFAULT;
+  const v = Number(t.replace(",", "."));
+  if (!Number.isFinite(v)) return NaN;
+  return Number(v.toFixed(3));
+}
+
+export function isDefaultAdc(raw) {
+  const v = parseAdcMultiplier(raw);
+  return Number.isFinite(v) && v === Number(ADC_DEFAULT.toFixed(3));
+}
+
+export function validateAdcMultiplier(raw) {
+  const t = String(raw ?? "").trim();
+  if (!t) return null;
+  if (!/^\d+([.,]\d{0,3})?$/.test(t)) {
+    return "ADC Multiplier: только число, не более трёх знаков после точки или запятой";
+  }
+  const v = parseAdcMultiplier(t);
+  if (!Number.isFinite(v) || v < 0.5 || v > 10) {
+    return "ADC Multiplier: число от 0.5 до 10";
+  }
+  return null;
+}
+
+export function adcSlugToken(raw) {
+  return parseAdcMultiplier(raw).toFixed(3).replace(/\./g, "p");
+}
+
 export function slugifyName(name) {
   const s = String(name || "")
     .trim()
@@ -216,13 +268,15 @@ export function ondemandBaseName({
   protect,
   nameSlug,
   radio,
+  adc,
   sha,
 }) {
   const radioPart = radioSlug(radio);
+  const adcPart = isDefaultAdc(adc) ? "" : `__adc${adcSlugToken(adc)}`;
   if (track === "official") {
-    return `DarktecOff_${role}_${chem}_${cells}s__${nameSlug}__${radioPart}__${sha}`;
+    return `DarktecOff_${role}_${chem}_${cells}s__${nameSlug}__${radioPart}${adcPart}__${sha}`;
   }
-  return `Darktec_${role}_${chem}_${cells}s_${protect}__${nameSlug}__${radioPart}__${sha}`;
+  return `Darktec_${role}_${chem}_${cells}s_${protect}__${nameSlug}__${radioPart}${adcPart}__${sha}`;
 }
 
 /**
@@ -268,9 +322,11 @@ export function buildIssueUrl({
   advertName,
   nameSlug,
   radio,
+  adc,
   sha,
 }) {
   const r = normalizeRadio(radio);
+  const adcVal = parseAdcMultiplier(adc).toFixed(3);
   const official = track === "official";
   const title = official
     ? `darktec-ondemand: official ${role} ${chem} ${cells}s ${nameSlug}`
@@ -293,6 +349,7 @@ export function buildIssueUrl({
     `lora_sf=${r.sf}`,
     `lora_cr=${r.cr}`,
     `lora_tx=${r.tx}`,
+    `adc_multiplier=${adcVal}`,
     `sha=${sha}`,
     "-->",
     "",

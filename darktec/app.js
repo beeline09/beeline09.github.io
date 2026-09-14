@@ -15,13 +15,16 @@ import {
   buildIssueUrl,
   findOndemandAssets,
   fetchFirmwareSha,
+  isDefaultAdc,
   isDefaultRadio,
   normalizeRadio,
   ondemandBaseName,
   pollOndemandAssets,
   RADIO_DEFAULTS,
+  sanitizeAdcMultiplierInput,
   sanitizeAdvertName,
   slugifyName,
+  validateAdcMultiplier,
   validateAdvertName,
   validateRadio,
 } from "./ondemand.js";
@@ -167,6 +170,7 @@ const state = {
   /** User edited name manually; role change won't overwrite until false. */
   advertNameTouched: false,
   radio: { ...RADIO_DEFAULTS },
+  adcMultiplier: "1.750",
   tab: "offline",
   releases: [],
   selectedTag: null,
@@ -233,7 +237,7 @@ const els = {
   consoleCloseBtn: document.getElementById("consoleCloseBtn"),
   consoleStatus: document.getElementById("consoleStatus"),
   advertNameInput: document.getElementById("advertNameInput"),
-  nameStepLabel: document.getElementById("nameStepLabel"),
+  presetStepLabel: document.getElementById("presetStepLabel"),
   nameHint: document.getElementById("nameHint"),
   buildBtn: document.getElementById("buildBtn"),
   buildBtnOnline: document.getElementById("buildBtnOnline"),
@@ -242,12 +246,12 @@ const els = {
   buildHelpModal: document.getElementById("buildHelpModal"),
   buildHelpOkBtn: document.getElementById("buildHelpOkBtn"),
   buildHelpCancelBtn: document.getElementById("buildHelpCancelBtn"),
-  radioStepLabel: document.getElementById("radioStepLabel"),
   radioFreq: document.getElementById("radioFreq"),
   radioBw: document.getElementById("radioBw"),
   radioSf: document.getElementById("radioSf"),
   radioCr: document.getElementById("radioCr"),
   radioTx: document.getElementById("radioTx"),
+  adcMultiplierInput: document.getElementById("adcMultiplierInput"),
   radioCustomHint: document.getElementById("radioCustomHint"),
 };
 
@@ -319,7 +323,7 @@ function fmtPackVolts(mv) {
 function syncRadioCustomHint() {
   const el = els.radioCustomHint;
   if (!el) return;
-  el.hidden = isDefaultRadio(state.radio);
+  el.hidden = isDefaultRadio(state.radio) && isDefaultAdc(state.adcMultiplier);
 }
 
 function setStatusPair(kind, extra = "") {
@@ -350,7 +354,7 @@ function isCustomName() {
 }
 
 function needsCustomBuild() {
-  return isCustomName() || !isDefaultRadio(state.radio);
+  return isCustomName() || !isDefaultRadio(state.radio) || !isDefaultAdc(state.adcMultiplier);
 }
 
 function customNameSlug() {
@@ -545,7 +549,7 @@ function syncNameStepLabels() {
   const chem = CHEMS.find((c) => c.id === state.chem);
   const multi = chem.cells.length > 1;
   const official = isOfficialTrack();
-  // role=1, chem=2, cells?=3, protect (south only), name, radio
+  // role=1, chem=2, cells?=3, protect (south only), predefined params
   let n = 3;
   if (multi) n += 1;
   if (!official) {
@@ -554,9 +558,7 @@ function syncNameStepLabels() {
     }
     n += 1;
   }
-  if (els.nameStepLabel) els.nameStepLabel.textContent = `${n} · Имя ноды`;
-  n += 1;
-  if (els.radioStepLabel) els.radioStepLabel.textContent = `${n} · Параметры радио`;
+  if (els.presetStepLabel) els.presetStepLabel.textContent = `${n} · Предопределённые параметры`;
 }
 
 async function refreshOndemandFromCache() {
@@ -570,6 +572,12 @@ async function refreshOndemandFromCache() {
     if (radioErr) {
       state.ondemand = null;
       setBuildControls({ show: false, hint: radioErr });
+      return;
+    }
+    const adcErr = validateAdcMultiplier(state.adcMultiplier);
+    if (adcErr) {
+      state.ondemand = null;
+      setBuildControls({ show: false, hint: adcErr });
       return;
     }
     const sha = currentTrackSha();
@@ -598,6 +606,7 @@ async function refreshOndemandFromCache() {
       protect: state.protect,
       nameSlug: customNameSlug(),
       radio: state.radio,
+      adc: state.adcMultiplier,
       sha: currentTrackSha(),
     });
     const found = await findOndemandAssets(base);
@@ -2167,6 +2176,8 @@ function wireOndemandUi() {
     debounce = setTimeout(() => {
       const nameErr = validateAdvertName(state.advertName);
       if (nameErr) return;
+      const adcErr = validateAdcMultiplier(state.adcMultiplier);
+      if (adcErr) return;
       void refreshOndemandFromCache()
         .then(updateDownload)
         .catch((err) => console.warn("ondemand schedule", err));
@@ -2214,6 +2225,29 @@ function wireOndemandUi() {
     el?.addEventListener("change", onRadioInput);
   }
 
+  els.adcMultiplierInput?.addEventListener("input", () => {
+    const cleaned = sanitizeAdcMultiplierInput(els.adcMultiplierInput.value);
+    if (cleaned !== els.adcMultiplierInput.value) {
+      const pos = els.adcMultiplierInput.selectionStart;
+      els.adcMultiplierInput.value = cleaned;
+      try {
+        els.adcMultiplierInput.setSelectionRange(Math.max(0, pos - 1), Math.max(0, pos - 1));
+      } catch {
+        /* ignore */
+      }
+    }
+    state.adcMultiplier = els.adcMultiplierInput.value;
+    syncRadioCustomHint();
+    if (!needsCustomBuild()) {
+      clearTimeout(debounce);
+      void refreshOndemandFromCache()
+        .then(updateDownload)
+        .catch((err) => console.warn("ondemand default adc", err));
+      return;
+    }
+    scheduleRefresh();
+  });
+
   const onBuildClick = async () => {
     if (!needsCustomBuild()) return;
     const nameErr = validateAdvertName(state.advertName);
@@ -2231,6 +2265,14 @@ function wireOndemandUi() {
       els.status.textContent = radioErr;
       els.flashStatus.className = "status error";
       els.flashStatus.textContent = radioErr;
+      return;
+    }
+    const adcErr = validateAdcMultiplier(state.adcMultiplier);
+    if (adcErr) {
+      els.status.className = "status error";
+      els.status.textContent = adcErr;
+      els.flashStatus.className = "status error";
+      els.flashStatus.textContent = adcErr;
       return;
     }
     const proceed = await showBuildHelpModal();
@@ -2258,6 +2300,7 @@ function wireOndemandUi() {
         protect: state.protect,
         nameSlug,
         radio: state.radio,
+        adc: state.adcMultiplier,
         sha,
       });
       const url = buildIssueUrl({
@@ -2269,6 +2312,7 @@ function wireOndemandUi() {
         advertName,
         nameSlug,
         radio: state.radio,
+        adc: state.adcMultiplier,
         sha,
       });
       window.open(url, "_blank", "noopener");

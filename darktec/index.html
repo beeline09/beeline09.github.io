@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/site.css?v=darktec7">
+  <link rel="stylesheet" href="/assets/css/site.css?v=darktec8">
 </head>
 <body>
   <div class="wrap">
@@ -88,25 +88,6 @@
     <div class="panel" id="app">
       <div class="panel-head">
         <h1>Darktec flasher</h1>
-        <div class="flasher-pickers">
-        <div class="version-controls">
-          <label class="version-label" id="firmwareLabel">Прошивка</label>
-          <div class="dropdown" id="firmwareDropdown">
-            <button
-              type="button"
-              class="dropdown-trigger"
-              id="firmwareSelect"
-              aria-labelledby="firmwareLabel"
-              aria-haspopup="listbox"
-              aria-expanded="false"
-              aria-controls="firmwareMenu"
-            >
-              <span class="dropdown-value" id="firmwareValue">Официальная прошивка</span>
-              <span class="dropdown-chevron" aria-hidden="true"></span>
-            </button>
-            <ul class="dropdown-menu" id="firmwareMenu" role="listbox" aria-labelledby="firmwareLabel" hidden></ul>
-          </div>
-        </div>
         <div class="version-controls">
           <label class="version-label" id="versionLabel">Версия</label>
           <div class="dropdown" id="versionDropdown">
@@ -126,6 +107,27 @@
             <ul class="dropdown-menu" id="versionMenu" role="listbox" aria-labelledby="versionLabel" hidden></ul>
           </div>
         </div>
+      </div>
+
+      <div class="firmware-tabs-bar">
+        <div class="tabs firmware-tabs" role="tablist" aria-label="Вариант прошивки">
+          <button
+            type="button"
+            class="tab"
+            role="tab"
+            id="tabFirmwareOfficial"
+            data-track="official"
+            aria-selected="true"
+          >Официальная прошивка</button>
+          <button
+            type="button"
+            class="tab"
+            role="tab"
+            id="tabFirmwareSouth"
+            data-track="south"
+            aria-selected="false"
+            title="south_edition"
+          >Южная прошивка</button>
         </div>
       </div>
 
@@ -456,6 +458,6 @@
     </div>
   </div>
 
-  <script type="module" src="./app.js?v=darktec9"></script>
+  <script type="module" src="./app.js?v=darktec11"></script>
 </body>
 </html>

@@ -661,15 +661,39 @@ a:hover {
   opacity: 1;
 }
 
-.flasher-pickers {
+.firmware-tabs-bar {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.45rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.65rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  box-sizing: border-box;
 }
 
-.flasher-pickers .dropdown {
-  max-width: min(100%, 22rem);
+.firmware-tabs {
+  width: 100%;
+}
+
+.firmware-tabs .tab {
+  border-radius: 999px;
+}
+
+.firmware-tabs .tab[aria-selected="true"] {
+  border-bottom-color: var(--line);
+}
+
+@media (max-width: 720px) {
+  .firmware-tabs {
+    flex-wrap: wrap;
+  }
+
+  .firmware-tabs .tab {
+    flex: 1 1 calc(50% - 0.35rem);
+    text-align: center;
+    justify-content: center;
+    white-space: normal;
+    line-height: 1.2;
+  }
 }
 
 .version-controls {
@@ -1196,13 +1220,9 @@ a:hover {
     align-items: flex-start;
   }
 
-  .flasher-pickers {
-    align-items: stretch;
-    width: 100%;
-  }
-
-  .flasher-pickers .dropdown {
-    max-width: none;
+  .firmware-tabs-bar {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .panel-body {

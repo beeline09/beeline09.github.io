@@ -35,10 +35,6 @@ const FIRMWARE_REPO = "beeline09/MeshCore";
 const RELEASES_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases?per_page=40`;
 const TAG_PREFIX = "darktec-v";
 const TRACK_STORAGE_KEY = "darktec.firmwareTrack";
-const FIRMWARE_TRACKS = [
-  { id: "official", title: "Официальная прошивка" },
-  { id: "south", title: "Южная прошивка (south_edition)" },
-];
 const UPSTREAM_SOUTH_EDITION_URL =
   "https://github.com/rogovogor/MeshCore/tree/south_edition";
 const UPSTREAM_OFFICIAL_URL = "https://github.com/meshcore-dev/MeshCore/tree/dev";
@@ -210,10 +206,7 @@ const els = {
   versionDropdown: document.getElementById("versionDropdown"),
   versionMenu: document.getElementById("versionMenu"),
   versionValue: document.getElementById("versionValue"),
-  firmwareSelect: document.getElementById("firmwareSelect"),
-  firmwareDropdown: document.getElementById("firmwareDropdown"),
-  firmwareMenu: document.getElementById("firmwareMenu"),
-  firmwareValue: document.getElementById("firmwareValue"),
+  firmwareTabs: document.querySelectorAll(".firmware-tabs [data-track]"),
   changelogBody: document.getElementById("changelogBody"),
   tabOffline: document.getElementById("tabOffline"),
   tabOnline: document.getElementById("tabOnline"),
@@ -998,46 +991,12 @@ function populateVersionSelect() {
   syncVersionTrigger();
 }
 
-function firmwareTrackLabel(id) {
-  return FIRMWARE_TRACKS.find((t) => t.id === id)?.title || id;
-}
-
-function setFirmwareDropdownOpen(open) {
-  const drop = els.firmwareDropdown;
-  const btn = els.firmwareSelect;
-  const menu = els.firmwareMenu;
-  if (!drop || !btn || !menu) return;
-  const next = Boolean(open);
-  drop.classList.toggle("is-open", next);
-  btn.setAttribute("aria-expanded", String(next));
-  menu.hidden = !next;
-  if (next) {
-    const selected = menu.querySelector('[aria-selected="true"]');
-    (selected || menu.querySelector('[role="option"]'))?.focus();
-  }
-}
-
-function populateFirmwareSelect() {
-  const btn = els.firmwareSelect;
-  const menu = els.firmwareMenu;
-  if (!btn || !menu) return;
-  menu.replaceChildren();
-  for (const track of FIRMWARE_TRACKS) {
-    const opt = document.createElement("li");
-    opt.setAttribute("role", "option");
-    opt.tabIndex = -1;
-    opt.className = "dropdown-option";
-    opt.dataset.value = track.id;
-    opt.textContent = track.title;
-    opt.setAttribute("aria-selected", String(track.id === state.track));
-    opt.addEventListener("click", () => {
-      void setFirmwareTrack(track.id);
-      setFirmwareDropdownOpen(false);
-      btn.focus();
-    });
-    menu.appendChild(opt);
-  }
-  if (els.firmwareValue) els.firmwareValue.textContent = firmwareTrackLabel(state.track);
+function syncFirmwareTabs() {
+  els.firmwareTabs?.forEach((btn) => {
+    const selected = btn.dataset.track === state.track;
+    btn.setAttribute("aria-selected", String(selected));
+    btn.tabIndex = selected ? 0 : -1;
+  });
 }
 
 async function setFirmwareTrack(id, { persist = true } = {}) {
@@ -1045,11 +1004,9 @@ async function setFirmwareTrack(id, { persist = true } = {}) {
   const changed = state.track !== id;
   state.track = id;
   if (persist) persistTrack(id);
-  if (els.firmwareValue) els.firmwareValue.textContent = firmwareTrackLabel(id);
-  els.firmwareMenu?.querySelectorAll('[role="option"]').forEach((opt) => {
-    opt.setAttribute("aria-selected", String(opt.dataset.value === id));
-  });
+  syncFirmwareTabs();
   applyTrackCatalog();
+  renderAll();
   if (changed) {
     state.ondemand = null;
     if (state.pollAbort) {
@@ -1528,52 +1485,38 @@ els.versionMenu?.addEventListener("keydown", (ev) => {
   }
 });
 
-els.firmwareSelect?.addEventListener("click", () => {
-  if (!els.firmwareSelect) return;
-  const open = els.firmwareSelect.getAttribute("aria-expanded") === "true";
-  setFirmwareDropdownOpen(!open);
-});
-
-els.firmwareSelect?.addEventListener("keydown", (ev) => {
-  if (ev.key === "ArrowDown" || ev.key === "Enter" || ev.key === " ") {
-    ev.preventDefault();
-    setFirmwareDropdownOpen(true);
-  } else if (ev.key === "Escape") {
-    setFirmwareDropdownOpen(false);
-  }
-});
-
-els.firmwareMenu?.addEventListener("keydown", (ev) => {
-  const options = [...els.firmwareMenu.querySelectorAll('[role="option"]')];
-  const i = options.indexOf(document.activeElement);
-  if (ev.key === "Escape") {
-    ev.preventDefault();
-    setFirmwareDropdownOpen(false);
-    els.firmwareSelect?.focus();
-  } else if (ev.key === "ArrowDown") {
-    ev.preventDefault();
-    options[Math.min(Math.max(i, 0) + 1, options.length - 1)]?.focus();
-  } else if (ev.key === "ArrowUp") {
-    ev.preventDefault();
-    if (i <= 0) els.firmwareSelect?.focus();
-    else options[i - 1]?.focus();
-  } else if (ev.key === "Enter" || ev.key === " ") {
-    ev.preventDefault();
-    if (i >= 0) options[i].click();
-  } else if (ev.key === "Home") {
-    ev.preventDefault();
-    options[0]?.focus();
-  } else if (ev.key === "End") {
-    ev.preventDefault();
-    options[options.length - 1]?.focus();
-  }
+els.firmwareTabs?.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    void setFirmwareTrack(btn.dataset.track);
+  });
+  btn.addEventListener("keydown", (ev) => {
+    const tabs = [...els.firmwareTabs];
+    const i = tabs.indexOf(btn);
+    if (ev.key === "ArrowRight" || ev.key === "ArrowDown") {
+      ev.preventDefault();
+      const next = tabs[Math.min(i + 1, tabs.length - 1)];
+      next?.focus();
+      void setFirmwareTrack(next?.dataset.track);
+    } else if (ev.key === "ArrowLeft" || ev.key === "ArrowUp") {
+      ev.preventDefault();
+      const prev = tabs[Math.max(i - 1, 0)];
+      prev?.focus();
+      void setFirmwareTrack(prev?.dataset.track);
+    } else if (ev.key === "Home") {
+      ev.preventDefault();
+      tabs[0]?.focus();
+      void setFirmwareTrack(tabs[0]?.dataset.track);
+    } else if (ev.key === "End") {
+      ev.preventDefault();
+      tabs[tabs.length - 1]?.focus();
+      void setFirmwareTrack(tabs[tabs.length - 1]?.dataset.track);
+    }
+  });
 });
 
 document.addEventListener("pointerdown", (ev) => {
   const drop = els.versionDropdown;
   if (drop && !drop.contains(ev.target)) setVersionDropdownOpen(false);
-  const fw = els.firmwareDropdown;
-  if (fw && !fw.contains(ev.target)) setFirmwareDropdownOpen(false);
 });
 
 els.tabOffline.addEventListener("click", () => setTab("offline"));
@@ -2099,7 +2042,8 @@ async function boot() {
   setTab("offline");
   wireUsbTools();
   syncAdvertNameFromRole({ force: true });
-  populateFirmwareSelect();
+  syncFirmwareTabs();
+  renderAll();
   wireOndemandUi();
   try {
     const [southSha, officialSha] = await Promise.all([

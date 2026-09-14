@@ -663,15 +663,31 @@ a:hover {
 
 .firmware-tabs-bar {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
   width: 100%;
-  padding: 0.65rem 1.25rem;
+  padding: 0.55rem 1.25rem;
   border-bottom: 1px solid var(--line);
   box-sizing: border-box;
+  position: relative;
+  z-index: 4;
 }
 
 .firmware-tabs {
-  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.firmware-tabs-bar .version-controls {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.firmware-tabs-bar .dropdown {
+  max-width: min(100%, 22rem);
 }
 
 .firmware-tabs .tab {
@@ -1183,7 +1199,8 @@ a:hover {
 }
 
 @media (max-width: 720px) {
-  .tabs-bar {
+  .tabs-bar,
+  .firmware-tabs-bar {
     flex-wrap: wrap;
   }
 
@@ -1192,6 +1209,17 @@ a:hover {
     margin-left: 0;
     justify-content: flex-end;
     padding-bottom: 0.65rem;
+  }
+
+  .firmware-tabs-bar .version-controls {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+
+  .firmware-tabs-bar .dropdown {
+    max-width: none;
+    flex: 1 1 auto;
   }
 }
 
@@ -1227,11 +1255,6 @@ a:hover {
 
   .project-link {
     grid-template-columns: 1fr;
-  }
-
-  .panel-head {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .firmware-tabs-bar,

@@ -682,6 +682,20 @@ a:hover {
   border-bottom-color: var(--line);
 }
 
+.fork-slot {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  box-sizing: border-box;
+}
+
+.fork-slot .fork-card {
+  margin-top: 0;
+}
+
+.fork-slot .fork-card[hidden] {
+  display: none;
+}
+
 @media (max-width: 720px) {
   .firmware-tabs {
     flex-wrap: wrap;
@@ -1220,7 +1234,8 @@ a:hover {
     align-items: flex-start;
   }
 
-  .firmware-tabs-bar {
+  .firmware-tabs-bar,
+  .fork-slot {
     padding-left: 1rem;
     padding-right: 1rem;
   }

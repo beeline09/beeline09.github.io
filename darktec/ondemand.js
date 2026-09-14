@@ -14,8 +14,12 @@ const ONDEMAND_MANIFEST_URL = new URL(
   import.meta.url,
 ).href;
 const SOUTH_SHA_URL = new URL("./south_edition_sha.txt", import.meta.url).href;
+const OFFICIAL_SHA_URL = new URL("./dev_darktec_sha.txt", import.meta.url).href;
 /** Optional one-shot fallbacks — never used in a poll loop. */
-const COMMITS_API = `https://api.github.com/repos/${FIRMWARE_REPO}/commits/south_edition`;
+const COMMITS_API = {
+  south: `https://api.github.com/repos/${FIRMWARE_REPO}/commits/south_edition`,
+  official: `https://api.github.com/repos/${FIRMWARE_REPO}/commits/dev-darktec`,
+};
 
 /** Krasnodar / Adygea preset (matches variants/darktec/radio_defaults.h). */
 export const RADIO_DEFAULTS = Object.freeze({
@@ -139,6 +143,7 @@ async function loadOndemandManifest({ force = false } = {}) {
       manifestCache = {
         files: Array.isArray(data.files) ? data.files : [],
         southSha: data.southSha || null,
+        officialSha: data.officialSha || null,
       };
       manifestFetchedAt = now;
       return manifestCache;
@@ -146,38 +151,45 @@ async function loadOndemandManifest({ force = false } = {}) {
   } catch (err) {
     console.warn("ondemand-manifest miss", err);
   }
-  manifestCache = { files: [], southSha: null };
+  manifestCache = { files: [], southSha: null, officialSha: null };
   manifestFetchedAt = now;
   return manifestCache;
 }
 
 /**
- * Resolve south_edition short SHA from same-origin files first.
+ * Resolve short SHA for a firmware track from same-origin files first.
  * Optional single GitHub API attempt — never throws.
+ * @param {"south"|"official"} [track]
  * @returns {Promise<string|null>}
  */
-export async function fetchSouthEditionSha() {
+export async function fetchFirmwareSha(track = "south") {
+  const official = track === "official";
+  const shaUrl = official ? OFFICIAL_SHA_URL : SOUTH_SHA_URL;
+  const shaKey = official ? "officialSha" : "southSha";
+  const commitsUrl = official ? COMMITS_API.official : COMMITS_API.south;
+
   try {
-    const res = await fetch(SOUTH_SHA_URL, { cache: "no-cache" });
+    const res = await fetch(shaUrl, { cache: "no-cache" });
     if (res.ok) {
       const text = (await res.text()).trim().split(/\s+/)[0] || "";
       if (/^[0-9a-f]{7,40}$/i.test(text)) return text.slice(0, 8).toLowerCase();
     }
   } catch (err) {
-    console.warn("south_edition_sha.txt", err);
+    console.warn(official ? "dev_darktec_sha.txt" : "south_edition_sha.txt", err);
   }
 
   try {
     const m = await loadOndemandManifest();
-    if (m.southSha && /^[0-9a-f]{7,40}$/i.test(String(m.southSha))) {
-      return String(m.southSha).slice(0, 8).toLowerCase();
+    const fromManifest = m[shaKey];
+    if (fromManifest && /^[0-9a-f]{7,40}$/i.test(String(fromManifest))) {
+      return String(fromManifest).slice(0, 8).toLowerCase();
     }
   } catch {
     /* ignore */
   }
 
   try {
-    const res = await fetch(COMMITS_API, {
+    const res = await fetch(commitsUrl, {
       headers: { Accept: "application/vnd.github+json" },
     });
     if (res.ok) {
@@ -186,13 +198,31 @@ export async function fetchSouthEditionSha() {
       if (sha) return sha;
     }
   } catch (err) {
-    console.warn("south_edition sha API fallback", err);
+    console.warn(`${track} sha API fallback`, err);
   }
   return null;
 }
 
-export function ondemandBaseName({ role, chem, cells, protect, nameSlug, radio, sha }) {
-  return `Darktec_${role}_${chem}_${cells}s_${protect}__${nameSlug}__${radioSlug(radio)}__${sha}`;
+/** @deprecated use fetchFirmwareSha("south") */
+export async function fetchSouthEditionSha() {
+  return fetchFirmwareSha("south");
+}
+
+export function ondemandBaseName({
+  track = "south",
+  role,
+  chem,
+  cells,
+  protect,
+  nameSlug,
+  radio,
+  sha,
+}) {
+  const radioPart = radioSlug(radio);
+  if (track === "official") {
+    return `DarktecOff_${role}_${chem}_${cells}s__${nameSlug}__${radioPart}__${sha}`;
+  }
+  return `Darktec_${role}_${chem}_${cells}s_${protect}__${nameSlug}__${radioPart}__${sha}`;
 }
 
 /**
@@ -230,6 +260,7 @@ export async function findOndemandAssets(baseName) {
 }
 
 export function buildIssueUrl({
+  track = "south",
   role,
   chem,
   cells,
@@ -240,15 +271,21 @@ export function buildIssueUrl({
   sha,
 }) {
   const r = normalizeRadio(radio);
-  const title = `darktec-ondemand: ${role} ${chem} ${cells}s ${protect} ${nameSlug}`;
-  const body = [
+  const official = track === "official";
+  const title = official
+    ? `darktec-ondemand: official ${role} ${chem} ${cells}s ${nameSlug}`
+    : `darktec-ondemand: ${role} ${chem} ${cells}s ${protect} ${nameSlug}`;
+  const bodyLines = [
     "Запрос кастомной сборки Darktec из `/darktec/`.",
     "",
     "<!-- darktec-ondemand",
+    `firmware_track=${official ? "official" : "south"}`,
     `role_slug=${role}`,
     `chem_slug=${chem}`,
     `cells=${cells}`,
-    `protect_slug=${protect}`,
+  ];
+  if (!official) bodyLines.push(`protect_slug=${protect}`);
+  bodyLines.push(
     `advert_name=${advertName}`,
     `name_slug=${nameSlug}`,
     `lora_freq=${r.freq}`,
@@ -261,7 +298,8 @@ export function buildIssueUrl({
     "",
     "Не редактируйте блок `<!-- darktec-ondemand ... -->`.",
     "После создания issue сборка запустится сама (~2–5 мин), ссылки появятся в комментарии.",
-  ].join("\n");
+  );
+  const body = bodyLines.join("\n");
 
   const params = new URLSearchParams({
     title,

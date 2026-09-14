@@ -14,7 +14,7 @@ import {
 import {
   buildIssueUrl,
   findOndemandAssets,
-  fetchSouthEditionSha,
+  fetchFirmwareSha,
   isDefaultRadio,
   normalizeRadio,
   ondemandBaseName,
@@ -34,6 +34,16 @@ const FIRMWARE_REPO = "beeline09/MeshCore";
 /** Optional one-shot fallback only — primary source is same-origin releases.json. */
 const RELEASES_API = `https://api.github.com/repos/${FIRMWARE_REPO}/releases?per_page=40`;
 const TAG_PREFIX = "darktec-v";
+const TRACK_STORAGE_KEY = "darktec.firmwareTrack";
+const FIRMWARE_TRACKS = [
+  { id: "official", title: "Официальная прошивка" },
+  { id: "south", title: "Южная прошивка (south_edition)" },
+];
+const UPSTREAM_SOUTH_EDITION_URL =
+  "https://github.com/rogovogor/MeshCore/tree/south_edition";
+const UPSTREAM_OFFICIAL_URL = "https://github.com/meshcore-dev/MeshCore/tree/dev";
+const VARIANT_OFFICIAL_URL =
+  "https://github.com/beeline09/MeshCore/tree/dev-darktec";
 const RELEASES_MANIFEST_URLS = [
   () => new URL("./releases.json", import.meta.url).href,
 ];
@@ -88,16 +98,50 @@ const EXPECTED_CHEM_CELLS = [
 ];
 const EXPECTED_PROTECTS = ["adc", "off"];
 
-const DARKTEC_ASSET = /^Darktec_.+\.(uf2|zip)$/i;
+const SOUTH_ASSET = /^Darktec_.+\.(uf2|zip)$/i;
+const OFFICIAL_ASSET = /^DarktecOff_.+\.(uf2|zip)$/i;
 const BUILDING_MSG = "Сборка…";
 const BUILDING_EMPTY = "Прошивка ещё собирается. Приходите сюда позже.";
+
+function readStoredTrack() {
+  try {
+    const v = localStorage.getItem(TRACK_STORAGE_KEY);
+    if (v === "south" || v === "official") return v;
+  } catch {
+    /* ignore quota / private mode */
+  }
+  return "official";
+}
+
+function persistTrack(id) {
+  try {
+    localStorage.setItem(TRACK_STORAGE_KEY, id);
+  } catch {
+    /* ignore */
+  }
+}
+
+function isOfficialTrack() {
+  return state.track === "official";
+}
+
+function isCatalogAsset(name) {
+  if (!name || /_uf2_/i.test(name)) return false;
+  return isOfficialTrack()
+    ? OFFICIAL_ASSET.test(name)
+    : SOUTH_ASSET.test(name) && !OFFICIAL_ASSET.test(name);
+}
 
 function expectedBasenames() {
   const names = [];
   for (const role of ROLES) {
     for (const { chem, cells } of EXPECTED_CHEM_CELLS) {
-      for (const protect of EXPECTED_PROTECTS) {
-        names.push(`Darktec_${role.id}_${chem}_${cells}s_${protect}`);
+      if (isOfficialTrack()) {
+        names.push(`DarktecOff_${role.id}_${chem}_${cells}s`);
+      } else {
+        for (const protect of EXPECTED_PROTECTS) {
+          names.push(`Darktec_${role.id}_${chem}_${cells}s_${protect}`);
+        }
       }
     }
   }
@@ -109,7 +153,7 @@ function isReleaseComplete(release) {
   const names = new Set(
     (release.assets || [])
       .map((a) => a.name)
-      .filter((n) => DARKTEC_ASSET.test(n) && !/^Darktec_uf2_/i.test(n)),
+      .filter((n) => isCatalogAsset(n)),
   );
   for (const base of expectedBasenames()) {
     if (!names.has(`${base}.uf2`) || !names.has(`${base}.zip`)) return false;
@@ -118,6 +162,7 @@ function isReleaseComplete(release) {
 }
 
 const state = {
+  track: readStoredTrack(),
   role: "companion_radio_ble",
   chem: "liion",
   cells: 1,
@@ -132,6 +177,10 @@ const state = {
   manifest: null,
   /** @type {string|null} */
   southSha: null,
+  /** @type {string|null} */
+  officialSha: null,
+  /** Cached catalog per track from releases.json */
+  catalog: { south: [], official: [] },
   /** @type {{ uf2: object|null, zip: object|null }|null} */
   ondemand: null,
   building: false,
@@ -145,9 +194,12 @@ const els = {
   cellsStep: document.getElementById("cellsStep"),
   chemHint: document.getElementById("chemHint"),
   protectChoices: document.getElementById("protectChoices"),
+  protectStep: document.getElementById("protectStep"),
   protectHint: document.getElementById("protectHint"),
   protectVoltages: document.getElementById("protectVoltages"),
   protectStepLabel: document.getElementById("protectStepLabel"),
+  forkCardOfficial: document.getElementById("forkCardOfficial"),
+  forkCardSouth: document.getElementById("forkCardSouth"),
   downloadStepLabel: document.getElementById("downloadStepLabel"),
   status: document.getElementById("status"),
   downloadBtn: document.getElementById("downloadBtn"),
@@ -158,6 +210,10 @@ const els = {
   versionDropdown: document.getElementById("versionDropdown"),
   versionMenu: document.getElementById("versionMenu"),
   versionValue: document.getElementById("versionValue"),
+  firmwareSelect: document.getElementById("firmwareSelect"),
+  firmwareDropdown: document.getElementById("firmwareDropdown"),
+  firmwareMenu: document.getElementById("firmwareMenu"),
+  firmwareValue: document.getElementById("firmwareValue"),
   changelogBody: document.getElementById("changelogBody"),
   tabOffline: document.getElementById("tabOffline"),
   tabOnline: document.getElementById("tabOnline"),
@@ -209,7 +265,14 @@ const serialCon = {
 };
 
 function expectedBaseName() {
+  if (isOfficialTrack()) {
+    return `DarktecOff_${state.role}_${state.chem}_${state.cells}s`;
+  }
   return `Darktec_${state.role}_${state.chem}_${state.cells}s_${state.protect}`;
+}
+
+function currentTrackSha() {
+  return isOfficialTrack() ? state.officialSha : state.southSha;
 }
 
 function expectedFileName() {
@@ -488,13 +551,19 @@ function showBuildingEmptyState() {
 function syncNameStepLabels() {
   const chem = CHEMS.find((c) => c.id === state.chem);
   const multi = chem.cells.length > 1;
-  // role=1, chem=2, cells?=3, protect, name, radio
-  const protectN = multi ? 4 : 3;
-  const nameN = protectN + 1;
-  const radioN = nameN + 1;
-  els.protectStepLabel.textContent = `${protectN} · Защита батареи`;
-  if (els.nameStepLabel) els.nameStepLabel.textContent = `${nameN} · Имя ноды`;
-  if (els.radioStepLabel) els.radioStepLabel.textContent = `${radioN} · Параметры радио`;
+  const official = isOfficialTrack();
+  // role=1, chem=2, cells?=3, protect (south only), name, radio
+  let n = 3;
+  if (multi) n += 1;
+  if (!official) {
+    if (els.protectStepLabel) {
+      els.protectStepLabel.textContent = `${n} · Защита батареи`;
+    }
+    n += 1;
+  }
+  if (els.nameStepLabel) els.nameStepLabel.textContent = `${n} · Имя ноды`;
+  n += 1;
+  if (els.radioStepLabel) els.radioStepLabel.textContent = `${n} · Параметры радио`;
 }
 
 async function refreshOndemandFromCache() {
@@ -510,27 +579,33 @@ async function refreshOndemandFromCache() {
       setBuildControls({ show: false, hint: radioErr });
       return;
     }
-    if (!state.southSha) {
-      state.southSha = await fetchSouthEditionSha();
+    const sha = currentTrackSha();
+    if (!sha) {
+      const fetched = await fetchFirmwareSha(state.track);
+      if (isOfficialTrack()) state.officialSha = fetched;
+      else state.southSha = fetched;
     }
-    if (!state.southSha) {
+    if (!currentTrackSha()) {
       state.ondemand = null;
       setBuildControls({
         show: true,
         hint:
-          "Не удалось определить версию south_edition (sha). Нажмите «Собрать» или обновите страницу позже.",
+          isOfficialTrack()
+            ? "Не удалось определить версию official (sha). Нажмите «Собрать» или обновите страницу позже."
+            : "Не удалось определить версию south_edition (sha). Нажмите «Собрать» или обновите страницу позже.",
         building: state.building,
       });
       return;
     }
     const base = ondemandBaseName({
+      track: state.track,
       role: state.role,
       chem: state.chem,
       cells: state.cells,
       protect: state.protect,
       nameSlug: customNameSlug(),
       radio: state.radio,
-      sha: state.southSha,
+      sha: currentTrackSha(),
     });
     const found = await findOndemandAssets(base);
     state.ondemand = { uf2: found.uf2, zip: found.zip };
@@ -648,6 +723,9 @@ function updateDownload() {
 }
 
 function renderAll() {
+  if (els.protectStep) els.protectStep.hidden = isOfficialTrack();
+  if (els.forkCardOfficial) els.forkCardOfficial.hidden = !isOfficialTrack();
+  if (els.forkCardSouth) els.forkCardSouth.hidden = isOfficialTrack();
   renderChoices(els.roleChoices, ROLES, state.role, (id) => {
     state.role = id;
     syncAdvertNameFromRole();
@@ -681,9 +759,6 @@ function setTab(tab) {
   els.paneOffline.hidden = !offline;
   els.paneOnline.hidden = offline;
 }
-
-const UPSTREAM_SOUTH_EDITION_URL =
-  "https://github.com/rogovogor/MeshCore/tree/south_edition";
 
 /** Keep only beeline09/Darktec bullets from mixed release notes. */
 const OURS_CHANGE_RE =
@@ -742,10 +817,17 @@ function renderChangelogHtml(md) {
   const body = ours
     ? renderMarkdownLite(ours)
     : "<p><em>Нет отдельных изменений beeline09/Darktec в этой версии.</em></p>";
-  return [
-    `<p class="changelog-base">Прошивка основана на списке изменений базовой ветки ` +
+  const intro = isOfficialTrack()
+    ? `<p class="changelog-base">Прошивка основана на ветке ` +
+      `<a href="${UPSTREAM_OFFICIAL_URL}" target="_blank" rel="noopener">dev</a> ` +
+      `(meshcore-dev / MeshCore) плюс вариант ` +
+      `<a href="${VARIANT_OFFICIAL_URL}" target="_blank" rel="noopener">dev-darktec</a>. ` +
+      `Это не бинарный релиз meshcore.io. Полный upstream-changelog смотрите там.</p>`
+    : `<p class="changelog-base">Прошивка основана на списке изменений базовой ветки ` +
       `<a href="${UPSTREAM_SOUTH_EDITION_URL}" target="_blank" rel="noopener">south_edition</a> ` +
-      `(Rogovogor / MeshCore). Полный upstream-changelog смотрите там.</p>`,
+      `(Rogovogor / MeshCore). Полный upstream-changelog смотрите там.</p>`;
+  return [
+    intro,
     `<h3 class="changelog-ours-title">Изменения beeline09 / Darktec</h3>`,
     body,
   ].join("\n");
@@ -817,7 +899,7 @@ function renderMarkdownLite(md) {
 
 function manifestFromRelease(release) {
   const files = (release.assets || [])
-    .filter((a) => DARKTEC_ASSET.test(a.name) && !/^Darktec_uf2_/i.test(a.name))
+    .filter((a) => isCatalogAsset(a.name))
     .map((asset) => ({
       name: asset.name,
       url: asset.browser_download_url,
@@ -841,6 +923,9 @@ function manifestFromRelease(release) {
 function displayVersion(tag) {
   if (!tag) return "—";
   if (tag === "darktec-latest") return "latest";
+  if (tag === "darktec-official-latest") {
+    return state.officialSha ? `latest · ${state.officialSha}` : "latest";
+  }
   if (tag.startsWith(TAG_PREFIX)) return tag.slice("darktec-".length);
   return tag;
 }
@@ -913,6 +998,81 @@ function populateVersionSelect() {
   syncVersionTrigger();
 }
 
+function firmwareTrackLabel(id) {
+  return FIRMWARE_TRACKS.find((t) => t.id === id)?.title || id;
+}
+
+function setFirmwareDropdownOpen(open) {
+  const drop = els.firmwareDropdown;
+  const btn = els.firmwareSelect;
+  const menu = els.firmwareMenu;
+  if (!drop || !btn || !menu) return;
+  const next = Boolean(open);
+  drop.classList.toggle("is-open", next);
+  btn.setAttribute("aria-expanded", String(next));
+  menu.hidden = !next;
+  if (next) {
+    const selected = menu.querySelector('[aria-selected="true"]');
+    (selected || menu.querySelector('[role="option"]'))?.focus();
+  }
+}
+
+function populateFirmwareSelect() {
+  const btn = els.firmwareSelect;
+  const menu = els.firmwareMenu;
+  if (!btn || !menu) return;
+  menu.replaceChildren();
+  for (const track of FIRMWARE_TRACKS) {
+    const opt = document.createElement("li");
+    opt.setAttribute("role", "option");
+    opt.tabIndex = -1;
+    opt.className = "dropdown-option";
+    opt.dataset.value = track.id;
+    opt.textContent = track.title;
+    opt.setAttribute("aria-selected", String(track.id === state.track));
+    opt.addEventListener("click", () => {
+      void setFirmwareTrack(track.id);
+      setFirmwareDropdownOpen(false);
+      btn.focus();
+    });
+    menu.appendChild(opt);
+  }
+  if (els.firmwareValue) els.firmwareValue.textContent = firmwareTrackLabel(state.track);
+}
+
+async function setFirmwareTrack(id, { persist = true } = {}) {
+  if (id !== "south" && id !== "official") return;
+  const changed = state.track !== id;
+  state.track = id;
+  if (persist) persistTrack(id);
+  if (els.firmwareValue) els.firmwareValue.textContent = firmwareTrackLabel(id);
+  els.firmwareMenu?.querySelectorAll('[role="option"]').forEach((opt) => {
+    opt.setAttribute("aria-selected", String(opt.dataset.value === id));
+  });
+  applyTrackCatalog();
+  if (changed) {
+    state.ondemand = null;
+    if (state.pollAbort) {
+      state.pollAbort.abort();
+      state.pollAbort = null;
+    }
+    state.building = false;
+    try {
+      const sha = await fetchFirmwareSha(id);
+      if (id === "official") state.officialSha = sha;
+      else state.southSha = sha;
+    } catch (err) {
+      console.warn("track sha", err);
+    }
+    try {
+      await refreshOndemandFromCache();
+    } catch (err) {
+      console.warn("track ondemand", err);
+    }
+  }
+  renderAll();
+}
+
 function selectRelease(tag) {
   const rel = state.releases.find((r) => r.tag_name === tag);
   if (!rel) return;
@@ -923,14 +1083,18 @@ function selectRelease(tag) {
   updateDownload();
 }
 
-function staticReleaseToSynthetic(entry) {
+function staticReleaseToSynthetic(entry, track = "south") {
   const tag = entry?.release?.tag;
   if (!tag) return null;
   const files = (entry.files || [])
-    .filter((f) => DARKTEC_ASSET.test(f.name) && !/^Darktec_uf2_/i.test(f.name))
+    .filter((f) =>
+      track === "official"
+        ? OFFICIAL_ASSET.test(f.name) && !/_uf2_/i.test(f.name)
+        : SOUTH_ASSET.test(f.name) && !OFFICIAL_ASSET.test(f.name) && !/_uf2_/i.test(f.name),
+    )
     .map((f) => ({
       name: f.name,
-      url: localFirmwareUrl(f.name, tag),
+      url: localFirmwareUrl(f.name, tag, track),
       size: f.size,
     }));
   if (!files.length) return null;
@@ -951,31 +1115,56 @@ function staticReleaseToSynthetic(entry) {
   };
 }
 
-/**
- * Apply a static same-origin releases.json (CI: scripts/generate-releases.mjs).
- * Supports both the old single-release shape and the new multi-release shape.
- * File URLs are remapped to per-version same-origin mirrors for CORS-safe Serial DFU.
- */
-function applyStaticReleasesManifest(data) {
-  const entries = Array.isArray(data?.releases)
-    ? data.releases
-    : data?.release
-      ? [data]
-      : [];
-  const releases = entries
-    .map(staticReleaseToSynthetic)
+function entriesToSyntheticReleases(entries, track) {
+  return (entries || [])
+    .map((entry) => staticReleaseToSynthetic(entry, track))
     .filter(Boolean)
     .sort((a, b) => {
       const at = Date.parse(a.published_at || 0) || 0;
       const bt = Date.parse(b.published_at || 0) || 0;
       return bt - at;
     });
-  if (!releases.length) return false;
+}
 
+function applyTrackCatalog() {
+  const releases = state.catalog[state.track] || [];
   state.releases = releases;
+  if (!releases.length) {
+    showBuildingEmptyState();
+    return false;
+  }
   state.selectedTag = releases[0].tag_name;
   populateVersionSelect();
   selectRelease(state.selectedTag);
+  return true;
+}
+
+/**
+ * Apply a static same-origin releases.json (CI: scripts/generate-releases.mjs).
+ * Supports both the old single-release shape and tracks.south / tracks.official.
+ */
+function applyStaticReleasesManifest(data) {
+  const southEntries = Array.isArray(data?.tracks?.south?.releases)
+    ? data.tracks.south.releases
+    : Array.isArray(data?.releases)
+      ? data.releases
+      : data?.release
+        ? [data]
+        : [];
+  const officialEntries = Array.isArray(data?.tracks?.official?.releases)
+    ? data.tracks.official.releases
+    : [];
+
+  state.catalog.south = entriesToSyntheticReleases(southEntries, "south");
+  state.catalog.official = entriesToSyntheticReleases(officialEntries, "official");
+
+  const southSha = data?.tracks?.south?.sha || data?.southSha;
+  const officialSha = data?.tracks?.official?.sha || data?.officialSha;
+  if (southSha) state.southSha = String(southSha).slice(0, 8).toLowerCase();
+  if (officialSha) state.officialSha = String(officialSha).slice(0, 8).toLowerCase();
+
+  if (!state.catalog.south.length && !state.catalog.official.length) return false;
+  applyTrackCatalog();
   return true;
 }
 
@@ -986,33 +1175,41 @@ async function loadReleasesFromApi() {
   if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
   const all = await res.json();
 
-  const versioned = all.filter(
-    (r) => !r.draft && !r.prerelease && /^darktec-v\d+\.\d+\.\d+b\d+$/.test(r.tag_name),
-  );
-  const complete = versioned.filter(isReleaseComplete);
-  const latest = all.find((r) => !r.draft && r.tag_name === "darktec-latest");
-
-  state.releases = complete.length
-    ? complete
-    : latest && isReleaseComplete(latest)
-      ? [latest]
-      : [];
-
-  if (!state.releases.length) return false;
-
-  // Prefer same-origin firmware mirrors over GitHub CDN (CORS).
-  for (const rel of state.releases) {
-    for (const asset of rel.assets || []) {
-      if (DARKTEC_ASSET.test(asset.name) && !/^Darktec_uf2_/i.test(asset.name)) {
-        asset.browser_download_url = localFirmwareUrl(asset.name, rel.tag_name);
+  const remap = (rels) => {
+    for (const rel of rels) {
+      for (const asset of rel.assets || []) {
+        if (isCatalogAsset(asset.name)) {
+          asset.browser_download_url = localFirmwareUrl(asset.name, rel.tag_name);
+        }
       }
     }
-  }
+    return rels;
+  };
 
-  state.selectedTag = state.releases[0].tag_name;
-  populateVersionSelect();
-  selectRelease(state.selectedTag);
-  return true;
+  const southVersioned = all.filter(
+    (r) => !r.draft && !r.prerelease && /^darktec-v\d+\.\d+\.\d+b\d+$/.test(r.tag_name),
+  );
+  const prevTrack = state.track;
+  state.track = "south";
+  const southComplete = southVersioned.filter(isReleaseComplete);
+  const southLatest = all.find((r) => !r.draft && r.tag_name === "darktec-latest");
+  state.catalog.south = remap(
+    southComplete.length
+      ? southComplete
+      : southLatest && isReleaseComplete(southLatest)
+        ? [southLatest]
+        : [],
+  );
+
+  state.track = "official";
+  const officialLatest = all.find((r) => !r.draft && r.tag_name === "darktec-official-latest");
+  state.catalog.official = remap(
+    officialLatest && isReleaseComplete(officialLatest) ? [officialLatest] : [],
+  );
+
+  state.track = prevTrack;
+  applyTrackCatalog();
+  return (state.catalog.south.length + state.catalog.official.length) > 0;
 }
 
 async function loadReleases() {
@@ -1331,9 +1528,52 @@ els.versionMenu?.addEventListener("keydown", (ev) => {
   }
 });
 
+els.firmwareSelect?.addEventListener("click", () => {
+  if (!els.firmwareSelect) return;
+  const open = els.firmwareSelect.getAttribute("aria-expanded") === "true";
+  setFirmwareDropdownOpen(!open);
+});
+
+els.firmwareSelect?.addEventListener("keydown", (ev) => {
+  if (ev.key === "ArrowDown" || ev.key === "Enter" || ev.key === " ") {
+    ev.preventDefault();
+    setFirmwareDropdownOpen(true);
+  } else if (ev.key === "Escape") {
+    setFirmwareDropdownOpen(false);
+  }
+});
+
+els.firmwareMenu?.addEventListener("keydown", (ev) => {
+  const options = [...els.firmwareMenu.querySelectorAll('[role="option"]')];
+  const i = options.indexOf(document.activeElement);
+  if (ev.key === "Escape") {
+    ev.preventDefault();
+    setFirmwareDropdownOpen(false);
+    els.firmwareSelect?.focus();
+  } else if (ev.key === "ArrowDown") {
+    ev.preventDefault();
+    options[Math.min(Math.max(i, 0) + 1, options.length - 1)]?.focus();
+  } else if (ev.key === "ArrowUp") {
+    ev.preventDefault();
+    if (i <= 0) els.firmwareSelect?.focus();
+    else options[i - 1]?.focus();
+  } else if (ev.key === "Enter" || ev.key === " ") {
+    ev.preventDefault();
+    if (i >= 0) options[i].click();
+  } else if (ev.key === "Home") {
+    ev.preventDefault();
+    options[0]?.focus();
+  } else if (ev.key === "End") {
+    ev.preventDefault();
+    options[options.length - 1]?.focus();
+  }
+});
+
 document.addEventListener("pointerdown", (ev) => {
   const drop = els.versionDropdown;
   if (drop && !drop.contains(ev.target)) setVersionDropdownOpen(false);
+  const fw = els.firmwareDropdown;
+  if (fw && !fw.contains(ev.target)) setFirmwareDropdownOpen(false);
 });
 
 els.tabOffline.addEventListener("click", () => setTab("offline"));
@@ -1669,7 +1909,14 @@ function wireUsbTools() {
   syncConsoleUi();
 }
 
-function localFirmwareUrl(fileName, tag = state.selectedTag) {
+function localFirmwareUrl(fileName, tag = state.selectedTag, track = state.track) {
+  if (track === "official") {
+    const dir =
+      !tag || tag === "darktec-official-latest"
+        ? "official/latest"
+        : `official/releases/${tag}`;
+    return new URL(`./firmware/${dir}/${fileName}`, import.meta.url).href;
+  }
   const dir =
     !tag || tag === "darktec-latest" ? "latest" : `releases/${tag}`;
   return new URL(`./firmware/${dir}/${fileName}`, import.meta.url).href;
@@ -1852,12 +2099,17 @@ async function boot() {
   setTab("offline");
   wireUsbTools();
   syncAdvertNameFromRole({ force: true });
+  populateFirmwareSelect();
   wireOndemandUi();
   try {
-    state.southSha = await fetchSouthEditionSha();
+    const [southSha, officialSha] = await Promise.all([
+      fetchFirmwareSha("south"),
+      fetchFirmwareSha("official"),
+    ]);
+    state.southSha = southSha;
+    state.officialSha = officialSha;
   } catch (err) {
-    console.warn("south_edition sha", err);
-    state.southSha = null;
+    console.warn("firmware sha", err);
   }
   try {
     await loadReleases();
@@ -2025,23 +2277,32 @@ function wireOndemandUi() {
     const proceed = await showBuildHelpModal();
     if (!proceed) return;
     try {
-      if (!state.southSha) state.southSha = await fetchSouthEditionSha();
-      if (!state.southSha) {
+      if (!currentTrackSha()) {
+        const sha = await fetchFirmwareSha(state.track);
+        if (isOfficialTrack()) state.officialSha = sha;
+        else state.southSha = sha;
+      }
+      if (!currentTrackSha()) {
         throw new Error(
-          "Не удалось определить sha ветки south_edition. Обновите страницу или дождитесь синка манифеста.",
+          isOfficialTrack()
+            ? "Не удалось определить sha ветки dev-darktec. Обновите страницу или дождитесь синка манифеста."
+            : "Не удалось определить sha ветки south_edition. Обновите страницу или дождитесь синка манифеста.",
         );
       }
       const nameSlug = slugifyName(advertName);
+      const sha = currentTrackSha();
       const base = ondemandBaseName({
+        track: state.track,
         role: state.role,
         chem: state.chem,
         cells: state.cells,
         protect: state.protect,
         nameSlug,
         radio: state.radio,
-        sha: state.southSha,
+        sha,
       });
       const url = buildIssueUrl({
+        track: state.track,
         role: state.role,
         chem: state.chem,
         cells: state.cells,
@@ -2049,7 +2310,7 @@ function wireOndemandUi() {
         advertName,
         nameSlug,
         radio: state.radio,
-        sha: state.southSha,
+        sha,
       });
       window.open(url, "_blank", "noopener");
       state.building = true;

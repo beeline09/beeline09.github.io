@@ -24,7 +24,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "darktec" / "firmware" / "ondemand"
-SHA_OUT = ROOT / "darktec" / "south_edition_sha.txt"
+SOUTH_SHA_OUT = ROOT / "darktec" / "south_edition_sha.txt"
+OFFICIAL_SHA_OUT = ROOT / "darktec" / "dev_darktec_sha.txt"
 REPO = os.environ.get("FIRMWARE_REPO", "beeline09/MeshCore")
 API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
@@ -76,9 +77,9 @@ def download_asset(api_url: str, dest: Path, expected_size: int | None = None) -
 
 
 def is_ondemand_asset(name: str) -> bool:
-    # Custom cache names: Darktec_{role}_{chem}_{cells}s_{protect}__{slug}__{radio}__{sha}.{uf2|zip}
+    # Custom cache: Darktec_{…}__{slug}__{radio}__{sha} or DarktecOff_{…}__…
     return (
-        name.startswith("Darktec_")
+        (name.startswith("Darktec_") or name.startswith("DarktecOff_"))
         and "__" in name
         and (name.endswith(".zip") or name.endswith(".uf2"))
     )
@@ -95,7 +96,11 @@ def wanted_names() -> set[str] | None:
 def prune(out: Path, keep: int) -> None:
     # Keep newest pairs; count by basename without extension.
     assets = sorted(
-        [p for p in out.glob("Darktec_*__*.*") if p.suffix.lower() in (".zip", ".uf2")],
+        [
+            p
+            for p in list(out.glob("Darktec_*__*.*")) + list(out.glob("DarktecOff_*__*.*"))
+            if p.suffix.lower() in (".zip", ".uf2")
+        ],
         key=lambda p: p.stat().st_mtime,
         reverse=True,
     )
@@ -115,8 +120,8 @@ def prune(out: Path, keep: int) -> None:
             old.unlink(missing_ok=True)
 
 
-def fetch_south_sha() -> str | None:
-    code, data = api_get(f"{API}/repos/{REPO}/commits/south_edition")
+def fetch_branch_sha(ref: str) -> str | None:
+    code, data = api_get(f"{API}/repos/{REPO}/commits/{ref}")
     if code == 200 and isinstance(data, dict) and data.get("sha"):
         return str(data["sha"])[:8].lower()
     return None
@@ -125,7 +130,7 @@ def fetch_south_sha() -> str | None:
 def infer_sha_from_files(out: Path) -> str | None:
     counts: dict[str, int] = {}
     newest: dict[str, float] = {}
-    for p in out.glob("Darktec_*__*.*"):
+    for p in list(out.glob("Darktec_*__*.*")) + list(out.glob("DarktecOff_*__*.*")):
         m = SHA_RE.search(p.name)
         if not m:
             continue
@@ -137,16 +142,21 @@ def infer_sha_from_files(out: Path) -> str | None:
     return max(counts.keys(), key=lambda s: (counts[s], newest[s]))
 
 
-def write_manifest(out: Path, south_sha: str | None) -> None:
+def write_manifest(out: Path, south_sha: str | None, official_sha: str | None) -> None:
     files = []
-    for p in sorted(out.glob("Darktec_*__*.*")):
-        if p.suffix.lower() not in (".zip", ".uf2"):
-            continue
+    names = sorted(
+        {
+            p
+            for p in list(out.glob("Darktec_*__*.*")) + list(out.glob("DarktecOff_*__*.*"))
+            if p.suffix.lower() in (".zip", ".uf2")
+        },
+        key=lambda p: p.name,
+    )
+    for p in names:
         files.append(
             {
                 "name": p.name,
                 "size": p.stat().st_size,
-                # Path relative to /darktec/.
                 "url": f"./firmware/ondemand/{p.name}",
             }
         )
@@ -154,30 +164,39 @@ def write_manifest(out: Path, south_sha: str | None) -> None:
         "generatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z",
         "sourceTag": TAG,
         "southSha": south_sha,
+        "officialSha": official_sha,
         "files": files,
     }
     path = out / "ondemand-manifest.json"
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote {path} · files={len(files)} · sha={south_sha!r}")
+    print(f"Wrote {path} · files={len(files)} · south={south_sha!r} official={official_sha!r}")
 
 
-def write_south_sha(sha: str | None) -> None:
+def write_sha_file(path: Path, sha: str | None) -> None:
     if not sha:
         return
-    SHA_OUT.parent.mkdir(parents=True, exist_ok=True)
-    SHA_OUT.write_text(f"{sha}\n", encoding="utf-8")
-    print(f"Wrote {SHA_OUT} → {sha}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"{sha}\n", encoding="utf-8")
+    print(f"Wrote {path} → {sha}")
 
 
 def mirror() -> int:
     code, rel = api_get(f"{API}/repos/{REPO}/releases/tags/{TAG}")
     if code == 404:
         print(f"Release {TAG} missing — nothing to mirror")
-        write_manifest(OUT, fetch_south_sha() or infer_sha_from_files(OUT))
+        south_sha = fetch_branch_sha("south_edition") or infer_sha_from_files(OUT)
+        official_sha = fetch_branch_sha("dev-darktec")
+        write_sha_file(SOUTH_SHA_OUT, south_sha)
+        write_sha_file(OFFICIAL_SHA_OUT, official_sha)
+        write_manifest(OUT, south_sha, official_sha)
         return 0
     if code != 200 or not isinstance(rel, dict):
         print(f"Skip {TAG} (HTTP {code})", file=sys.stderr)
-        write_manifest(OUT, fetch_south_sha() or infer_sha_from_files(OUT))
+        south_sha = fetch_branch_sha("south_edition") or infer_sha_from_files(OUT)
+        official_sha = fetch_branch_sha("dev-darktec")
+        write_sha_file(SOUTH_SHA_OUT, south_sha)
+        write_sha_file(OFFICIAL_SHA_OUT, official_sha)
+        write_manifest(OUT, south_sha, official_sha)
         return 0
 
     assets = [a for a in (rel.get("assets") or []) if is_ondemand_asset(str(a.get("name", "")))]
@@ -210,9 +229,11 @@ def mirror() -> int:
         print("No on-demand assets to mirror")
 
     (OUT / "SOURCE_TAG.txt").write_text(f"{rel.get('tag_name', TAG)}\n", encoding="utf-8")
-    south_sha = fetch_south_sha() or infer_sha_from_files(OUT)
-    write_south_sha(south_sha)
-    write_manifest(OUT, south_sha)
+    south_sha = fetch_branch_sha("south_edition") or infer_sha_from_files(OUT)
+    official_sha = fetch_branch_sha("dev-darktec")
+    write_sha_file(SOUTH_SHA_OUT, south_sha)
+    write_sha_file(OFFICIAL_SHA_OUT, official_sha)
+    write_manifest(OUT, south_sha, official_sha)
     print(f"Mirrored {mirrored} on-demand asset(s) → {OUT}")
     return mirrored
 

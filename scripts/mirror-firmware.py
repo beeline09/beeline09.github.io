@@ -16,6 +16,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LATEST_OUT = ROOT / "darktec" / "firmware" / "latest"
 RELEASES_ROOT = ROOT / "darktec" / "firmware" / "releases"
+OFFICIAL_LATEST_OUT = ROOT / "darktec" / "firmware" / "official" / "latest"
+OFFICIAL_RELEASES_ROOT = ROOT / "darktec" / "firmware" / "official" / "releases"
 MANIFEST = ROOT / "darktec" / "releases.json"
 REPO = os.environ.get("FIRMWARE_REPO", "beeline09/MeshCore")
 API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
@@ -76,31 +78,49 @@ def download_asset(api_url: str, dest: Path, expected_size: int | None = None) -
         )
 
 
-def is_mirror_asset(name: str) -> bool:
+def is_south_asset(name: str) -> bool:
+    if name.startswith("DarktecOff_") or name.startswith("Darktec_uf2_"):
+        return False
     if not name.startswith("Darktec_"):
         return False
     if name.endswith(".uf2"):
         return True
-    if name.endswith(".zip") and not name.startswith("Darktec_uf2_"):
+    if name.endswith(".zip"):
         return True
     return False
 
 
-def manifest_tags() -> list[str]:
+def is_official_asset(name: str) -> bool:
+    if not name.startswith("DarktecOff_"):
+        return False
+    if name.startswith("DarktecOff_uf2_"):
+        return name.endswith(".zip")
+    return name.endswith(".uf2") or name.endswith(".zip")
+
+
+def is_mirror_asset(name: str) -> bool:
+    return is_south_asset(name)
+
+
+def manifest_tags(track: str = "south") -> list[str]:
     if not MANIFEST.exists():
         return []
     data = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    entries = data.get("releases") or []
-    if not entries and data.get("release", {}).get("tag"):
-        entries = [data]
+    if track == "official":
+        entries = ((data.get("tracks") or {}).get("official") or {}).get("releases") or []
+    else:
+        entries = data.get("releases") or []
+        if not entries and data.get("release", {}).get("tag"):
+            entries = [data]
     tags: list[str] = []
     for entry in entries:
         tag = (entry.get("release") or {}).get("tag")
         if tag and tag not in tags:
             tags.append(tag)
-    top = (data.get("release") or {}).get("tag")
-    if top and top not in tags:
-        tags.insert(0, top)
+    if track != "official":
+        top = (data.get("release") or {}).get("tag")
+        if top and top not in tags:
+            tags.insert(0, top)
     return tags
 
 
@@ -119,24 +139,26 @@ def pick_fallback_tag() -> str:
     return "darktec-latest"
 
 
-def fetch_release_assets(tag: str) -> tuple[dict | None, list[dict]]:
-    for ref in (tag, "darktec-latest"):
+def fetch_release_assets(tag: str, official: bool = False) -> tuple[dict | None, list[dict]]:
+    pred = is_official_asset if official else is_south_asset
+    fallback = "darktec-official-latest" if official else "darktec-latest"
+    for ref in (tag, fallback):
         code, rel = api_get(f"{API}/repos/{REPO}/releases/tags/{ref}")
         if code != 200 or not isinstance(rel, dict):
             print(f"Skip {ref} (HTTP {code})")
             continue
         assets = [
-            a for a in rel.get("assets") or [] if is_mirror_asset(str(a.get("name", "")))
+            a for a in rel.get("assets") or [] if pred(str(a.get("name", "")))
         ]
         if assets:
             return rel, assets
     return None, []
 
 
-def mirror_assets_to_dir(assets: list[dict], dest: Path, tag_label: str) -> int:
+def mirror_assets_to_dir(assets: list[dict], dest: Path, tag_label: str, glob_prefix: str) -> int:
     dest.mkdir(parents=True, exist_ok=True)
     keep = {a["name"] for a in assets}
-    for old in list(dest.glob("Darktec_*.uf2")) + list(dest.glob("Darktec_*.zip")):
+    for old in list(dest.glob(f"{glob_prefix}*.uf2")) + list(dest.glob(f"{glob_prefix}*.zip")):
         if old.name not in keep:
             old.unlink()
 
@@ -158,63 +180,95 @@ def mirror_assets_to_dir(assets: list[dict], dest: Path, tag_label: str) -> int:
     return downloaded
 
 
-def mirror_tag(tag: str) -> int:
-    rel, assets = fetch_release_assets(tag)
+def mirror_tag(tag: str, official: bool = False) -> int:
+    rel, assets = fetch_release_assets(tag, official=official)
     if not rel or not assets:
         print(f"No Darktec UF2/zip assets for {tag}", file=sys.stderr)
         return 0
     resolved = str(rel.get("tag_name") or tag)
-    dest = RELEASES_ROOT / resolved
-    n = mirror_assets_to_dir(assets, dest, resolved)
+    dest = (OFFICIAL_RELEASES_ROOT if official else RELEASES_ROOT) / resolved
+    prefix = "DarktecOff_" if official else "Darktec_"
+    n = mirror_assets_to_dir(assets, dest, resolved, prefix)
     print(f"Mirrored {len(assets)} assets ({n} downloaded) → {dest}")
     return len(assets)
 
 
-def sync_latest_from_release_dir(tag: str) -> None:
-    src = RELEASES_ROOT / tag
+def sync_latest_from_release_dir(tag: str, official: bool = False) -> None:
+    root = OFFICIAL_RELEASES_ROOT if official else RELEASES_ROOT
+    dest = OFFICIAL_LATEST_OUT if official else LATEST_OUT
+    prefix = "DarktecOff_" if official else "Darktec_"
+    src = root / tag
     if not src.is_dir():
         print(f"Cannot sync latest: missing {src}", file=sys.stderr)
         return
-    LATEST_OUT.mkdir(parents=True, exist_ok=True)
-    for old in list(LATEST_OUT.glob("Darktec_*.uf2")) + list(LATEST_OUT.glob("Darktec_*.zip")):
+    dest.mkdir(parents=True, exist_ok=True)
+    for old in list(dest.glob(f"{prefix}*.uf2")) + list(dest.glob(f"{prefix}*.zip")):
         old.unlink()
     copied = 0
-    for path in sorted(src.glob("Darktec_*")):
+    for path in sorted(src.glob(f"{prefix}*")):
         if path.suffix not in {".uf2", ".zip"}:
             continue
-        shutil.copy2(path, LATEST_OUT / path.name)
+        shutil.copy2(path, dest / path.name)
         copied += 1
-    (LATEST_OUT / "SOURCE_TAG.txt").write_text(f"{tag}\n", encoding="utf-8")
-    print(f"Synced latest/ from releases/{tag} ({copied} files)")
+    (dest / "SOURCE_TAG.txt").write_text(f"{tag}\n", encoding="utf-8")
+    print(f"Synced {'official/' if official else ''}latest/ from releases/{tag} ({copied} files)")
 
 
 def main() -> None:
     client_tag = (os.environ.get("CLIENT_TAG") or "").strip()
-    tags = manifest_tags()
+    south_tags = manifest_tags("south")
+    official_tags = manifest_tags("official")
+
+    def mirror_official() -> None:
+        tags = official_tags or ["darktec-official-latest"]
+        total = 0
+        for tag in tags:
+            total += mirror_tag(tag, official=True)
+        if total > 0:
+            resolved = tags[0]
+            if (OFFICIAL_RELEASES_ROOT / resolved).is_dir():
+                sync_latest_from_release_dir(resolved, official=True)
+            elif (OFFICIAL_RELEASES_ROOT / "darktec-official-latest").is_dir():
+                sync_latest_from_release_dir("darktec-official-latest", official=True)
+
+    if client_tag.startswith("darktec-official"):
+        print(f"Mirroring official client tag: {client_tag}")
+        n = mirror_tag(client_tag, official=True)
+        if n <= 0:
+            sys.exit(1)
+        resolved = client_tag
+        if (OFFICIAL_RELEASES_ROOT / client_tag).is_dir():
+            resolved = client_tag
+        elif official_tags and (OFFICIAL_RELEASES_ROOT / official_tags[0]).is_dir():
+            resolved = official_tags[0]
+        sync_latest_from_release_dir(resolved, official=True)
+        return
 
     if client_tag:
         print(f"Mirroring client tag: {client_tag}")
         n = mirror_tag(client_tag)
         if n <= 0:
             sys.exit(1)
-        newest = tags[0] if tags else client_tag
+        newest = south_tags[0] if south_tags else client_tag
         resolved = client_tag
         if (RELEASES_ROOT / client_tag).is_dir():
             resolved = client_tag
-        elif tags and (RELEASES_ROOT / tags[0]).is_dir():
-            resolved = tags[0]
+        elif south_tags and (RELEASES_ROOT / south_tags[0]).is_dir():
+            resolved = south_tags[0]
         if client_tag == newest or client_tag == "darktec-latest":
             sync_latest_from_release_dir(resolved)
+        mirror_official()
         return
 
-    if tags:
-        print(f"Mirroring {len(tags)} release(s) from manifest")
+    if south_tags:
+        print(f"Mirroring {len(south_tags)} south release(s) from manifest")
         total = 0
-        for tag in tags:
+        for tag in south_tags:
             total += mirror_tag(tag)
         if total <= 0:
             sys.exit(1)
-        sync_latest_from_release_dir(tags[0])
+        sync_latest_from_release_dir(south_tags[0])
+        mirror_official()
         return
 
     tag = pick_fallback_tag()
@@ -222,8 +276,8 @@ def main() -> None:
     n = mirror_tag(tag)
     if n <= 0:
         sys.exit(1)
-    resolved = tag if (RELEASES_ROOT / tag).is_dir() else tag
-    sync_latest_from_release_dir(resolved)
+    sync_latest_from_release_dir(tag if (RELEASES_ROOT / tag).is_dir() else tag)
+    mirror_official()
 
 
 if __name__ == "__main__":

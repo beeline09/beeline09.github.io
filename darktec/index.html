@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/site.css?v=darktec6">
+  <link rel="stylesheet" href="/assets/css/site.css?v=darktec7">
 </head>
 <body>
   <div class="wrap">
@@ -34,7 +34,26 @@
         Данный флешер позволяет собрать свою прошивку с предопределёнными параметрами.
       </p>
 
-      <aside class="fork-card" aria-label="О происхождении прошивки">
+      <aside class="fork-card" id="forkCardOfficial" aria-label="О происхождении прошивки">
+        <p class="fork-card-label">Важно</p>
+        <p>
+          Это прошивка на базе ветки
+          <a href="https://github.com/meshcore-dev/MeshCore/tree/dev" target="_blank" rel="noopener">dev</a>
+          оригинального
+          <a href="https://github.com/meshcore-dev/MeshCore" target="_blank" rel="noopener">MeshCore</a>
+          плюс вариант платы Darktec
+          (<a href="https://github.com/beeline09/MeshCore/tree/dev-darktec" target="_blank" rel="noopener">dev-darktec</a>).
+          Не бинарный релиз meshcore.io — свои платы, свой flasher.
+        </p>
+        <p class="fork-card-meta">
+          Репозиторий:
+          <a href="https://github.com/beeline09/MeshCore/tree/dev-darktec" target="_blank" rel="noopener">beeline09/MeshCore</a>
+          · чат:
+          <a href="https://t.me/DarkElectronics" target="_blank" rel="noopener">Dark Electronics</a>
+        </p>
+      </aside>
+
+      <aside class="fork-card" id="forkCardSouth" hidden aria-label="О происхождении прошивки">
         <p class="fork-card-label">Важно</p>
         <p>
           Это <strong>форк</strong> ветки
@@ -69,6 +88,25 @@
     <div class="panel" id="app">
       <div class="panel-head">
         <h1>Darktec flasher</h1>
+        <div class="flasher-pickers">
+        <div class="version-controls">
+          <label class="version-label" id="firmwareLabel">Прошивка</label>
+          <div class="dropdown" id="firmwareDropdown">
+            <button
+              type="button"
+              class="dropdown-trigger"
+              id="firmwareSelect"
+              aria-labelledby="firmwareLabel"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="firmwareMenu"
+            >
+              <span class="dropdown-value" id="firmwareValue">Официальная прошивка</span>
+              <span class="dropdown-chevron" aria-hidden="true"></span>
+            </button>
+            <ul class="dropdown-menu" id="firmwareMenu" role="listbox" aria-labelledby="firmwareLabel" hidden></ul>
+          </div>
+        </div>
         <div class="version-controls">
           <label class="version-label" id="versionLabel">Версия</label>
           <div class="dropdown" id="versionDropdown">
@@ -87,6 +125,7 @@
             </button>
             <ul class="dropdown-menu" id="versionMenu" role="listbox" aria-labelledby="versionLabel" hidden></ul>
           </div>
+        </div>
         </div>
       </div>
 
@@ -129,7 +168,7 @@
           <div class="choice-grid" id="cellsChoices" role="group" aria-label="Число ячеек"></div>
         </div>
 
-        <div class="step">
+        <div class="step" id="protectStep">
           <h2 id="protectStepLabel">3 · Защита батареи</h2>
           <div class="choice-grid" id="protectChoices" role="group" aria-label="Защита батареи"></div>
           <p class="hint" id="protectHint"></p>

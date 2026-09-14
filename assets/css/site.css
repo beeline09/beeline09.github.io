@@ -661,6 +661,17 @@ a:hover {
   opacity: 1;
 }
 
+.flasher-pickers {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.45rem;
+}
+
+.flasher-pickers .dropdown {
+  max-width: min(100%, 22rem);
+}
+
 .version-controls {
   display: flex;
   align-items: center;
@@ -1183,6 +1194,15 @@ a:hover {
   .panel-head {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .flasher-pickers {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .flasher-pickers .dropdown {
+    max-width: none;
   }
 
   .panel-body {

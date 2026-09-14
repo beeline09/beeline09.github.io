@@ -913,6 +913,17 @@ function manifestFromRelease(release) {
   };
 }
 
+function firmwareVersionFromRelease(rel) {
+  const blob = `${rel?.name || ""}\n${rel?.body || ""}`;
+  const m = blob.match(/\bv?\d+\.\d+\.\d+(?:b\d+)?\b/i);
+  if (!m) return "";
+  return /^v/i.test(m[0]) ? m[0] : `v${m[0]}`;
+}
+
+function isLatestPointerTag(tag) {
+  return tag === "darktec-latest" || tag === "darktec-official-latest";
+}
+
 function displayVersion(tag) {
   if (!tag) return "—";
   if (tag === "darktec-latest") return "latest";
@@ -924,7 +935,11 @@ function displayVersion(tag) {
 }
 
 function versionOptionLabel(rel) {
-  const label = displayVersion(rel.tag_name);
+  let label = displayVersion(rel.tag_name);
+  if (isLatestPointerTag(rel.tag_name) && state.releases.length <= 1) {
+    const ver = firmwareVersionFromRelease(rel);
+    if (ver) label = label.replace(/^latest\b/, `latest (${ver})`);
+  }
   const when = rel.published_at
     ? new Date(rel.published_at).toLocaleDateString("ru-RU")
     : "";

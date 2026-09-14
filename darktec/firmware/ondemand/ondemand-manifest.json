@@ -1,9 +1,19 @@
 {
-  "generatedAt": "2026-09-14T17:10:07.495Z",
+  "generatedAt": "2026-09-14T19:38:02.753Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "a202e515",
-  "officialSha": "eab13946",
+  "officialSha": "68941ceb",
   "files": [
+    {
+      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__68941ceb.uf2",
+      "size": 765440,
+      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__68941ceb.uf2"
+    },
+    {
+      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__68941ceb.zip",
+      "size": 383335,
+      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__68941ceb.zip"
+    },
     {
       "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__eab13946.uf2",
       "size": 762880,

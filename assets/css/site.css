@@ -1013,6 +1013,15 @@ a:hover {
   display: none;
 }
 
+.changelog-box > summary::before {
+  content: "▸ ";
+  color: var(--amber);
+}
+
+.changelog-box[open] > summary::before {
+  content: "▾ ";
+}
+
 .changelog-body {
   margin-top: 0.75rem;
   color: var(--muted);

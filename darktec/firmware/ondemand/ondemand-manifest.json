@@ -1,7 +1,8 @@
 {
-  "generatedAt": "2026-09-14T12:58:12.820Z",
+  "generatedAt": "2026-09-14T16:53:47.421Z",
   "sourceTag": "darktec-ondemand",
-  "southSha": "160d16c0",
+  "southSha": "a202e515",
+  "officialSha": "eab13946",
   "files": [
     {
       "name": "Darktec_companion_radio_ble_liion_1s_adc__adiga-repeater__673b8cc9.uf2",
@@ -212,6 +213,16 @@
       "name": "Darktec_repeater_liion_1s_adc__lab-test__673b8cc9.zip",
       "size": 418215,
       "url": "./firmware/ondemand/Darktec_repeater_liion_1s_adc__lab-test__673b8cc9.zip"
+    },
+    {
+      "name": "Darktec_repeater_liion_1s_adc__rnd-orbi-t__f868p731-bw62p5-sf9-cr7-tx5__a202e515.uf2",
+      "size": 835072,
+      "url": "./firmware/ondemand/Darktec_repeater_liion_1s_adc__rnd-orbi-t__f868p731-bw62p5-sf9-cr7-tx5__a202e515.uf2"
+    },
+    {
+      "name": "Darktec_repeater_liion_1s_adc__rnd-orbi-t__f868p731-bw62p5-sf9-cr7-tx5__a202e515.zip",
+      "size": 418167,
+      "url": "./firmware/ondemand/Darktec_repeater_liion_1s_adc__rnd-orbi-t__f868p731-bw62p5-sf9-cr7-tx5__a202e515.zip"
     },
     {
       "name": "Darktec_repeater_liion_1s_adc__semsam-repeater2__f864p281-bw62p5-sf8-cr7-tx22__160d16c0.uf2",

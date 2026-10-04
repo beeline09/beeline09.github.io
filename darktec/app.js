@@ -764,7 +764,7 @@ function setTab(tab) {
 
 /** Keep only beeline09/Darktec bullets from mixed release notes. */
 const OURS_CHANGE_RE =
-  /darktec|on-?demand|beeline09|DARKTEC_|Serial DFU|web flasher|кириллиц|зарядк|защит\w*\s+бата|battery protect|adc\/?off|ADVERT_NAME|LORA_\*|OLED от|OLED и не гасить|VBAT|SoftDevice|EU868|human changelog|Versioned releases|Darktec UF2|UF2 matrix|имя с пробелами|имя нод|advert_name|матриц|Discover/i;
+  /darktec|on-?demand|beeline09|DARKTEC_|Serial DFU|web flasher|кириллиц|зарядк|защит\w*\s+бата|battery protect|adc\/?off|ADVERT_NAME|LORA_\*|OLED от|OLED и не гасить|VBAT|SoftDevice|EU868|human changelog|Versioned releases|Darktec UF2|UF2 matrix|имя с пробелами|имя нод|advert_name|матриц|Discover|гиберн|SYSTEMOFF/i;
 
 function filterOurChangelogMarkdown(md) {
   const lines = (md || "").split(/\r?\n/);

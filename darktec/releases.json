@@ -1,786 +1,1565 @@
 {
-  "generatedAt": "2026-10-07T23:09:48.781Z",
+  "generatedAt": "2026-10-07T23:30:03.394Z",
   "sourceRepo": "beeline09/MeshCore",
-  "southSha": "9920f4c1",
+  "southSha": "d1e08d7b",
   "officialSha": "08ae7f1a",
   "release": {
-    "tag": "darktec-v1.17.1b3",
-    "name": "Darktec v1.17.1b3",
-    "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b3",
-    "publishedAt": "2026-10-04T18:13:58Z",
-    "notes": "## Darktec v1.17.1b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b2`\n\n#### Новое\n- Страница Discovery на OLED companion\n- ADC Multiplier в on-demand\n- Точка LoRa на home и пробуждение OLED от зарядки\n- Значок зарядки на OLED и не гасить экран\n- On-demand кастомизация LORA_* (freq/BW/SF/CR/TX)\n- On-demand сборка с кастомным ADVERT_NAME\n- Build adc/off protect matrix and cache PlatformIO\n- Versioned releases, all roles, human changelogs\n- Выбрать режим защиты батареи через DARKTEC_BATT_PROTECT\n- Добавить поддержку платы Darktec\n\n#### Исправления\n- Поправили гибернацию — SYSTEMOFF вместо перезагрузки\n- ColorVal/UIColor после MeshCore 1.17\n- Поднять точку активности LoRa на середину OLED\n- Changelog lists only beeline09 changes\n- Привязать darktec-latest gh release к GITHUB_REPOSITORY\n- Стабилизировать обновление darktec-latest release\n- Включить буззер companion и поднять порог charge detect\n- Не переводить кириллицу дважды в GFX print/getTextWidth\n- Ondemand/matrix — не использовать -U для батареи/LORA\n- On-demand флаги при имени с пробелами\n- ADC recovery по VBAT без USB, SoftDevice off и радио-профиль EU868\n- Publish nRF OTA zips for Serial DFU web flasher\n- Keep all Darktec UF2s — stop wiping out/ per variant\n- Stop undefining CFG_DEBUG on Darktec nRF52 builds\n- ADC sleep/wake вместо SYSTEMOFF+LPCOMP\n- Убрать hard cutoff SYSTEMOFF/LPCOMP, мешавший recovery\n- Переименовать аптаймы, сбрасывать on-batt при отключении зарядки\n\n#### Сборка / CI\n- On-demand checkout south_edition или dev-darktec\n- Mirror uf2+zip to Pages on ondemand dispatch\n- Dispatch Pages to mirror OTA zip\n- Валидация advert_name — только латиница\n- Поднять лимит LORA_BW on-demand до 1625 кГц\n- Parallelize firmware builds by role matrix\n- Auto-build UF2 matrix and publish darktec-latest\n\n#### Обслуживание\n- Prerelease-кэш ondemand + автоочистка ассетов\n- Убрать ветку southedition-origin из CI и доки Darktec\n\n#### Прочее\n- Revert \"fix(ui): не переводить кириллицу дважды в GFX print/getTextWidth\"\n- Убран автоскейлинг для шрифтов, так как он не работает с кириллицей. Теперь шрифты будут отображаться в своем оригинальном размере, что улучшит читаемость и внешний вид текста на экране. изменены размеры шрифтов в файлах UITask.cpp и DisplayDriver.h, чтобы обеспечить оптимальное отображение кириллических символов. Эти изменения позволят пользователям с кириллическими языками лучше воспринимать информацию на экране и улучшат общий пользовательский опыт. перенесены адресаты в заголовок\n- * CMD_SEND_PATH_DISCOVERY_REQ: now force the sendRequest() to use flood mode\n- * Companion: experimental CMD_SEND_DISCOVERY_REQ -> PUSH_CODE_DISCOVERY_RESPONSE\n- * refactor: on-demand getSharedSecret()\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+    "tag": "darktec-v1.17.1b4",
+    "name": "Darktec v1.17.1b4",
+    "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b4",
+    "publishedAt": "2026-10-07T23:24:11Z",
+    "notes": "## Darktec v1.17.1b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b3`\n\n#### Новое\n- Страница Discovery на OLED companion\n- ADC Multiplier в on-demand\n- Точка LoRa на home и пробуждение OLED от зарядки\n- Значок зарядки на OLED и не гасить экран\n- On-demand кастомизация LORA_* (freq/BW/SF/CR/TX)\n- On-demand сборка с кастомным ADVERT_NAME\n- Build adc/off protect matrix and cache PlatformIO\n- Versioned releases, all roles, human changelogs\n- Выбрать режим защиты батареи через DARKTEC_BATT_PROTECT\n- Добавить поддержку платы Darktec\n\n#### Исправления\n- Поправили гибернацию — SYSTEMOFF вместо перезагрузки\n- ColorVal/UIColor после MeshCore 1.17\n- Поднять точку активности LoRa на середину OLED\n- Changelog lists only beeline09 changes\n- Привязать darktec-latest gh release к GITHUB_REPOSITORY\n- Стабилизировать обновление darktec-latest release\n- Включить буззер companion и поднять порог charge detect\n- Не переводить кириллицу дважды в GFX print/getTextWidth\n- Ondemand/matrix — не использовать -U для батареи/LORA\n- On-demand флаги при имени с пробелами\n- ADC recovery по VBAT без USB, SoftDevice off и радио-профиль EU868\n- Publish nRF OTA zips for Serial DFU web flasher\n- Keep all Darktec UF2s — stop wiping out/ per variant\n- Stop undefining CFG_DEBUG on Darktec nRF52 builds\n- ADC sleep/wake вместо SYSTEMOFF+LPCOMP\n- Убрать hard cutoff SYSTEMOFF/LPCOMP, мешавший recovery\n- Переименовать аптаймы, сбрасывать on-batt при отключении зарядки\n\n#### Сборка / CI\n- On-demand checkout south_edition или dev-darktec\n- Mirror uf2+zip to Pages on ondemand dispatch\n- Dispatch Pages to mirror OTA zip\n- Валидация advert_name — только латиница\n- Поднять лимит LORA_BW on-demand до 1625 кГц\n- Parallelize firmware builds by role matrix\n- Auto-build UF2 matrix and publish darktec-latest\n\n#### Обслуживание\n- Prerelease-кэш ondemand + автоочистка ассетов\n- Убрать ветку southedition-origin из CI и доки Darktec\n\n#### Прочее\n- Revert \"fix(ui): не переводить кириллицу дважды в GFX print/getTextWidth\"\n- Убран автоскейлинг для шрифтов, так как он не работает с кириллицей. Теперь шрифты будут отображаться в своем оригинальном размере, что улучшит читаемость и внешний вид текста на экране. изменены размеры шрифтов в файлах UITask.cpp и DisplayDriver.h, чтобы обеспечить оптимальное отображение кириллических символов. Эти изменения позволят пользователям с кириллическими языками лучше воспринимать информацию на экране и улучшат общий пользовательский опыт. перенесены адресаты в заголовок\n- * CMD_SEND_PATH_DISCOVERY_REQ: now force the sendRequest() to use flood mode\n- * Companion: experimental CMD_SEND_DISCOVERY_REQ -> PUSH_CODE_DISCOVERY_RESPONSE\n- * refactor: on-demand getSharedSecret()\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
   },
   "files": [
     {
       "name": "Darktec_companion_radio_ble_lifepo4_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lifepo4_1s_adc.uf2",
-      "size": 892416,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_adc.uf2",
+      "size": 924672,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lifepo4_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lifepo4_1s_adc.zip",
-      "size": 446859,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_adc.zip",
+      "size": 462907,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_lifepo4_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lifepo4_1s_off.uf2",
-      "size": 891392,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_off.uf2",
+      "size": 923136,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lifepo4_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lifepo4_1s_off.zip",
-      "size": 446331,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_off.zip",
+      "size": 462363,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_liion_1s_adc.uf2",
-      "size": 892416,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_adc.uf2",
+      "size": 924672,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_liion_1s_adc.zip",
-      "size": 446859,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_adc.zip",
+      "size": 462891,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_liion_1s_off.uf2",
-      "size": 891392,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_off.uf2",
+      "size": 923136,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_liion_1s_off.zip",
-      "size": 446315,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_off.zip",
+      "size": 462362,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lto_1s_adc.uf2",
-      "size": 892416,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_adc.uf2",
+      "size": 924672,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lto_1s_adc.zip",
-      "size": 446859,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_adc.zip",
+      "size": 462891,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lto_1s_off.uf2",
-      "size": 891392,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_off.uf2",
+      "size": 923136,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lto_1s_off.zip",
-      "size": 446315,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_off.zip",
+      "size": 462363,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_2s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lto_2s_adc.uf2",
-      "size": 892416,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_adc.uf2",
+      "size": 924672,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_2s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lto_2s_adc.zip",
-      "size": 446859,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_adc.zip",
+      "size": 462891,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_2s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lto_2s_off.uf2",
-      "size": 891392,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_off.uf2",
+      "size": 923136,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_ble_lto_2s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_ble_lto_2s_off.zip",
-      "size": 446315,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_off.zip",
+      "size": 462363,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lifepo4_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lifepo4_1s_adc.uf2",
-      "size": 881664,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_adc.uf2",
+      "size": 913408,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lifepo4_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lifepo4_1s_adc.zip",
-      "size": 441419,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_adc.zip",
+      "size": 457499,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lifepo4_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lifepo4_1s_off.uf2",
-      "size": 880640,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_off.uf2",
+      "size": 912384,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lifepo4_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lifepo4_1s_off.zip",
-      "size": 440891,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_off.zip",
+      "size": 456971,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_liion_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_liion_1s_adc.uf2",
-      "size": 881664,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_adc.uf2",
+      "size": 913408,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_liion_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_liion_1s_adc.zip",
-      "size": 441417,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_adc.zip",
+      "size": 457499,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_liion_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_liion_1s_off.uf2",
-      "size": 880640,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_off.uf2",
+      "size": 912384,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_liion_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_liion_1s_off.zip",
-      "size": 440874,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_off.zip",
+      "size": 456955,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lto_1s_adc.uf2",
-      "size": 881664,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_adc.uf2",
+      "size": 913408,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lto_1s_adc.zip",
-      "size": 441419,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_adc.zip",
+      "size": 457498,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lto_1s_off.uf2",
-      "size": 880640,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_off.uf2",
+      "size": 912384,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lto_1s_off.zip",
-      "size": 440874,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_off.zip",
+      "size": 456954,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_2s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lto_2s_adc.uf2",
-      "size": 881664,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_adc.uf2",
+      "size": 913408,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_2s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lto_2s_adc.zip",
-      "size": 441419,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_adc.zip",
+      "size": 457498,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_2s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lto_2s_off.uf2",
-      "size": 880640,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_off.uf2",
+      "size": 912384,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_companion_radio_usb_lto_2s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_companion_radio_usb_lto_2s_off.zip",
-      "size": 440874,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_off.zip",
+      "size": 456955,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lifepo4_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lifepo4_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_adc.uf2",
       "size": 617984,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lifepo4_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lifepo4_1s_adc.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_adc.zip",
       "size": 309619,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lifepo4_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lifepo4_1s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_off.uf2",
       "size": 617472,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lifepo4_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lifepo4_1s_off.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_off.zip",
       "size": 309491,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_liion_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_liion_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_adc.uf2",
       "size": 617984,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_liion_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_liion_1s_adc.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_adc.zip",
       "size": 309619,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_liion_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_liion_1s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_off.uf2",
       "size": 617472,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_liion_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_liion_1s_off.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_off.zip",
       "size": 309491,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lto_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lto_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_adc.uf2",
       "size": 617984,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lto_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lto_1s_adc.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_adc.zip",
       "size": 309619,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lto_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lto_1s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_off.uf2",
       "size": 617472,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lto_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lto_1s_off.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_off.zip",
       "size": 309491,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lto_2s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lto_2s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_adc.uf2",
       "size": 617984,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lto_2s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lto_2s_adc.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_adc.zip",
       "size": 309619,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_kiss_modem_lto_2s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lto_2s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_off.uf2",
       "size": 617472,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_kiss_modem_lto_2s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_kiss_modem_lto_2s_off.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_off.zip",
       "size": 309491,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.uf2",
       "size": 750080,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.zip",
-      "size": 375715,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.zip",
+      "size": 375842,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lifepo4_1s_off.uf2",
-      "size": 749568,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_off.uf2",
+      "size": 750080,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lifepo4_1s_off.zip",
-      "size": 375586,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_off.zip",
+      "size": 375715,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_liion_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_liion_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_adc.uf2",
       "size": 750080,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_liion_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_liion_1s_adc.zip",
-      "size": 375715,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_adc.zip",
+      "size": 375843,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_liion_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_liion_1s_off.uf2",
-      "size": 749568,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_off.uf2",
+      "size": 750080,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_liion_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_liion_1s_off.zip",
-      "size": 375587,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_off.zip",
+      "size": 375715,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lto_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_adc.uf2",
       "size": 750080,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lto_1s_adc.zip",
-      "size": 375715,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_adc.zip",
+      "size": 375843,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lto_1s_off.uf2",
-      "size": 749568,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_off.uf2",
+      "size": 750080,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lto_1s_off.zip",
-      "size": 375586,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_off.zip",
+      "size": 375715,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_2s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lto_2s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_adc.uf2",
       "size": 750080,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_2s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lto_2s_adc.zip",
-      "size": 375715,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_adc.zip",
+      "size": 375843,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_2s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lto_2s_off.uf2",
-      "size": 749568,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_off.uf2",
+      "size": 750080,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_bridge_rs232_lto_2s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_bridge_rs232_lto_2s_off.zip",
-      "size": 375587,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_off.zip",
+      "size": 375715,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lifepo4_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lifepo4_1s_adc.uf2",
-      "size": 755712,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_adc.uf2",
+      "size": 756224,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lifepo4_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lifepo4_1s_adc.zip",
-      "size": 378643,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_adc.zip",
+      "size": 378803,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lifepo4_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lifepo4_1s_off.uf2",
-      "size": 755712,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_off.uf2",
+      "size": 756224,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lifepo4_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lifepo4_1s_off.zip",
-      "size": 378515,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_off.zip",
+      "size": 378675,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_liion_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_liion_1s_adc.uf2",
-      "size": 755712,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_adc.uf2",
+      "size": 756224,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_liion_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_liion_1s_adc.zip",
-      "size": 378642,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_adc.zip",
+      "size": 378803,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_liion_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_liion_1s_off.uf2",
-      "size": 755712,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_off.uf2",
+      "size": 756224,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_liion_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_liion_1s_off.zip",
-      "size": 378515,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_off.zip",
+      "size": 378675,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lto_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lto_1s_adc.uf2",
-      "size": 755712,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_adc.uf2",
+      "size": 756224,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lto_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lto_1s_adc.zip",
-      "size": 378643,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_adc.zip",
+      "size": 378803,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lto_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lto_1s_off.uf2",
-      "size": 755712,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_off.uf2",
+      "size": 756224,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lto_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lto_1s_off.zip",
-      "size": 378513,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_off.zip",
+      "size": 378675,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lto_2s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lto_2s_adc.uf2",
-      "size": 755712,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_adc.uf2",
+      "size": 756224,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lto_2s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lto_2s_adc.zip",
-      "size": 378643,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_adc.zip",
+      "size": 378803,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_repeater_lto_2s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lto_2s_off.uf2",
-      "size": 755712,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_off.uf2",
+      "size": 756224,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_repeater_lto_2s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_repeater_lto_2s_off.zip",
-      "size": 378515,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_off.zip",
+      "size": 378675,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lifepo4_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lifepo4_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_adc.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lifepo4_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lifepo4_1s_adc.zip",
-      "size": 372267,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_adc.zip",
+      "size": 372443,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lifepo4_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lifepo4_1s_off.uf2",
-      "size": 742912,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_off.uf2",
+      "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lifepo4_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lifepo4_1s_off.zip",
-      "size": 372138,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_off.zip",
+      "size": 372315,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_liion_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_liion_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_adc.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_liion_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_liion_1s_adc.zip",
-      "size": 372267,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_adc.zip",
+      "size": 372443,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_liion_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_liion_1s_off.uf2",
-      "size": 742912,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_off.uf2",
+      "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_liion_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_liion_1s_off.zip",
-      "size": 372139,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_off.zip",
+      "size": 372315,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lto_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lto_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_adc.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lto_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lto_1s_adc.zip",
-      "size": 372267,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_adc.zip",
+      "size": 372443,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lto_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lto_1s_off.uf2",
-      "size": 742912,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_off.uf2",
+      "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lto_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lto_1s_off.zip",
-      "size": 372139,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_off.zip",
+      "size": 372313,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lto_2s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lto_2s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_adc.uf2",
       "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lto_2s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lto_2s_adc.zip",
-      "size": 372267,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_adc.zip",
+      "size": 372443,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_room_server_lto_2s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lto_2s_off.uf2",
-      "size": 742912,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_off.uf2",
+      "size": 743424,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_room_server_lto_2s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_room_server_lto_2s_off.zip",
-      "size": 372139,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_off.zip",
+      "size": 372315,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lifepo4_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lifepo4_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_adc.uf2",
       "size": 735232,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lifepo4_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lifepo4_1s_adc.zip",
-      "size": 368171,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_adc.zip",
+      "size": 368251,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lifepo4_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lifepo4_1s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_off.uf2",
       "size": 734720,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lifepo4_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lifepo4_1s_off.zip",
-      "size": 368043,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_off.zip",
+      "size": 368123,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_liion_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_liion_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_adc.uf2",
       "size": 735232,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_liion_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_liion_1s_adc.zip",
-      "size": 368171,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_adc.zip",
+      "size": 368251,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_liion_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_liion_1s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_off.uf2",
       "size": 734720,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_liion_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_liion_1s_off.zip",
-      "size": 368043,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_off.zip",
+      "size": 368123,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lto_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lto_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_adc.uf2",
       "size": 735232,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lto_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lto_1s_adc.zip",
-      "size": 368170,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_adc.zip",
+      "size": 368251,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lto_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lto_1s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_off.uf2",
       "size": 734720,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lto_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lto_1s_off.zip",
-      "size": 368043,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_off.zip",
+      "size": 368123,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lto_2s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lto_2s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_adc.uf2",
       "size": 735232,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lto_2s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lto_2s_adc.zip",
-      "size": 368171,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_adc.zip",
+      "size": 368250,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_sensor_lto_2s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lto_2s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_off.uf2",
       "size": 734720,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_sensor_lto_2s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_sensor_lto_2s_off.zip",
-      "size": 368043,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_off.zip",
+      "size": 368123,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lifepo4_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lifepo4_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_adc.uf2",
       "size": 651264,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lifepo4_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lifepo4_1s_adc.zip",
-      "size": 326379,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_adc.zip",
+      "size": 326378,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lifepo4_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lifepo4_1s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_off.uf2",
       "size": 651264,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lifepo4_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lifepo4_1s_off.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_off.zip",
       "size": 326251,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_liion_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_liion_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_adc.uf2",
       "size": 651264,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_liion_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_liion_1s_adc.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_adc.zip",
       "size": 326378,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_liion_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_liion_1s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_off.uf2",
       "size": 651264,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_liion_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_liion_1s_off.zip",
-      "size": 326251,
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_off.zip",
+      "size": 326250,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lto_1s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lto_1s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_adc.uf2",
       "size": 651264,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lto_1s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lto_1s_adc.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_adc.zip",
       "size": 326379,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lto_1s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lto_1s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_off.uf2",
       "size": 651264,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lto_1s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lto_1s_off.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_off.zip",
       "size": 326251,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lto_2s_adc.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lto_2s_adc.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_adc.uf2",
       "size": 651264,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lto_2s_adc.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lto_2s_adc.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_adc.zip",
       "size": 326379,
       "contentType": "application/zip"
     },
     {
       "name": "Darktec_terminal_chat_lto_2s_off.uf2",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lto_2s_off.uf2",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_off.uf2",
       "size": 651264,
       "contentType": "application/octet-stream"
     },
     {
       "name": "Darktec_terminal_chat_lto_2s_off.zip",
-      "url": "./firmware/releases/darktec-v1.17.1b3/Darktec_terminal_chat_lto_2s_off.zip",
+      "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_off.zip",
       "size": 326251,
       "contentType": "application/zip"
     }
   ],
   "releases": [
+    {
+      "release": {
+        "tag": "darktec-v1.17.1b4",
+        "name": "Darktec v1.17.1b4",
+        "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b4",
+        "publishedAt": "2026-10-07T23:24:11Z",
+        "notes": "## Darktec v1.17.1b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b3`\n\n#### Новое\n- Страница Discovery на OLED companion\n- ADC Multiplier в on-demand\n- Точка LoRa на home и пробуждение OLED от зарядки\n- Значок зарядки на OLED и не гасить экран\n- On-demand кастомизация LORA_* (freq/BW/SF/CR/TX)\n- On-demand сборка с кастомным ADVERT_NAME\n- Build adc/off protect matrix and cache PlatformIO\n- Versioned releases, all roles, human changelogs\n- Выбрать режим защиты батареи через DARKTEC_BATT_PROTECT\n- Добавить поддержку платы Darktec\n\n#### Исправления\n- Поправили гибернацию — SYSTEMOFF вместо перезагрузки\n- ColorVal/UIColor после MeshCore 1.17\n- Поднять точку активности LoRa на середину OLED\n- Changelog lists only beeline09 changes\n- Привязать darktec-latest gh release к GITHUB_REPOSITORY\n- Стабилизировать обновление darktec-latest release\n- Включить буззер companion и поднять порог charge detect\n- Не переводить кириллицу дважды в GFX print/getTextWidth\n- Ondemand/matrix — не использовать -U для батареи/LORA\n- On-demand флаги при имени с пробелами\n- ADC recovery по VBAT без USB, SoftDevice off и радио-профиль EU868\n- Publish nRF OTA zips for Serial DFU web flasher\n- Keep all Darktec UF2s — stop wiping out/ per variant\n- Stop undefining CFG_DEBUG on Darktec nRF52 builds\n- ADC sleep/wake вместо SYSTEMOFF+LPCOMP\n- Убрать hard cutoff SYSTEMOFF/LPCOMP, мешавший recovery\n- Переименовать аптаймы, сбрасывать on-batt при отключении зарядки\n\n#### Сборка / CI\n- On-demand checkout south_edition или dev-darktec\n- Mirror uf2+zip to Pages on ondemand dispatch\n- Dispatch Pages to mirror OTA zip\n- Валидация advert_name — только латиница\n- Поднять лимит LORA_BW on-demand до 1625 кГц\n- Parallelize firmware builds by role matrix\n- Auto-build UF2 matrix and publish darktec-latest\n\n#### Обслуживание\n- Prerelease-кэш ondemand + автоочистка ассетов\n- Убрать ветку southedition-origin из CI и доки Darktec\n\n#### Прочее\n- Revert \"fix(ui): не переводить кириллицу дважды в GFX print/getTextWidth\"\n- Убран автоскейлинг для шрифтов, так как он не работает с кириллицей. Теперь шрифты будут отображаться в своем оригинальном размере, что улучшит читаемость и внешний вид текста на экране. изменены размеры шрифтов в файлах UITask.cpp и DisplayDriver.h, чтобы обеспечить оптимальное отображение кириллических символов. Эти изменения позволят пользователям с кириллическими языками лучше воспринимать информацию на экране и улучшат общий пользовательский опыт. перенесены адресаты в заголовок\n- * CMD_SEND_PATH_DISCOVERY_REQ: now force the sendRequest() to use flood mode\n- * Companion: experimental CMD_SEND_DISCOVERY_REQ -> PUSH_CODE_DISCOVERY_RESPONSE\n- * refactor: on-demand getSharedSecret()\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+      },
+      "files": [
+        {
+          "name": "Darktec_companion_radio_ble_lifepo4_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_adc.uf2",
+          "size": 924672,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lifepo4_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_adc.zip",
+          "size": 462907,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lifepo4_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_off.uf2",
+          "size": 923136,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lifepo4_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_off.zip",
+          "size": 462363,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_liion_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_adc.uf2",
+          "size": 924672,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_liion_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_adc.zip",
+          "size": 462891,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_liion_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_off.uf2",
+          "size": 923136,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_liion_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_off.zip",
+          "size": 462362,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lto_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_adc.uf2",
+          "size": 924672,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lto_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_adc.zip",
+          "size": 462891,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lto_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_off.uf2",
+          "size": 923136,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lto_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_off.zip",
+          "size": 462363,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lto_2s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_adc.uf2",
+          "size": 924672,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lto_2s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_adc.zip",
+          "size": 462891,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lto_2s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_off.uf2",
+          "size": 923136,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_ble_lto_2s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_off.zip",
+          "size": 462363,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lifepo4_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_adc.uf2",
+          "size": 913408,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lifepo4_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_adc.zip",
+          "size": 457499,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lifepo4_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_off.uf2",
+          "size": 912384,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lifepo4_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_off.zip",
+          "size": 456971,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_liion_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_adc.uf2",
+          "size": 913408,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_liion_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_adc.zip",
+          "size": 457499,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_liion_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_off.uf2",
+          "size": 912384,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_liion_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_off.zip",
+          "size": 456955,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lto_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_adc.uf2",
+          "size": 913408,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lto_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_adc.zip",
+          "size": 457498,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lto_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_off.uf2",
+          "size": 912384,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lto_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_off.zip",
+          "size": 456954,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lto_2s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_adc.uf2",
+          "size": 913408,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lto_2s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_adc.zip",
+          "size": 457498,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lto_2s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_off.uf2",
+          "size": 912384,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_companion_radio_usb_lto_2s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_off.zip",
+          "size": 456955,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_kiss_modem_lifepo4_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_adc.uf2",
+          "size": 617984,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_kiss_modem_lifepo4_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_adc.zip",
+          "size": 309619,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_kiss_modem_lifepo4_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_off.uf2",
+          "size": 617472,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_kiss_modem_lifepo4_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_off.zip",
+          "size": 309491,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_kiss_modem_liion_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_adc.uf2",
+          "size": 617984,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_kiss_modem_liion_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_adc.zip",
+          "size": 309619,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_kiss_modem_liion_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_off.uf2",
+          "size": 617472,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_kiss_modem_liion_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_off.zip",
+          "size": 309491,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_kiss_modem_lto_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_adc.uf2",
+          "size": 617984,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_kiss_modem_lto_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_adc.zip",
+          "size": 309619,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_kiss_modem_lto_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_off.uf2",
+          "size": 617472,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_kiss_modem_lto_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_off.zip",
+          "size": 309491,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_kiss_modem_lto_2s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_adc.uf2",
+          "size": 617984,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_kiss_modem_lto_2s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_adc.zip",
+          "size": 309619,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_kiss_modem_lto_2s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_off.uf2",
+          "size": 617472,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_kiss_modem_lto_2s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_off.zip",
+          "size": 309491,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.uf2",
+          "size": 750080,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.zip",
+          "size": 375842,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_off.uf2",
+          "size": 750080,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_off.zip",
+          "size": 375715,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_liion_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_adc.uf2",
+          "size": 750080,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_liion_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_adc.zip",
+          "size": 375843,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_liion_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_off.uf2",
+          "size": 750080,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_liion_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_off.zip",
+          "size": 375715,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lto_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_adc.uf2",
+          "size": 750080,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lto_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_adc.zip",
+          "size": 375843,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lto_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_off.uf2",
+          "size": 750080,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lto_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_off.zip",
+          "size": 375715,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lto_2s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_adc.uf2",
+          "size": 750080,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lto_2s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_adc.zip",
+          "size": 375843,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lto_2s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_off.uf2",
+          "size": 750080,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_bridge_rs232_lto_2s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_off.zip",
+          "size": 375715,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_lifepo4_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_adc.uf2",
+          "size": 756224,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_lifepo4_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_adc.zip",
+          "size": 378803,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_lifepo4_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_off.uf2",
+          "size": 756224,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_lifepo4_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_off.zip",
+          "size": 378675,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_liion_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_adc.uf2",
+          "size": 756224,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_liion_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_adc.zip",
+          "size": 378803,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_liion_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_off.uf2",
+          "size": 756224,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_liion_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_off.zip",
+          "size": 378675,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_lto_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_adc.uf2",
+          "size": 756224,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_lto_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_adc.zip",
+          "size": 378803,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_lto_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_off.uf2",
+          "size": 756224,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_lto_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_off.zip",
+          "size": 378675,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_lto_2s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_adc.uf2",
+          "size": 756224,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_lto_2s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_adc.zip",
+          "size": 378803,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_repeater_lto_2s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_off.uf2",
+          "size": 756224,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_repeater_lto_2s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_off.zip",
+          "size": 378675,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_room_server_lifepo4_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_adc.uf2",
+          "size": 743424,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_room_server_lifepo4_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_adc.zip",
+          "size": 372443,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_room_server_lifepo4_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_off.uf2",
+          "size": 743424,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_room_server_lifepo4_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_off.zip",
+          "size": 372315,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_room_server_liion_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_adc.uf2",
+          "size": 743424,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_room_server_liion_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_adc.zip",
+          "size": 372443,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_room_server_liion_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_off.uf2",
+          "size": 743424,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_room_server_liion_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_off.zip",
+          "size": 372315,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_room_server_lto_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_adc.uf2",
+          "size": 743424,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_room_server_lto_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_adc.zip",
+          "size": 372443,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_room_server_lto_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_off.uf2",
+          "size": 743424,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_room_server_lto_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_off.zip",
+          "size": 372313,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_room_server_lto_2s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_adc.uf2",
+          "size": 743424,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_room_server_lto_2s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_adc.zip",
+          "size": 372443,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_room_server_lto_2s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_off.uf2",
+          "size": 743424,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_room_server_lto_2s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_off.zip",
+          "size": 372315,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_sensor_lifepo4_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_adc.uf2",
+          "size": 735232,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_sensor_lifepo4_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_adc.zip",
+          "size": 368251,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_sensor_lifepo4_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_off.uf2",
+          "size": 734720,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_sensor_lifepo4_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_off.zip",
+          "size": 368123,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_sensor_liion_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_adc.uf2",
+          "size": 735232,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_sensor_liion_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_adc.zip",
+          "size": 368251,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_sensor_liion_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_off.uf2",
+          "size": 734720,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_sensor_liion_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_off.zip",
+          "size": 368123,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_sensor_lto_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_adc.uf2",
+          "size": 735232,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_sensor_lto_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_adc.zip",
+          "size": 368251,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_sensor_lto_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_off.uf2",
+          "size": 734720,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_sensor_lto_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_off.zip",
+          "size": 368123,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_sensor_lto_2s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_adc.uf2",
+          "size": 735232,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_sensor_lto_2s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_adc.zip",
+          "size": 368250,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_sensor_lto_2s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_off.uf2",
+          "size": 734720,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_sensor_lto_2s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_off.zip",
+          "size": 368123,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_terminal_chat_lifepo4_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_adc.uf2",
+          "size": 651264,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_terminal_chat_lifepo4_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_adc.zip",
+          "size": 326378,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_terminal_chat_lifepo4_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_off.uf2",
+          "size": 651264,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_terminal_chat_lifepo4_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_off.zip",
+          "size": 326251,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_terminal_chat_liion_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_adc.uf2",
+          "size": 651264,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_terminal_chat_liion_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_adc.zip",
+          "size": 326378,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_terminal_chat_liion_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_off.uf2",
+          "size": 651264,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_terminal_chat_liion_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_off.zip",
+          "size": 326250,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_terminal_chat_lto_1s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_adc.uf2",
+          "size": 651264,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_terminal_chat_lto_1s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_adc.zip",
+          "size": 326379,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_terminal_chat_lto_1s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_off.uf2",
+          "size": 651264,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_terminal_chat_lto_1s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_off.zip",
+          "size": 326251,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_terminal_chat_lto_2s_adc.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_adc.uf2",
+          "size": 651264,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_terminal_chat_lto_2s_adc.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_adc.zip",
+          "size": 326379,
+          "contentType": "application/zip"
+        },
+        {
+          "name": "Darktec_terminal_chat_lto_2s_off.uf2",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_off.uf2",
+          "size": 651264,
+          "contentType": "application/octet-stream"
+        },
+        {
+          "name": "Darktec_terminal_chat_lto_2s_off.zip",
+          "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_off.zip",
+          "size": 326251,
+          "contentType": "application/zip"
+        }
+      ]
+    },
     {
       "release": {
         "tag": "darktec-v1.17.1b3",
@@ -14027,8 +14806,787 @@
   ],
   "tracks": {
     "south": {
-      "sha": "9920f4c1",
+      "sha": "d1e08d7b",
       "releases": [
+        {
+          "release": {
+            "tag": "darktec-v1.17.1b4",
+            "name": "Darktec v1.17.1b4",
+            "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b4",
+            "publishedAt": "2026-10-07T23:24:11Z",
+            "notes": "## Darktec v1.17.1b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b3`\n\n#### Новое\n- Страница Discovery на OLED companion\n- ADC Multiplier в on-demand\n- Точка LoRa на home и пробуждение OLED от зарядки\n- Значок зарядки на OLED и не гасить экран\n- On-demand кастомизация LORA_* (freq/BW/SF/CR/TX)\n- On-demand сборка с кастомным ADVERT_NAME\n- Build adc/off protect matrix and cache PlatformIO\n- Versioned releases, all roles, human changelogs\n- Выбрать режим защиты батареи через DARKTEC_BATT_PROTECT\n- Добавить поддержку платы Darktec\n\n#### Исправления\n- Поправили гибернацию — SYSTEMOFF вместо перезагрузки\n- ColorVal/UIColor после MeshCore 1.17\n- Поднять точку активности LoRa на середину OLED\n- Changelog lists only beeline09 changes\n- Привязать darktec-latest gh release к GITHUB_REPOSITORY\n- Стабилизировать обновление darktec-latest release\n- Включить буззер companion и поднять порог charge detect\n- Не переводить кириллицу дважды в GFX print/getTextWidth\n- Ondemand/matrix — не использовать -U для батареи/LORA\n- On-demand флаги при имени с пробелами\n- ADC recovery по VBAT без USB, SoftDevice off и радио-профиль EU868\n- Publish nRF OTA zips for Serial DFU web flasher\n- Keep all Darktec UF2s — stop wiping out/ per variant\n- Stop undefining CFG_DEBUG on Darktec nRF52 builds\n- ADC sleep/wake вместо SYSTEMOFF+LPCOMP\n- Убрать hard cutoff SYSTEMOFF/LPCOMP, мешавший recovery\n- Переименовать аптаймы, сбрасывать on-batt при отключении зарядки\n\n#### Сборка / CI\n- On-demand checkout south_edition или dev-darktec\n- Mirror uf2+zip to Pages on ondemand dispatch\n- Dispatch Pages to mirror OTA zip\n- Валидация advert_name — только латиница\n- Поднять лимит LORA_BW on-demand до 1625 кГц\n- Parallelize firmware builds by role matrix\n- Auto-build UF2 matrix and publish darktec-latest\n\n#### Обслуживание\n- Prerelease-кэш ondemand + автоочистка ассетов\n- Убрать ветку southedition-origin из CI и доки Darktec\n\n#### Прочее\n- Revert \"fix(ui): не переводить кириллицу дважды в GFX print/getTextWidth\"\n- Убран автоскейлинг для шрифтов, так как он не работает с кириллицей. Теперь шрифты будут отображаться в своем оригинальном размере, что улучшит читаемость и внешний вид текста на экране. изменены размеры шрифтов в файлах UITask.cpp и DisplayDriver.h, чтобы обеспечить оптимальное отображение кириллических символов. Эти изменения позволят пользователям с кириллическими языками лучше воспринимать информацию на экране и улучшат общий пользовательский опыт. перенесены адресаты в заголовок\n- * CMD_SEND_PATH_DISCOVERY_REQ: now force the sendRequest() to use flood mode\n- * Companion: experimental CMD_SEND_DISCOVERY_REQ -> PUSH_CODE_DISCOVERY_RESPONSE\n- * refactor: on-demand getSharedSecret()\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+          },
+          "files": [
+            {
+              "name": "Darktec_companion_radio_ble_lifepo4_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_adc.uf2",
+              "size": 924672,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lifepo4_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_adc.zip",
+              "size": 462907,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lifepo4_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_off.uf2",
+              "size": 923136,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lifepo4_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lifepo4_1s_off.zip",
+              "size": 462363,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_liion_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_adc.uf2",
+              "size": 924672,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_liion_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_adc.zip",
+              "size": 462891,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_liion_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_off.uf2",
+              "size": 923136,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_liion_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_liion_1s_off.zip",
+              "size": 462362,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lto_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_adc.uf2",
+              "size": 924672,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lto_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_adc.zip",
+              "size": 462891,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lto_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_off.uf2",
+              "size": 923136,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lto_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_1s_off.zip",
+              "size": 462363,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lto_2s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_adc.uf2",
+              "size": 924672,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lto_2s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_adc.zip",
+              "size": 462891,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lto_2s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_off.uf2",
+              "size": 923136,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_ble_lto_2s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_ble_lto_2s_off.zip",
+              "size": 462363,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lifepo4_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_adc.uf2",
+              "size": 913408,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lifepo4_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_adc.zip",
+              "size": 457499,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lifepo4_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_off.uf2",
+              "size": 912384,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lifepo4_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lifepo4_1s_off.zip",
+              "size": 456971,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_liion_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_adc.uf2",
+              "size": 913408,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_liion_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_adc.zip",
+              "size": 457499,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_liion_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_off.uf2",
+              "size": 912384,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_liion_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_liion_1s_off.zip",
+              "size": 456955,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lto_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_adc.uf2",
+              "size": 913408,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lto_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_adc.zip",
+              "size": 457498,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lto_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_off.uf2",
+              "size": 912384,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lto_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_1s_off.zip",
+              "size": 456954,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lto_2s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_adc.uf2",
+              "size": 913408,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lto_2s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_adc.zip",
+              "size": 457498,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lto_2s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_off.uf2",
+              "size": 912384,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_companion_radio_usb_lto_2s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_companion_radio_usb_lto_2s_off.zip",
+              "size": 456955,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_kiss_modem_lifepo4_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_adc.uf2",
+              "size": 617984,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_kiss_modem_lifepo4_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_adc.zip",
+              "size": 309619,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_kiss_modem_lifepo4_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_off.uf2",
+              "size": 617472,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_kiss_modem_lifepo4_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lifepo4_1s_off.zip",
+              "size": 309491,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_kiss_modem_liion_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_adc.uf2",
+              "size": 617984,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_kiss_modem_liion_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_adc.zip",
+              "size": 309619,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_kiss_modem_liion_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_off.uf2",
+              "size": 617472,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_kiss_modem_liion_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_liion_1s_off.zip",
+              "size": 309491,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_kiss_modem_lto_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_adc.uf2",
+              "size": 617984,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_kiss_modem_lto_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_adc.zip",
+              "size": 309619,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_kiss_modem_lto_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_off.uf2",
+              "size": 617472,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_kiss_modem_lto_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_1s_off.zip",
+              "size": 309491,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_kiss_modem_lto_2s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_adc.uf2",
+              "size": 617984,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_kiss_modem_lto_2s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_adc.zip",
+              "size": 309619,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_kiss_modem_lto_2s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_off.uf2",
+              "size": 617472,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_kiss_modem_lto_2s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_kiss_modem_lto_2s_off.zip",
+              "size": 309491,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.uf2",
+              "size": 750080,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_adc.zip",
+              "size": 375842,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_off.uf2",
+              "size": 750080,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lifepo4_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lifepo4_1s_off.zip",
+              "size": 375715,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_liion_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_adc.uf2",
+              "size": 750080,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_liion_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_adc.zip",
+              "size": 375843,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_liion_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_off.uf2",
+              "size": 750080,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_liion_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_liion_1s_off.zip",
+              "size": 375715,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lto_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_adc.uf2",
+              "size": 750080,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lto_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_adc.zip",
+              "size": 375843,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lto_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_off.uf2",
+              "size": 750080,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lto_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_1s_off.zip",
+              "size": 375715,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lto_2s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_adc.uf2",
+              "size": 750080,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lto_2s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_adc.zip",
+              "size": 375843,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lto_2s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_off.uf2",
+              "size": 750080,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_bridge_rs232_lto_2s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_bridge_rs232_lto_2s_off.zip",
+              "size": 375715,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_lifepo4_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_adc.uf2",
+              "size": 756224,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_lifepo4_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_adc.zip",
+              "size": 378803,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_lifepo4_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_off.uf2",
+              "size": 756224,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_lifepo4_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lifepo4_1s_off.zip",
+              "size": 378675,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_liion_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_adc.uf2",
+              "size": 756224,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_liion_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_adc.zip",
+              "size": 378803,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_liion_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_off.uf2",
+              "size": 756224,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_liion_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_liion_1s_off.zip",
+              "size": 378675,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_lto_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_adc.uf2",
+              "size": 756224,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_lto_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_adc.zip",
+              "size": 378803,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_lto_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_off.uf2",
+              "size": 756224,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_lto_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_1s_off.zip",
+              "size": 378675,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_lto_2s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_adc.uf2",
+              "size": 756224,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_lto_2s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_adc.zip",
+              "size": 378803,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_repeater_lto_2s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_off.uf2",
+              "size": 756224,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_repeater_lto_2s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_repeater_lto_2s_off.zip",
+              "size": 378675,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_room_server_lifepo4_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_adc.uf2",
+              "size": 743424,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_room_server_lifepo4_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_adc.zip",
+              "size": 372443,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_room_server_lifepo4_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_off.uf2",
+              "size": 743424,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_room_server_lifepo4_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lifepo4_1s_off.zip",
+              "size": 372315,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_room_server_liion_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_adc.uf2",
+              "size": 743424,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_room_server_liion_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_adc.zip",
+              "size": 372443,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_room_server_liion_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_off.uf2",
+              "size": 743424,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_room_server_liion_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_liion_1s_off.zip",
+              "size": 372315,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_room_server_lto_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_adc.uf2",
+              "size": 743424,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_room_server_lto_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_adc.zip",
+              "size": 372443,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_room_server_lto_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_off.uf2",
+              "size": 743424,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_room_server_lto_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_1s_off.zip",
+              "size": 372313,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_room_server_lto_2s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_adc.uf2",
+              "size": 743424,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_room_server_lto_2s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_adc.zip",
+              "size": 372443,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_room_server_lto_2s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_off.uf2",
+              "size": 743424,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_room_server_lto_2s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_room_server_lto_2s_off.zip",
+              "size": 372315,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_sensor_lifepo4_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_adc.uf2",
+              "size": 735232,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_sensor_lifepo4_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_adc.zip",
+              "size": 368251,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_sensor_lifepo4_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_off.uf2",
+              "size": 734720,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_sensor_lifepo4_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lifepo4_1s_off.zip",
+              "size": 368123,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_sensor_liion_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_adc.uf2",
+              "size": 735232,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_sensor_liion_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_adc.zip",
+              "size": 368251,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_sensor_liion_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_off.uf2",
+              "size": 734720,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_sensor_liion_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_liion_1s_off.zip",
+              "size": 368123,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_sensor_lto_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_adc.uf2",
+              "size": 735232,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_sensor_lto_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_adc.zip",
+              "size": 368251,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_sensor_lto_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_off.uf2",
+              "size": 734720,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_sensor_lto_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_1s_off.zip",
+              "size": 368123,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_sensor_lto_2s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_adc.uf2",
+              "size": 735232,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_sensor_lto_2s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_adc.zip",
+              "size": 368250,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_sensor_lto_2s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_off.uf2",
+              "size": 734720,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_sensor_lto_2s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_sensor_lto_2s_off.zip",
+              "size": 368123,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_terminal_chat_lifepo4_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_adc.uf2",
+              "size": 651264,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_terminal_chat_lifepo4_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_adc.zip",
+              "size": 326378,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_terminal_chat_lifepo4_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_off.uf2",
+              "size": 651264,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_terminal_chat_lifepo4_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lifepo4_1s_off.zip",
+              "size": 326251,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_terminal_chat_liion_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_adc.uf2",
+              "size": 651264,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_terminal_chat_liion_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_adc.zip",
+              "size": 326378,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_terminal_chat_liion_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_off.uf2",
+              "size": 651264,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_terminal_chat_liion_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_liion_1s_off.zip",
+              "size": 326250,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_terminal_chat_lto_1s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_adc.uf2",
+              "size": 651264,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_terminal_chat_lto_1s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_adc.zip",
+              "size": 326379,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_terminal_chat_lto_1s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_off.uf2",
+              "size": 651264,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_terminal_chat_lto_1s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_1s_off.zip",
+              "size": 326251,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_terminal_chat_lto_2s_adc.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_adc.uf2",
+              "size": 651264,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_terminal_chat_lto_2s_adc.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_adc.zip",
+              "size": 326379,
+              "contentType": "application/zip"
+            },
+            {
+              "name": "Darktec_terminal_chat_lto_2s_off.uf2",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_off.uf2",
+              "size": 651264,
+              "contentType": "application/octet-stream"
+            },
+            {
+              "name": "Darktec_terminal_chat_lto_2s_off.zip",
+              "url": "./firmware/releases/darktec-v1.17.1b4/Darktec_terminal_chat_lto_2s_off.zip",
+              "size": 326251,
+              "contentType": "application/zip"
+            }
+          ]
+        },
         {
           "release": {
             "tag": "darktec-v1.17.1b3",

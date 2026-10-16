@@ -939,6 +939,7 @@ function displayVersion(tag) {
   if (tag === "darktec-official-latest") {
     return state.officialSha ? `latest · ${state.officialSha}` : "latest";
   }
+  if (tag.startsWith("darktec-official-v")) return tag.slice("darktec-official-".length);
   if (tag.startsWith(TAG_PREFIX)) return tag.slice("darktec-".length);
   return tag;
 }
@@ -1183,9 +1184,17 @@ async function loadReleasesFromApi() {
   );
 
   state.track = "official";
+  const officialVersioned = all.filter(
+    (r) => !r.draft && !r.prerelease && /^darktec-official-v\d+\.\d+\.\d+b\d+$/.test(r.tag_name),
+  );
+  const officialComplete = officialVersioned.filter(isReleaseComplete);
   const officialLatest = all.find((r) => !r.draft && r.tag_name === "darktec-official-latest");
   state.catalog.official = remap(
-    officialLatest && isReleaseComplete(officialLatest) ? [officialLatest] : [],
+    officialComplete.length
+      ? officialComplete
+      : officialLatest && isReleaseComplete(officialLatest)
+        ? [officialLatest]
+        : [],
   );
 
   state.track = prevTrack;

@@ -144,6 +144,20 @@ function pickSouthReleases(releases) {
 }
 
 function pickOfficialReleases(releases) {
+  const complete = releases.filter(
+    (release) =>
+      !release.draft &&
+      !release.prerelease &&
+      /^darktec-official-v\d+\.\d+\.\d+b\d+$/.test(release.tag_name || "") &&
+      isOfficialComplete(release),
+  );
+  if (complete.length) {
+    return complete.map((release) => ({
+      release,
+      files: (release.assets || []).filter((a) => isOfficialAsset(a.name)),
+    }));
+  }
+
   const latest = releases.find(
     (release) => !release.draft && release.tag_name === "darktec-official-latest",
   );
@@ -203,7 +217,7 @@ async function fetchShortSha(ref) {
 }
 
 async function main() {
-  const url = `${apiBase}/repos/${repo}/releases?per_page=40`;
+  const url = `${apiBase}/repos/${repo}/releases?per_page=100`;
   console.log(`Fetching ${url}`);
   const releases = await fetchJson(url);
 

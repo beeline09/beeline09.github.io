@@ -199,6 +199,20 @@
             <strong>Darktec Companion BLE</strong>.
           </p>
 
+          <label class="version-label" for="radioModuleSelect">Радиомодуль</label>
+          <div class="select-wrap">
+            <select class="version-select" id="radioModuleSelect">
+              <option value="0">HT-RA62</option>
+              <option value="1" selected>E22-900M30S</option>
+              <option value="2">E22P-868M30S</option>
+              <option value="3">E22-900M33S</option>
+            </select>
+          </div>
+          <p class="hint" id="radioModuleHint">
+            Какой радиомодуль установлен на плате. По умолчанию
+            <strong>E22-900M30S</strong>.
+          </p>
+
           <details class="photo-spoiler radio-spoiler" id="radioSpoiler">
             <summary>Изменить параметры радио</summary>
             <div class="radio-spoiler-body">
@@ -294,6 +308,47 @@
           <details class="photo-spoiler radio-spoiler" id="powerSpoiler">
             <summary>Питание</summary>
             <div class="radio-spoiler-body">
+              <label class="radio-field">
+                <span class="version-label">Ёмкость ячейки, mAh</span>
+                <input
+                  class="version-select"
+                  id="batteryCapacityInput"
+                  type="number"
+                  step="100"
+                  min="500"
+                  max="30000"
+                  value="4000"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  title="Ёмкость одной ячейки: от 500 до 30000 mAh, кратно 100"
+                >
+              </label>
+              <p class="hint" id="batteryCapacityHint">
+                Ёмкость <strong>одной</strong> ячейки (для пакета 2S прошивка
+                учтёт обе сама). От <strong>500</strong> до <strong>30000</strong>, кратно 100.
+              </p>
+
+              <label class="radio-field">
+                <span class="version-label">Ток заряда, mA</span>
+                <input
+                  class="version-select"
+                  id="chargeCurrentInput"
+                  type="number"
+                  step="100"
+                  min="100"
+                  max="3000"
+                  value="2000"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  title="Номинал зарядного тока платы: от 100 до 3000 mA, кратно 100"
+                >
+              </label>
+              <p class="hint" id="chargeCurrentHint">
+                Номинал зарядного тока вашей платы (задаётся резисторным
+                делителем; после перепайки измените и в настройках устройства).
+                От <strong>100</strong> до <strong>3000</strong>, кратно 100.
+              </p>
+
               <label class="radio-field">
                 <span class="version-label">ADC Multiplier</span>
                 <input

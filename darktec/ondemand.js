@@ -82,6 +82,100 @@ export function adcSlugToken(raw) {
   return parseAdcMultiplier(raw).toFixed(3).replace(/\./g, "p");
 }
 
+/** Радиомодуль платы (spec 0001 FR-2/FR-5): варианты и дефолт. */
+export const RADIO_MODULE_DEFAULT = 1;
+
+/** Ёмкость ОДНОЙ ячейки, mAh (spec 0001 FR-1/FR-4). */
+export const BATTERY_CAPACITY_DEFAULT = 4000;
+export const BATTERY_CAPACITY_MIN = 500;
+export const BATTERY_CAPACITY_MAX = 30000;
+
+/** Номинал зарядного тока платы, mA (spec 0001 FR-31). */
+export const CHARGE_CURRENT_DEFAULT = 2000;
+export const CHARGE_CURRENT_MIN = 100;
+export const CHARGE_CURRENT_MAX = 3000;
+
+/** Только цифры (для input с шагом 100). */
+export function sanitizeIntInput(raw, maxLen = 6) {
+  let out = "";
+  for (const ch of String(raw ?? "")) {
+    if (ch >= "0" && ch <= "9" && out.length < maxLen) out += ch;
+  }
+  return out;
+}
+
+export function parseIntInput(raw, fallback) {
+  const t = String(raw ?? "").trim();
+  if (!t) return fallback;
+  if (!/^\d+$/.test(t)) return NaN;
+  return Math.trunc(Number(t));
+}
+
+export function parseBatteryCapacity(raw) {
+  return parseIntInput(raw, BATTERY_CAPACITY_DEFAULT);
+}
+
+export function isDefaultBatteryCapacity(raw) {
+  return parseBatteryCapacity(raw) === BATTERY_CAPACITY_DEFAULT;
+}
+
+export function validateBatteryCapacity(raw) {
+  const t = String(raw ?? "").trim();
+  if (!t) return null;
+  if (!/^\d+$/.test(t)) return "Ёмкость ячейки: только целое число";
+  const v = Number(t);
+  if (v < BATTERY_CAPACITY_MIN || v > BATTERY_CAPACITY_MAX) {
+    return `Ёмкость ячейки: от ${BATTERY_CAPACITY_MIN} до ${BATTERY_CAPACITY_MAX} mAh`;
+  }
+  if (v % 100 !== 0) return "Ёмкость ячейки: кратно 100 mAh";
+  return null;
+}
+
+export function capacitySlugToken(raw) {
+  return String(parseBatteryCapacity(raw));
+}
+
+export function parseChargeCurrent(raw) {
+  return parseIntInput(raw, CHARGE_CURRENT_DEFAULT);
+}
+
+export function isDefaultChargeCurrent(raw) {
+  return parseChargeCurrent(raw) === CHARGE_CURRENT_DEFAULT;
+}
+
+export function validateChargeCurrent(raw) {
+  const t = String(raw ?? "").trim();
+  if (!t) return null;
+  if (!/^\d+$/.test(t)) return "Ток заряда: только целое число";
+  const v = Number(t);
+  if (v < CHARGE_CURRENT_MIN || v > CHARGE_CURRENT_MAX) {
+    return `Ток заряда: от ${CHARGE_CURRENT_MIN} до ${CHARGE_CURRENT_MAX} mA`;
+  }
+  if (v % 100 !== 0) return "Ток заряда: кратно 100 mA";
+  return null;
+}
+
+export function chargeSlugToken(raw) {
+  return String(parseChargeCurrent(raw));
+}
+
+export function parseRadioModule(raw) {
+  const v = parseIntInput(raw, RADIO_MODULE_DEFAULT);
+  return v;
+}
+
+export function isDefaultRadioModule(raw) {
+  return parseRadioModule(raw) === RADIO_MODULE_DEFAULT;
+}
+
+export function validateRadioModule(raw) {
+  const v = parseRadioModule(raw);
+  if (!Number.isFinite(v) || v < 0 || v > 3) {
+    return "Радиомодуль: выберите вариант из списка";
+  }
+  return null;
+}
+
 export function slugifyName(name) {
   const s = String(name || "")
     .trim()
@@ -269,14 +363,21 @@ export function ondemandBaseName({
   nameSlug,
   radio,
   adc,
+  capacity,
+  module,
+  charge,
   sha,
 }) {
   const radioPart = radioSlug(radio);
   const adcPart = isDefaultAdc(adc) ? "" : `__adc${adcSlugToken(adc)}`;
+  const capPart = isDefaultBatteryCapacity(capacity) ? "" : `__cap${capacitySlugToken(capacity)}`;
+  const modPart = isDefaultRadioModule(module) ? "" : `__mod${parseRadioModule(module)}`;
+  const chgPart = isDefaultChargeCurrent(charge) ? "" : `__chg${chargeSlugToken(charge)}`;
+  const suffix = `${radioPart}${adcPart}${capPart}${modPart}${chgPart}`;
   if (track === "official") {
-    return `DarktecOff_${role}_${chem}_${cells}s__${nameSlug}__${radioPart}${adcPart}__${sha}`;
+    return `DarktecOff_${role}_${chem}_${cells}s__${nameSlug}__${suffix}__${sha}`;
   }
-  return `Darktec_${role}_${chem}_${cells}s_${protect}__${nameSlug}__${radioPart}${adcPart}__${sha}`;
+  return `Darktec_${role}_${chem}_${cells}s_${protect}__${nameSlug}__${suffix}__${sha}`;
 }
 
 /**
@@ -323,6 +424,9 @@ export function buildIssueUrl({
   nameSlug,
   radio,
   adc,
+  capacity,
+  module,
+  charge,
   sha,
 }) {
   const r = normalizeRadio(radio);
@@ -350,6 +454,9 @@ export function buildIssueUrl({
     `lora_cr=${r.cr}`,
     `lora_tx=${r.tx}`,
     `adc_multiplier=${adcVal}`,
+    `battery_capacity_mah=${parseBatteryCapacity(capacity)}`,
+    `radio_module=${parseRadioModule(module)}`,
+    `charge_current_ma=${parseChargeCurrent(charge)}`,
     `sha=${sha}`,
     "-->",
     "",

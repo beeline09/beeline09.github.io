@@ -16,17 +16,24 @@ import {
   findOndemandAssets,
   fetchFirmwareSha,
   isDefaultAdc,
+  isDefaultBatteryCapacity,
+  isDefaultChargeCurrent,
   isDefaultRadio,
+  isDefaultRadioModule,
   normalizeRadio,
   ondemandBaseName,
   pollOndemandAssets,
   RADIO_DEFAULTS,
   sanitizeAdcMultiplierInput,
   sanitizeAdvertName,
+  sanitizeIntInput,
   slugifyName,
   validateAdcMultiplier,
   validateAdvertName,
+  validateBatteryCapacity,
+  validateChargeCurrent,
   validateRadio,
+  validateRadioModule,
 } from "./ondemand.js";
 
 /** Official MeshCore USB config GUI (repeater / room). */
@@ -171,6 +178,12 @@ const state = {
   advertNameTouched: false,
   radio: { ...RADIO_DEFAULTS },
   adcMultiplier: "1.750",
+  /** Ёмкость ОДНОЙ ячейки, mAh (строкой — как в поле ввода). */
+  batteryCapacity: "4000",
+  /** Радиомодуль платы: 0 HT-RA62, 1 E22-900M30S, 2 E22P-868M30S, 3 E22-900M33S. */
+  radioModule: 1,
+  /** Номинал зарядного тока платы, mA (строкой — как в поле ввода). */
+  chargeCurrent: "2000",
   tab: "offline",
   releases: [],
   selectedTag: null,
@@ -252,6 +265,9 @@ const els = {
   radioCr: document.getElementById("radioCr"),
   radioTx: document.getElementById("radioTx"),
   adcMultiplierInput: document.getElementById("adcMultiplierInput"),
+  batteryCapacityInput: document.getElementById("batteryCapacityInput"),
+  radioModuleSelect: document.getElementById("radioModuleSelect"),
+  chargeCurrentInput: document.getElementById("chargeCurrentInput"),
   radioCustomHint: document.getElementById("radioCustomHint"),
 };
 
@@ -354,7 +370,14 @@ function isCustomName() {
 }
 
 function needsCustomBuild() {
-  return isCustomName() || !isDefaultRadio(state.radio) || !isDefaultAdc(state.adcMultiplier);
+  return (
+    isCustomName() ||
+    !isDefaultRadio(state.radio) ||
+    !isDefaultAdc(state.adcMultiplier) ||
+    !isDefaultBatteryCapacity(state.batteryCapacity) ||
+    !isDefaultRadioModule(state.radioModule) ||
+    !isDefaultChargeCurrent(state.chargeCurrent)
+  );
 }
 
 function customNameSlug() {
@@ -580,6 +603,24 @@ async function refreshOndemandFromCache() {
       setBuildControls({ show: false, hint: adcErr });
       return;
     }
+    const capErr = validateBatteryCapacity(state.batteryCapacity);
+    if (capErr) {
+      state.ondemand = null;
+      setBuildControls({ show: false, hint: capErr });
+      return;
+    }
+    const chgErr = validateChargeCurrent(state.chargeCurrent);
+    if (chgErr) {
+      state.ondemand = null;
+      setBuildControls({ show: false, hint: chgErr });
+      return;
+    }
+    const modErr = validateRadioModule(state.radioModule);
+    if (modErr) {
+      state.ondemand = null;
+      setBuildControls({ show: false, hint: modErr });
+      return;
+    }
     const sha = currentTrackSha();
     if (!sha) {
       const fetched = await fetchFirmwareSha(state.track);
@@ -607,6 +648,9 @@ async function refreshOndemandFromCache() {
       nameSlug: customNameSlug(),
       radio: state.radio,
       adc: state.adcMultiplier,
+      capacity: state.batteryCapacity,
+      module: state.radioModule,
+      charge: state.chargeCurrent,
       sha: currentTrackSha(),
     });
     const found = await findOndemandAssets(base);
@@ -2257,6 +2301,56 @@ function wireOndemandUi() {
     scheduleRefresh();
   });
 
+  const onPowerParamInput = () => {
+    if (els.batteryCapacityInput) {
+      const cleaned = sanitizeIntInput(els.batteryCapacityInput.value, 6);
+      if (cleaned !== els.batteryCapacityInput.value) {
+        const pos = els.batteryCapacityInput.selectionStart;
+        els.batteryCapacityInput.value = cleaned;
+        try {
+          els.batteryCapacityInput.setSelectionRange(Math.max(0, pos - 1), Math.max(0, pos - 1));
+        } catch {
+          /* ignore */
+        }
+      }
+      state.batteryCapacity = els.batteryCapacityInput.value;
+    }
+    if (els.chargeCurrentInput) {
+      const cleaned = sanitizeIntInput(els.chargeCurrentInput.value, 5);
+      if (cleaned !== els.chargeCurrentInput.value) {
+        const pos = els.chargeCurrentInput.selectionStart;
+        els.chargeCurrentInput.value = cleaned;
+        try {
+          els.chargeCurrentInput.setSelectionRange(Math.max(0, pos - 1), Math.max(0, pos - 1));
+        } catch {
+          /* ignore */
+        }
+      }
+      state.chargeCurrent = els.chargeCurrentInput.value;
+    }
+    if (!needsCustomBuild()) {
+      clearTimeout(debounce);
+      void refreshOndemandFromCache()
+        .then(updateDownload)
+        .catch((err) => console.warn("ondemand default power", err));
+      return;
+    }
+    scheduleRefresh();
+  };
+  els.batteryCapacityInput?.addEventListener("input", onPowerParamInput);
+  els.chargeCurrentInput?.addEventListener("input", onPowerParamInput);
+  els.radioModuleSelect?.addEventListener("change", () => {
+    state.radioModule = Number(els.radioModuleSelect.value) || 0;
+    if (!needsCustomBuild()) {
+      clearTimeout(debounce);
+      void refreshOndemandFromCache()
+        .then(updateDownload)
+        .catch((err) => console.warn("ondemand default module", err));
+      return;
+    }
+    scheduleRefresh();
+  });
+
   const onBuildClick = async () => {
     if (!needsCustomBuild()) return;
     const nameErr = validateAdvertName(state.advertName);
@@ -2282,6 +2376,30 @@ function wireOndemandUi() {
       els.status.textContent = adcErr;
       els.flashStatus.className = "status error";
       els.flashStatus.textContent = adcErr;
+      return;
+    }
+    const capErr = validateBatteryCapacity(state.batteryCapacity);
+    if (capErr) {
+      els.status.className = "status error";
+      els.status.textContent = capErr;
+      els.flashStatus.className = "status error";
+      els.flashStatus.textContent = capErr;
+      return;
+    }
+    const chgErr = validateChargeCurrent(state.chargeCurrent);
+    if (chgErr) {
+      els.status.className = "status error";
+      els.status.textContent = chgErr;
+      els.flashStatus.className = "status error";
+      els.flashStatus.textContent = chgErr;
+      return;
+    }
+    const modErr = validateRadioModule(state.radioModule);
+    if (modErr) {
+      els.status.className = "status error";
+      els.status.textContent = modErr;
+      els.flashStatus.className = "status error";
+      els.flashStatus.textContent = modErr;
       return;
     }
     const proceed = await showBuildHelpModal();
@@ -2310,6 +2428,9 @@ function wireOndemandUi() {
         nameSlug,
         radio: state.radio,
         adc: state.adcMultiplier,
+        capacity: state.batteryCapacity,
+        module: state.radioModule,
+        charge: state.chargeCurrent,
         sha,
       });
       const url = buildIssueUrl({
@@ -2322,6 +2443,9 @@ function wireOndemandUi() {
         nameSlug,
         radio: state.radio,
         adc: state.adcMultiplier,
+        capacity: state.batteryCapacity,
+        module: state.radioModule,
+        charge: state.chargeCurrent,
         sha,
       });
       window.open(url, "_blank", "noopener");

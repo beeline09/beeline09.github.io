@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-17T12:56:29.908Z",
+  "generatedAt": "2026-10-17T20:41:05.638Z",
   "sourceTag": "darktec-ondemand",
-  "southSha": "b4eccd46",
-  "officialSha": "7101fe45",
+  "southSha": "1a6308c3",
+  "officialSha": "9133160d",
   "files": [
     {
       "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__68941ceb.uf2",
@@ -193,6 +193,16 @@
       "name": "Darktec_companion_radio_ble_liion_1s_off__berimor__f868p95-bw62p5-sf9-cr7-tx9__160d16c0.zip",
       "size": 478575,
       "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_off__berimor__f868p95-bw62p5-sf9-cr7-tx9__160d16c0.zip"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_off__darktec-companion-ble__f868p9-bw62p5-sf8-cr8-tx22__cap3600__mod3__1a6308c3.uf2",
+      "size": 937984,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_off__darktec-companion-ble__f868p9-bw62p5-sf8-cr8-tx22__cap3600__mod3__1a6308c3.uf2"
+    },
+    {
+      "name": "Darktec_companion_radio_ble_liion_1s_off__darktec-companion-ble__f868p9-bw62p5-sf8-cr8-tx22__cap3600__mod3__1a6308c3.zip",
+      "size": 469783,
+      "url": "./firmware/ondemand/Darktec_companion_radio_ble_liion_1s_off__darktec-companion-ble__f868p9-bw62p5-sf8-cr8-tx22__cap3600__mod3__1a6308c3.zip"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_off__darktec-companion-ble__f868p9-bw62p5-sf8-cr8-tx22__mod3__b4eccd46.uf2",

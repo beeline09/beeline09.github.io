@@ -20,6 +20,7 @@ import {
   isDefaultChargeCurrent,
   isDefaultRadio,
   isDefaultRadioModule,
+  KEEP_DISPLAY_CHG_DEFAULT,
   normalizeRadio,
   ondemandBaseName,
   pollOndemandAssets,
@@ -184,6 +185,8 @@ const state = {
   radioModule: 1,
   /** Номинал зарядного тока платы, mA (строкой — как в поле ввода). */
   chargeCurrent: "2000",
+  /** Держать экран включенным при зарядке (spec 0002 FR-1). */
+  keepDisplayChg: KEEP_DISPLAY_CHG_DEFAULT,
   tab: "offline",
   releases: [],
   selectedTag: null,
@@ -268,6 +271,7 @@ const els = {
   batteryCapacityInput: document.getElementById("batteryCapacityInput"),
   radioModuleSelect: document.getElementById("radioModuleSelect"),
   chargeCurrentInput: document.getElementById("chargeCurrentInput"),
+  keepDisplayChg: document.getElementById("keepDisplayChg"),
   radioCustomHint: document.getElementById("radioCustomHint"),
 };
 
@@ -376,7 +380,8 @@ function needsCustomBuild() {
     !isDefaultAdc(state.adcMultiplier) ||
     !isDefaultBatteryCapacity(state.batteryCapacity) ||
     !isDefaultRadioModule(state.radioModule) ||
-    !isDefaultChargeCurrent(state.chargeCurrent)
+    !isDefaultChargeCurrent(state.chargeCurrent) ||
+    state.keepDisplayChg === false
   );
 }
 
@@ -651,6 +656,7 @@ async function refreshOndemandFromCache() {
       capacity: state.batteryCapacity,
       module: state.radioModule,
       charge: state.chargeCurrent,
+      keepDisplayChg: state.keepDisplayChg,
       sha: currentTrackSha(),
     });
     const found = await findOndemandAssets(base);
@@ -2350,6 +2356,17 @@ function wireOndemandUi() {
     }
     scheduleRefresh();
   });
+  els.keepDisplayChg?.addEventListener("change", () => {
+    state.keepDisplayChg = els.keepDisplayChg.checked;
+    if (!needsCustomBuild()) {
+      clearTimeout(debounce);
+      void refreshOndemandFromCache()
+        .then(updateDownload)
+        .catch((err) => console.warn("ondemand default keepDisplay", err));
+      return;
+    }
+    scheduleRefresh();
+  });
 
   const onBuildClick = async () => {
     if (!needsCustomBuild()) return;
@@ -2431,6 +2448,7 @@ function wireOndemandUi() {
         capacity: state.batteryCapacity,
         module: state.radioModule,
         charge: state.chargeCurrent,
+        keepDisplayChg: state.keepDisplayChg,
         sha,
       });
       const url = buildIssueUrl({
@@ -2446,6 +2464,7 @@ function wireOndemandUi() {
         capacity: state.batteryCapacity,
         module: state.radioModule,
         charge: state.chargeCurrent,
+        keepDisplayChg: state.keepDisplayChg,
         sha,
       });
       window.open(url, "_blank", "noopener");

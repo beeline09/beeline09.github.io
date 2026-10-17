@@ -95,6 +95,9 @@ export const CHARGE_CURRENT_DEFAULT = 2000;
 export const CHARGE_CURRENT_MIN = 100;
 export const CHARGE_CURRENT_MAX = 3000;
 
+/** «Держать экран всегда включенным при зарядке» (spec 0002 FR-1/FR-5). */
+export const KEEP_DISPLAY_CHG_DEFAULT = true;
+
 /** Только цифры (для input с шагом 100). */
 export function sanitizeIntInput(raw, maxLen = 6) {
   let out = "";
@@ -366,6 +369,7 @@ export function ondemandBaseName({
   capacity,
   module,
   charge,
+  keepDisplayChg = KEEP_DISPLAY_CHG_DEFAULT,
   sha,
 }) {
   const radioPart = radioSlug(radio);
@@ -373,7 +377,8 @@ export function ondemandBaseName({
   const capPart = isDefaultBatteryCapacity(capacity) ? "" : `__cap${capacitySlugToken(capacity)}`;
   const modPart = isDefaultRadioModule(module) ? "" : `__mod${parseRadioModule(module)}`;
   const chgPart = isDefaultChargeCurrent(charge) ? "" : `__chg${chargeSlugToken(charge)}`;
-  const suffix = `${radioPart}${adcPart}${capPart}${modPart}${chgPart}`;
+  const kdcPart = keepDisplayChg === false ? "__kdc0" : "";
+  const suffix = `${radioPart}${adcPart}${capPart}${modPart}${chgPart}${kdcPart}`;
   if (track === "official") {
     return `DarktecOff_${role}_${chem}_${cells}s__${nameSlug}__${suffix}__${sha}`;
   }
@@ -427,6 +432,7 @@ export function buildIssueUrl({
   capacity,
   module,
   charge,
+  keepDisplayChg = KEEP_DISPLAY_CHG_DEFAULT,
   sha,
 }) {
   const r = normalizeRadio(radio);
@@ -457,6 +463,7 @@ export function buildIssueUrl({
     `battery_capacity_mah=${parseBatteryCapacity(capacity)}`,
     `radio_module=${parseRadioModule(module)}`,
     `charge_current_ma=${parseChargeCurrent(charge)}`,
+    `keep_display_chg=${keepDisplayChg === false ? 0 : 1}`,
     `sha=${sha}`,
     "-->",
     "",

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/site.css?v=darktec10">
+  <link rel="stylesheet" href="/assets/css/site.css?v=darktec11">
 </head>
 <body>
   <div class="wrap">
@@ -346,14 +346,12 @@
                 От <strong>100</strong> до <strong>3000</strong>, кратно 100.
               </p>
 
-              <label class="radio-field" style="flex-direction: row; align-items: center; gap: 8px;">
-                <input
-                  type="checkbox"
-                  id="keepDisplayChg"
-                  checked
-                  style="width: auto; margin: 0;"
-                >
-                <span class="version-label" style="margin: 0;">Держать экран всегда включенным при зарядке</span>
+              <label class="switch-row" for="keepDisplayChg">
+                <span class="version-label">Держать экран всегда включенным при зарядке</span>
+                <span class="m3-switch">
+                  <input type="checkbox" id="keepDisplayChg" checked>
+                  <span class="slider" aria-hidden="true"></span>
+                </span>
               </label>
               <p class="hint" id="keepDisplayChgHint">
                 Отключите, если панель хочется поберечь: экран сможет гаснуть

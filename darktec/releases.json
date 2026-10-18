@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-18T14:16:01.309Z",
+  "generatedAt": "2026-10-18T14:23:50.097Z",
   "sourceRepo": "beeline09/MeshCore",
   "southSha": "8350b203",
   "officialSha": "9b342d3c",
@@ -8,7 +8,7 @@
     "name": "Darktec v1.18.0b7",
     "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b7",
     "publishedAt": "2026-10-17T23:13:54Z",
-    "notes": "## Darktec v1.18.0b7\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b6`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+    "notes": "## Darktec v1.18.0b7\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b6`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
   },
   "files": [
     {
@@ -787,7 +787,7 @@
         "name": "Darktec v1.18.0b7",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b7",
         "publishedAt": "2026-10-17T23:13:54Z",
-        "notes": "## Darktec v1.18.0b7\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b6`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.18.0b7\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b6`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -1566,7 +1566,7 @@
         "name": "Darktec v1.18.0b6",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b6",
         "publishedAt": "2026-10-17T22:48:05Z",
-        "notes": "## Darktec v1.18.0b6\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b5`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.18.0b6\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b5`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -2345,7 +2345,7 @@
         "name": "Darktec v1.18.0b5",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b5",
         "publishedAt": "2026-10-17T21:37:05Z",
-        "notes": "## Darktec v1.18.0b5\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b4`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.18.0b5\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b4`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -3124,7 +3124,7 @@
         "name": "Darktec v1.18.0b4",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b4",
         "publishedAt": "2026-10-17T19:47:42Z",
-        "notes": "## Darktec v1.18.0b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b3`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.18.0b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b3`\n\n#### Сборка / CI\n- On-demand — «экран при зарядке»\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -3903,7 +3903,7 @@
         "name": "Darktec v1.18.0b3",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b3",
         "publishedAt": "2026-10-17T14:24:41Z",
-        "notes": "## Darktec v1.18.0b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b2`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.18.0b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b2`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -4682,7 +4682,7 @@
         "name": "Darktec v1.18.0b2",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b2",
         "publishedAt": "2026-10-17T01:50:08Z",
-        "notes": "## Darktec v1.18.0b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b1`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.18.0b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b1`\n\n#### Сборка / CI\n- On-demand — ёмкость АКБ, радиомодуль, ток заряда\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -5461,7 +5461,7 @@
         "name": "Darktec v1.18.0b1",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b1",
         "publishedAt": "2026-10-16T21:53:02Z",
-        "notes": "## Darktec v1.18.0b1\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b4`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.18.0b1\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b4`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -6240,7 +6240,7 @@
         "name": "Darktec v1.17.1b4",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b4",
         "publishedAt": "2026-10-07T23:24:11Z",
-        "notes": "## Darktec v1.17.1b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b3`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.17.1b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b3`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -7019,7 +7019,7 @@
         "name": "Darktec v1.17.1b3",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b3",
         "publishedAt": "2026-10-04T18:13:58Z",
-        "notes": "## Darktec v1.17.1b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b2`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.17.1b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b2`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -7798,7 +7798,7 @@
         "name": "Darktec v1.17.1b2",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b2",
         "publishedAt": "2026-09-28T22:58:44Z",
-        "notes": "## Darktec v1.17.1b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b1`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.17.1b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b1`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -8577,7 +8577,7 @@
         "name": "Darktec v1.17.1b1",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b1",
         "publishedAt": "2026-09-28T22:03:32Z",
-        "notes": "## Darktec v1.17.1b1\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b15`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.17.1b1\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b15`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -9356,7 +9356,7 @@
         "name": "Darktec v1.16.0b15",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b15",
         "publishedAt": "2026-09-14T20:03:47Z",
-        "notes": "## Darktec v1.16.0b15\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b14`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b15\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b14`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -10135,7 +10135,7 @@
         "name": "Darktec v1.16.0b14",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b14",
         "publishedAt": "2026-09-14T19:53:02Z",
-        "notes": "## Darktec v1.16.0b14\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b13`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b14\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b13`\n\n#### Сборка / CI\n- Adc_multiplier в on-demand workflow\n- On-demand checkout south_edition или dev-darktec\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -10914,7 +10914,7 @@
         "name": "Darktec v1.16.0b9",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b9",
         "publishedAt": "2026-08-19T02:17:18Z",
-        "notes": "## Darktec v1.16.0b9\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b8`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b9\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b8`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -11693,7 +11693,7 @@
         "name": "Darktec v1.16.0b13",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b13",
         "publishedAt": "2026-08-24T17:30:27Z",
-        "notes": "## Darktec v1.16.0b13\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b12`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b13\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b12`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -12472,7 +12472,7 @@
         "name": "Darktec v1.16.0b12",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b12",
         "publishedAt": "2026-08-19T18:03:12Z",
-        "notes": "## Darktec v1.16.0b12\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b11`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b12\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b11`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -13251,7 +13251,7 @@
         "name": "Darktec v1.16.0b11",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b11",
         "publishedAt": "2026-08-19T17:55:46Z",
-        "notes": "## Darktec v1.16.0b11\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b10`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b11\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b10`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -14030,7 +14030,7 @@
         "name": "Darktec v1.16.0b10",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b10",
         "publishedAt": "2026-08-19T17:45:35Z",
-        "notes": "## Darktec v1.16.0b10\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b9`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b10\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b9`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -14809,7 +14809,7 @@
         "name": "Darktec v1.16.0b8",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b8",
         "publishedAt": "2026-08-14T20:17:07Z",
-        "notes": "## Darktec v1.16.0b8\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b7`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b8\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b7`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -15588,7 +15588,7 @@
         "name": "Darktec v1.16.0b7",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b7",
         "publishedAt": "2026-08-14T17:34:42Z",
-        "notes": "## Darktec v1.16.0b7\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b6`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b7\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b6`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -16367,7 +16367,7 @@
         "name": "Darktec v1.16.0b6",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b6",
         "publishedAt": "2026-08-11T20:33:46Z",
-        "notes": "## Darktec v1.16.0b6\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b5`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b6\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b5`\n\n#### Сборка / CI\n- Sync ondemand workflow — версия vX.Y.Z для splash\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -17146,7 +17146,7 @@
         "name": "Darktec v1.16.0b5",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b5",
         "publishedAt": "2026-08-11T17:49:16Z",
-        "notes": "## Darktec v1.16.0b5\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b4`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b5\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b4`\n\n#### Сборка / CI\n- Sync latin advert_name validation на main\n- Sync ondemand BW limit на main\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -17925,7 +17925,7 @@
         "name": "Darktec v1.16.0b4",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b4",
         "publishedAt": "2026-08-11T16:30:51Z",
-        "notes": "## Darktec v1.16.0b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b3`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b3`\n\n#### Сборка / CI\n- Sync ondemand prune/prerelease workflow на main\n- Sync Build Darktec On-Demand (radio params) на main\n- Зарегистрировать Build Darktec On-Demand на main\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -18704,7 +18704,7 @@
         "name": "Darktec v1.16.0b3",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b3",
         "publishedAt": "2026-08-11T13:20:25Z",
-        "notes": "## Darktec v1.16.0b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b2`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b2`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -19483,7 +19483,7 @@
         "name": "Darktec v1.16.0b2",
         "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b2",
         "publishedAt": "2026-08-10T23:31:59Z",
-        "notes": "## Darktec v1.16.0b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b1`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+        "notes": "## Darktec v1.16.0b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b1`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
       },
       "files": [
         {
@@ -20267,7 +20267,7 @@
             "name": "Darktec v1.18.0b7",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b7",
             "publishedAt": "2026-10-17T23:13:54Z",
-            "notes": "## Darktec v1.18.0b7\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b6`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.18.0b7\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b6`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -21046,7 +21046,7 @@
             "name": "Darktec v1.18.0b6",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b6",
             "publishedAt": "2026-10-17T22:48:05Z",
-            "notes": "## Darktec v1.18.0b6\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b5`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.18.0b6\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b5`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -21825,7 +21825,7 @@
             "name": "Darktec v1.18.0b5",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b5",
             "publishedAt": "2026-10-17T21:37:05Z",
-            "notes": "## Darktec v1.18.0b5\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b4`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.18.0b5\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b4`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -22604,7 +22604,7 @@
             "name": "Darktec v1.18.0b4",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b4",
             "publishedAt": "2026-10-17T19:47:42Z",
-            "notes": "## Darktec v1.18.0b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b3`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.18.0b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b3`\n\n#### Сборка / CI\n- On-demand — «экран при зарядке»\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -23383,7 +23383,7 @@
             "name": "Darktec v1.18.0b3",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b3",
             "publishedAt": "2026-10-17T14:24:41Z",
-            "notes": "## Darktec v1.18.0b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b2`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.18.0b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b2`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -24162,7 +24162,7 @@
             "name": "Darktec v1.18.0b2",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b2",
             "publishedAt": "2026-10-17T01:50:08Z",
-            "notes": "## Darktec v1.18.0b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b1`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.18.0b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.18.0b1`\n\n#### Сборка / CI\n- On-demand — ёмкость АКБ, радиомодуль, ток заряда\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -24941,7 +24941,7 @@
             "name": "Darktec v1.18.0b1",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.18.0b1",
             "publishedAt": "2026-10-16T21:53:02Z",
-            "notes": "## Darktec v1.18.0b1\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b4`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.18.0b1\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b4`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -25720,7 +25720,7 @@
             "name": "Darktec v1.17.1b4",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b4",
             "publishedAt": "2026-10-07T23:24:11Z",
-            "notes": "## Darktec v1.17.1b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b3`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.17.1b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b3`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -26499,7 +26499,7 @@
             "name": "Darktec v1.17.1b3",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b3",
             "publishedAt": "2026-10-04T18:13:58Z",
-            "notes": "## Darktec v1.17.1b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b2`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.17.1b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b2`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -27278,7 +27278,7 @@
             "name": "Darktec v1.17.1b2",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b2",
             "publishedAt": "2026-09-28T22:58:44Z",
-            "notes": "## Darktec v1.17.1b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b1`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.17.1b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.17.1b1`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -28057,7 +28057,7 @@
             "name": "Darktec v1.17.1b1",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.17.1b1",
             "publishedAt": "2026-09-28T22:03:32Z",
-            "notes": "## Darktec v1.17.1b1\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b15`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.17.1b1\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b15`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -28836,7 +28836,7 @@
             "name": "Darktec v1.16.0b15",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b15",
             "publishedAt": "2026-09-14T20:03:47Z",
-            "notes": "## Darktec v1.16.0b15\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b14`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b15\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b14`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -29615,7 +29615,7 @@
             "name": "Darktec v1.16.0b14",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b14",
             "publishedAt": "2026-09-14T19:53:02Z",
-            "notes": "## Darktec v1.16.0b14\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b13`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b14\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b13`\n\n#### Сборка / CI\n- Adc_multiplier в on-demand workflow\n- On-demand checkout south_edition или dev-darktec\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -30394,7 +30394,7 @@
             "name": "Darktec v1.16.0b9",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b9",
             "publishedAt": "2026-08-19T02:17:18Z",
-            "notes": "## Darktec v1.16.0b9\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b8`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b9\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b8`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -31173,7 +31173,7 @@
             "name": "Darktec v1.16.0b13",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b13",
             "publishedAt": "2026-08-24T17:30:27Z",
-            "notes": "## Darktec v1.16.0b13\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b12`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b13\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b12`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -31952,7 +31952,7 @@
             "name": "Darktec v1.16.0b12",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b12",
             "publishedAt": "2026-08-19T18:03:12Z",
-            "notes": "## Darktec v1.16.0b12\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b11`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b12\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b11`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -32731,7 +32731,7 @@
             "name": "Darktec v1.16.0b11",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b11",
             "publishedAt": "2026-08-19T17:55:46Z",
-            "notes": "## Darktec v1.16.0b11\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b10`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b11\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b10`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -33510,7 +33510,7 @@
             "name": "Darktec v1.16.0b10",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b10",
             "publishedAt": "2026-08-19T17:45:35Z",
-            "notes": "## Darktec v1.16.0b10\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b9`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b10\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b9`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -34289,7 +34289,7 @@
             "name": "Darktec v1.16.0b8",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b8",
             "publishedAt": "2026-08-14T20:17:07Z",
-            "notes": "## Darktec v1.16.0b8\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b7`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b8\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b7`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -35068,7 +35068,7 @@
             "name": "Darktec v1.16.0b7",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b7",
             "publishedAt": "2026-08-14T17:34:42Z",
-            "notes": "## Darktec v1.16.0b7\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b6`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b7\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b6`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -35847,7 +35847,7 @@
             "name": "Darktec v1.16.0b6",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b6",
             "publishedAt": "2026-08-11T20:33:46Z",
-            "notes": "## Darktec v1.16.0b6\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b5`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b6\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b5`\n\n#### Сборка / CI\n- Sync ondemand workflow — версия vX.Y.Z для splash\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -36626,7 +36626,7 @@
             "name": "Darktec v1.16.0b5",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b5",
             "publishedAt": "2026-08-11T17:49:16Z",
-            "notes": "## Darktec v1.16.0b5\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b4`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b5\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b4`\n\n#### Сборка / CI\n- Sync latin advert_name validation на main\n- Sync ondemand BW limit на main\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -37405,7 +37405,7 @@
             "name": "Darktec v1.16.0b4",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b4",
             "publishedAt": "2026-08-11T16:30:51Z",
-            "notes": "## Darktec v1.16.0b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b3`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b4\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b3`\n\n#### Сборка / CI\n- Sync ondemand prune/prerelease workflow на main\n- Sync Build Darktec On-Demand (radio params) на main\n- Зарегистрировать Build Darktec On-Demand на main\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -38184,7 +38184,7 @@
             "name": "Darktec v1.16.0b3",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b3",
             "publishedAt": "2026-08-11T13:20:25Z",
-            "notes": "## Darktec v1.16.0b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b2`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b3\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b2`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -38963,7 +38963,7 @@
             "name": "Darktec v1.16.0b2",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-v1.16.0b2",
             "publishedAt": "2026-08-10T23:31:59Z",
-            "notes": "## Darktec v1.16.0b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b1`\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- Правка значений в настройках — режимом с [скобками], Back внизу\n- SOC по ёмкости/химии + настройки в меню + тип радиомодуля\n\n#### Сборка / CI\n- Changelog — авторский фильтр, darktec: = Новое, срез маркеров\n- On-demand принимает ёмкость/модуль/ток заряда\n\n#### Тесты\n- Native-тесты новых полей /darktec.prefs\n\n#### Обслуживание\n- Добыт потерянный variants/darktec/target.cpp\n- Перенос Darktec-инфраструктуры на новую базу rogovogor\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec v1.16.0b2\n\nПрошивка основана на изменениях ветки [south_edition](https://github.com/rogovogor/MeshCore/tree/south_edition) (Rogovogor / MeshCore). Полный базовый changelog смотрите там.\n\n### Изменения beeline09 с `darktec-v1.16.0b1`\n\n_Нет пользовательских коммитов beeline09/Darktec в диапазоне — технический релиз._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -39747,7 +39747,7 @@
             "name": "Darktec official v1.18.0b6",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-official-v1.18.0b6",
             "publishedAt": "2026-10-17T23:10:27Z",
-            "notes": "## Darktec official v1.18.0b6-9b342d3c\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- SOC/настройки/тип радиомодуля в официальной прошивке\n\n#### Исправления\n- Адаптация companion_ui к новому MyMesh::Listener API\n- Поднять точку активности LoRa на середину OLED\n- Кириллица в длинных сообщениях на OLED и повторное чтение MSG\n\n#### Сборка / CI\n- Changelog официалки — диапазон от прошлого тега и срез маркеров\n- Версионные релизы официальной прошивки (darktec-official-v{BASE}bN)\n- Матрица official без защиты батареи и on-demand\n\n#### Прочее\n- ADC_MULTIPLIER через on-demand -include\n- Кириллица на OLED без правок src/\n- Add board variant on official dev\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec official v1.18.0b6\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n_Нет отдельных пользовательских коммитов варианта Darktec._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -40148,7 +40148,7 @@
             "name": "Darktec official v1.18.0b5",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-official-v1.18.0b5",
             "publishedAt": "2026-10-17T22:44:46Z",
-            "notes": "## Darktec official v1.18.0b5-cf8f7902\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- SOC/настройки/тип радиомодуля в официальной прошивке\n\n#### Исправления\n- Адаптация companion_ui к новому MyMesh::Listener API\n- Поднять точку активности LoRa на середину OLED\n- Кириллица в длинных сообщениях на OLED и повторное чтение MSG\n\n#### Сборка / CI\n- Changelog официалки — диапазон от прошлого тега и срез маркеров\n- Версионные релизы официальной прошивки (darktec-official-v{BASE}bN)\n- Матрица official без защиты батареи и on-demand\n\n#### Прочее\n- ADC_MULTIPLIER через on-demand -include\n- Кириллица на OLED без правок src/\n- Add board variant on official dev\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec official v1.18.0b5\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n_Нет отдельных пользовательских коммитов варианта Darktec._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -40549,7 +40549,7 @@
             "name": "Darktec official v1.18.0b4",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-official-v1.18.0b4",
             "publishedAt": "2026-10-17T21:33:35Z",
-            "notes": "## Darktec official v1.18.0b4-870551d1\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- SOC/настройки/тип радиомодуля в официальной прошивке\n\n#### Исправления\n- Адаптация companion_ui к новому MyMesh::Listener API\n- Поднять точку активности LoRa на середину OLED\n- Кириллица в длинных сообщениях на OLED и повторное чтение MSG\n\n#### Сборка / CI\n- Changelog официалки — диапазон от прошлого тега и срез маркеров\n- Версионные релизы официальной прошивки (darktec-official-v{BASE}bN)\n- Матрица official без защиты батареи и on-demand\n\n#### Прочее\n- ADC_MULTIPLIER через on-demand -include\n- Кириллица на OLED без правок src/\n- Add board variant on official dev\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec official v1.18.0b4\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n_Нет отдельных пользовательских коммитов варианта Darktec._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -40950,7 +40950,7 @@
             "name": "Darktec official v1.18.0b3",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-official-v1.18.0b3",
             "publishedAt": "2026-10-17T19:45:17Z",
-            "notes": "## Darktec official v1.18.0b3-9133160d\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- SOC/настройки/тип радиомодуля в официальной прошивке\n\n#### Исправления\n- Адаптация companion_ui к новому MyMesh::Listener API\n- Поднять точку активности LoRa на середину OLED\n- Кириллица в длинных сообщениях на OLED и повторное чтение MSG\n\n#### Сборка / CI\n- Changelog официалки — диапазон от прошлого тега и срез маркеров\n- Версионные релизы официальной прошивки (darktec-official-v{BASE}bN)\n- Матрица official без защиты батареи и on-demand\n\n#### Прочее\n- ADC_MULTIPLIER через on-demand -include\n- Кириллица на OLED без правок src/\n- Add board variant on official dev\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec official v1.18.0b3\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n_Нет отдельных пользовательских коммитов варианта Darktec._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -41351,7 +41351,7 @@
             "name": "Darktec official v1.18.0b2",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-official-v1.18.0b2",
             "publishedAt": "2026-10-17T13:52:22Z",
-            "notes": "## Darktec official v1.18.0b2-20614520\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n#### Новое\n- ETA по профилю потребления + измерение и формат таблицы\n- ETA — пороги лестницы по замечанию: сутки/30 дней/12 месяцев\n- ETA — полная лестница времени вместо «>99h» и «--»\n- Экраны Noise/INA+ETA, «Screen on chg», карусель репитера\n- SOC/настройки/тип радиомодуля в официальной прошивке\n\n#### Исправления\n- Адаптация companion_ui к новому MyMesh::Listener API\n- Поднять точку активности LoRa на середину OLED\n- Кириллица в длинных сообщениях на OLED и повторное чтение MSG\n\n#### Сборка / CI\n- Changelog официалки — диапазон от прошлого тега и срез маркеров\n- Версионные релизы официальной прошивки (darktec-official-v{BASE}bN)\n- Матрица official без защиты батареи и on-demand\n\n#### Прочее\n- ADC_MULTIPLIER через on-demand -include\n- Кириллица на OLED без правок src/\n- Add board variant on official dev\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec official v1.18.0b2\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n_Нет отдельных пользовательских коммитов варианта Darktec._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {
@@ -41752,7 +41752,7 @@
             "name": "Darktec official v1.18.0b1",
             "url": "https://github.com/beeline09/MeshCore/releases/tag/darktec-official-v1.18.0b1",
             "publishedAt": "2026-10-16T22:11:12Z",
-            "notes": "## Darktec official v1.18.0b1-298b96f0\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n#### Новое\n- ADC_MULTIPLIER через on-demand -include\n- Кириллица на OLED без правок src/\n- Add board variant on official dev\n\n#### Исправления\n- Адаптация companion_ui к новому MyMesh::Listener API\n- Поднять точку активности LoRa на середину OLED\n- Кириллица в длинных сообщениях на OLED и повторное чтение MSG\n\n#### Сборка / CI\n- Версионные релизы официальной прошивки (darktec-official-v{BASE}bN)\n- Матрица official без защиты батареи и on-demand\n\n#### Прочее\n- * refactor: on-demand getSharedSecret()\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
+            "notes": "## Darktec official v1.18.0b1\n\nПрошивка основана на ветке [dev](https://github.com/meshcore-dev/MeshCore/tree/dev) (meshcore-dev / MeshCore). Вариант платы: [dev-darktec](https://github.com/beeline09/MeshCore/tree/dev-darktec). Это не бинарный релиз meshcore.io.\n\n### Изменения beeline09 / Darktec\n\n_Нет отдельных пользовательских коммитов варианта Darktec._\n\n---\n\nCommunity-сборка **beeline09**. Flasher: https://beeline09.github.io/darktec/\n"
           },
           "files": [
             {

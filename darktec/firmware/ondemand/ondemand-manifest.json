@@ -1,19 +1,9 @@
 {
-  "generatedAt": "2026-10-18T13:58:47.657Z",
+  "generatedAt": "2026-10-18T14:05:30.363Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "8350b203",
   "officialSha": "9b342d3c",
   "files": [
-    {
-      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.uf2",
-      "size": 741376,
-      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.uf2"
-    },
-    {
-      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.zip",
-      "size": 371399,
-      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.zip"
-    },
     {
       "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__cap3000__mod3__kdc0__9b342d3c.uf2",
       "size": 761856,
@@ -43,6 +33,16 @@
       "name": "DarktecOff_companion_radio_ble_liion_1s__darktec-companion-ble__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__5f621d71.zip",
       "size": 383366,
       "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__darktec-companion-ble__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__5f621d71.zip"
+    },
+    {
+      "name": "DarktecOff_companion_radio_ble_liion_1s__darktec-companion-ble__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__9b342d3c.uf2",
+      "size": 761856,
+      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__darktec-companion-ble__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__9b342d3c.uf2"
+    },
+    {
+      "name": "DarktecOff_companion_radio_ble_liion_1s__darktec-companion-ble__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__9b342d3c.zip",
+      "size": 381575,
+      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__darktec-companion-ble__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__9b342d3c.zip"
     },
     {
       "name": "DarktecOff_repeater_lifepo4_1s__darktec-1-2w__f868p95-bw62p5-sf9-cr8-tx22__08ae7f1a.uf2",

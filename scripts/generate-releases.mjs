@@ -115,6 +115,10 @@ function pickSouthReleases(releases) {
       isSouthComplete(release),
   );
   if (complete.length) {
+    // Релизы-заготовки созданы одним батчем (created_at совпадает до
+    // секунды), порядок API нестабилен — сортируем по дате публикации,
+    // иначе «первым» оказывается прошлый релиз вместо свежего.
+    complete.sort((a, b) => (b.published_at || "").localeCompare(a.published_at || ""));
     return complete.map((release) => ({
       release,
       files: (release.assets || []).filter((a) => isSouthAsset(a.name)),
@@ -152,6 +156,8 @@ function pickOfficialReleases(releases) {
       isOfficialComplete(release),
   );
   if (complete.length) {
+    // См. комментарий в pickSouthReleases: сортируем по дате публикации.
+    complete.sort((a, b) => (b.published_at || "").localeCompare(a.published_at || ""));
     return complete.map((release) => ({
       release,
       files: (release.assets || []).filter((a) => isOfficialAsset(a.name)),

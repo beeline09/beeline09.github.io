@@ -1,19 +1,9 @@
 {
-  "generatedAt": "2026-10-18T20:52:23.814Z",
+  "generatedAt": "2026-10-19T11:25:00.821Z",
   "sourceTag": "darktec-ondemand",
-  "southSha": "d12a54cd",
-  "officialSha": "aca5591d",
+  "southSha": "c3dfa58f",
+  "officialSha": "f23dd7df",
   "files": [
-    {
-      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.uf2",
-      "size": 741376,
-      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.uf2"
-    },
-    {
-      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.zip",
-      "size": 371399,
-      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.zip"
-    },
     {
       "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__cap3000__mod3__kdc0__9b342d3c.uf2",
       "size": 761856,
@@ -23,6 +13,16 @@
       "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__cap3000__mod3__kdc0__9b342d3c.zip",
       "size": 381559,
       "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__cap3000__mod3__kdc0__9b342d3c.zip"
+    },
+    {
+      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__f23dd7df.uf2",
+      "size": 761856,
+      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__f23dd7df.uf2"
+    },
+    {
+      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__f23dd7df.zip",
+      "size": 381703,
+      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__f23dd7df.zip"
     },
     {
       "name": "DarktecOff_companion_radio_ble_liion_1s__darktec-companion-ble__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__9b342d3c.uf2",

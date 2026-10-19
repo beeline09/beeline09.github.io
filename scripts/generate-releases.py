@@ -88,6 +88,10 @@ def pick_releases(releases: list):
         files = [a for a in release.get("assets") or [] if is_darktec_asset(a.get("name", ""))]
         complete.append((release, files))
     if complete:
+        # Все релизы-заготовки созданы одним батчем (created_at совпадает до
+        # секунды), порядок API нестабилен — сортируем по дате публикации,
+        # иначе «первым» может оказаться прошлый релиз вместо свежего.
+        complete.sort(key=lambda item: item[0].get("published_at") or "", reverse=True)
         return complete
 
     latest = next(

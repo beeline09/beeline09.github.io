@@ -1,19 +1,9 @@
 {
-  "generatedAt": "2026-10-20T11:48:11.388Z",
+  "generatedAt": "2026-10-20T11:53:13.257Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "5aae3e54",
   "officialSha": "e448c829",
   "files": [
-    {
-      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.uf2",
-      "size": 741376,
-      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.uf2"
-    },
-    {
-      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.zip",
-      "size": 371399,
-      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.zip"
-    },
     {
       "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__cap3000__mod3__kdc0__9b342d3c.uf2",
       "size": 761856,
@@ -33,6 +23,16 @@
       "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__cap3000__mod3__kdc0__aca5591d.zip",
       "size": 381559,
       "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__cap3000__mod3__kdc0__aca5591d.zip"
+    },
+    {
+      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__e448c829.uf2",
+      "size": 761856,
+      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__e448c829.uf2"
+    },
+    {
+      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__e448c829.zip",
+      "size": 381719,
+      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__mod3__kdc0__e448c829.zip"
     },
     {
       "name": "DarktecOff_repeater_lifepo4_1s__darktec-1-2w__f868p95-bw62p5-sf9-cr8-tx22__08ae7f1a.uf2",

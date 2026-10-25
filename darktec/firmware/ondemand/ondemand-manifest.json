@@ -1,19 +1,9 @@
 {
-  "generatedAt": "2026-10-24T20:56:49.337Z",
+  "generatedAt": "2026-10-25T07:52:38.167Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "5aae3e54",
   "officialSha": "e448c829",
   "files": [
-    {
-      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.uf2",
-      "size": 741376,
-      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.uf2"
-    },
-    {
-      "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.zip",
-      "size": 371399,
-      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__7101fe45.zip"
-    },
     {
       "name": "DarktecOff_companion_radio_ble_liion_1s__berimor__f868p95-bw62p5-sf9-cr7-tx9__adc1p765__cap3000__mod3__kdc0__9b342d3c.uf2",
       "size": 761856,
@@ -403,6 +393,16 @@
       "name": "Darktec_repeater_lto_1s_adc__ulv-most-ewowko-solar__f864p281-bw62p5-sf8-cr7-tx22__160d16c0.zip",
       "size": 418182,
       "url": "./firmware/ondemand/Darktec_repeater_lto_1s_adc__ulv-most-ewowko-solar__f864p281-bw62p5-sf8-cr7-tx22__160d16c0.zip"
+    },
+    {
+      "name": "Darktec_repeater_lto_1s_adc__vao-izmaylovo-6__f868p731-bw62p5-sf7-cr7-tx22__cap30000__chg3000__5aae3e54.uf2",
+      "size": 727040,
+      "url": "./firmware/ondemand/Darktec_repeater_lto_1s_adc__vao-izmaylovo-6__f868p731-bw62p5-sf7-cr7-tx22__cap30000__chg3000__5aae3e54.uf2"
+    },
+    {
+      "name": "Darktec_repeater_lto_1s_adc__vao-izmaylovo-6__f868p731-bw62p5-sf7-cr7-tx22__cap30000__chg3000__5aae3e54.zip",
+      "size": 364167,
+      "url": "./firmware/ondemand/Darktec_repeater_lto_1s_adc__vao-izmaylovo-6__f868p731-bw62p5-sf7-cr7-tx22__cap30000__chg3000__5aae3e54.zip"
     }
   ]
 }

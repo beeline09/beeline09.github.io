@@ -1,18 +1,18 @@
 {
-  "generatedAt": "2026-11-12T23:42:02.291Z",
+  "generatedAt": "2026-11-13T14:41:45.801Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "5aae3e54",
   "officialSha": "e448c829",
   "files": [
     {
-      "name": "DarktecOff_companion_radio_ble_lto_1s__tipavit1__f868p731-bw62p5-sf7-cr7-tx22__cap9000__e448c829.uf2",
-      "size": 761856,
-      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_lto_1s__tipavit1__f868p731-bw62p5-sf7-cr7-tx22__cap9000__e448c829.uf2"
+      "name": "DarktecOff_repeater_liion_1s__darktec-repeater__f869p075-bw62p5-sf7-cr7-tx22__e448c829.uf2",
+      "size": 720896,
+      "url": "./firmware/ondemand/DarktecOff_repeater_liion_1s__darktec-repeater__f869p075-bw62p5-sf7-cr7-tx22__e448c829.uf2"
     },
     {
-      "name": "DarktecOff_companion_radio_ble_lto_1s__tipavit1__f868p731-bw62p5-sf7-cr7-tx22__cap9000__e448c829.zip",
-      "size": 381719,
-      "url": "./firmware/ondemand/DarktecOff_companion_radio_ble_lto_1s__tipavit1__f868p731-bw62p5-sf7-cr7-tx22__cap9000__e448c829.zip"
+      "name": "DarktecOff_repeater_liion_1s__darktec-repeater__f869p075-bw62p5-sf7-cr7-tx22__e448c829.zip",
+      "size": 361171,
+      "url": "./firmware/ondemand/DarktecOff_repeater_liion_1s__darktec-repeater__f869p075-bw62p5-sf7-cr7-tx22__e448c829.zip"
     },
     {
       "name": "DarktecOff_repeater_liion_1s__mo-sanatirya-1__f869p075-bw62p5-sf7-cr7-tx22__cap3000__chg1000__e448c829.uf2",

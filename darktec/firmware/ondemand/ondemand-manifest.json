@@ -1,18 +1,18 @@
 {
-  "generatedAt": "2026-11-28T01:29:35.746Z",
+  "generatedAt": "2026-11-28T13:07:02.365Z",
   "sourceTag": "darktec-ondemand",
   "southSha": "5aae3e54",
   "officialSha": "e448c829",
   "files": [
     {
-      "name": "DarktecOff_repeater_liion_1s__snt-zhd-3-w-uv-a__f869p9-bw62p5-sf8-cr6-tx3__cap7500__kdc0__e448c829.uf2",
-      "size": 720896,
-      "url": "./firmware/ondemand/DarktecOff_repeater_liion_1s__snt-zhd-3-w-uv-a__f869p9-bw62p5-sf8-cr6-tx3__cap7500__kdc0__e448c829.uf2"
+      "name": "DarktecOff_repeater_lifepo4_1s__shel-6kv-2w__f868p7-bw62p5-sf7-cr7-tx8__cap5200__mod3__e448c829.uf2",
+      "size": 725504,
+      "url": "./firmware/ondemand/DarktecOff_repeater_lifepo4_1s__shel-6kv-2w__f868p7-bw62p5-sf7-cr7-tx8__cap5200__mod3__e448c829.uf2"
     },
     {
-      "name": "DarktecOff_repeater_liion_1s__snt-zhd-3-w-uv-a__f869p9-bw62p5-sf8-cr6-tx3__cap7500__kdc0__e448c829.zip",
-      "size": 361171,
-      "url": "./firmware/ondemand/DarktecOff_repeater_liion_1s__snt-zhd-3-w-uv-a__f869p9-bw62p5-sf8-cr6-tx3__cap7500__kdc0__e448c829.zip"
+      "name": "DarktecOff_repeater_lifepo4_1s__shel-6kv-2w__f868p7-bw62p5-sf7-cr7-tx8__cap5200__mod3__e448c829.zip",
+      "size": 363443,
+      "url": "./firmware/ondemand/DarktecOff_repeater_lifepo4_1s__shel-6kv-2w__f868p7-bw62p5-sf7-cr7-tx8__cap5200__mod3__e448c829.zip"
     },
     {
       "name": "Darktec_companion_radio_ble_liion_1s_adc__darktec__f869p075-bw62p5-sf8-cr8-tx22__5c730189.uf2",
